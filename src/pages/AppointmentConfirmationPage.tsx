@@ -20,14 +20,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { UserState } from "@/types";
+import { IAppointmentForm, UserState } from "@/types";
 import { format } from "date-fns";
 import { ArrowLeftCircle, Clock } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { z } from "zod";
 
@@ -36,7 +36,7 @@ const patientSchema = z.object({
   patientMobile: z
     .string()
     .regex(/^\d{10}$/, "Mobile number must be 10 digits"),
-  ailment: z.string().min(4, "Ailment is required"),
+  decease: z.string().min(4, "Ailment is required"),
   remarks: z.string().optional(),
 });
 
@@ -54,14 +54,14 @@ const AppointmentConfirmationPage = () => {
   const defaultValues = {
     patientName: user?.name,
     patientMobile: `${user?.phoneNumber}`,
-    ailment: "",
+    decease: "",
     remarks: "",
   };
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+  } = useForm<IAppointmentForm>({
     resolver: zodResolver(patientSchema),
     defaultValues,
   });
@@ -83,9 +83,11 @@ const AppointmentConfirmationPage = () => {
         return null;
     }
   };
-  const handleConfirmAppointment = (data) => {
+  const handleConfirmAppointment: SubmitHandler<IAppointmentForm> = (
+    data: IAppointmentForm
+  ) => {
     // Handle appointment confirmation logic here
-    console.log("Appointment confirmed");
+    console.log("Appointment confirmed", data);
   };
 
   useEffect(() => {
@@ -272,12 +274,9 @@ const AppointmentConfirmationPage = () => {
                   type="text"
                   {...register("patientMobile")}
                   className="border-2 rounded-sm p-2"
+                  
                 />
-                {errors.patientMobile && (
-                  <span className="text-red-500">
-                    {errors.patientMobile.message as string}
-                  </span>
-                )}
+               
               </div>
 
               <div className="flex flex-col gap-2">
@@ -285,12 +284,12 @@ const AppointmentConfirmationPage = () => {
                 <Input
                   id="ailment"
                   type="text"
-                  {...register("ailment")}
+                  {...register("decease")}
                   className="border-2 rounded-sm p-2"
                 />
-                {errors.ailment && (
+                {errors.decease && (
                   <span className="text-red-500">
-                    {errors.ailment.message as string}
+                    {errors.decease.message as string}
                   </span>
                 )}
               </div>

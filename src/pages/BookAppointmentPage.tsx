@@ -94,7 +94,7 @@ const BookAppointmentPage = () => {
   }, []);
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md w-[1128px]">
+    <div className="p-6 rounded-xl border bg-card text-card-foreground  w-[1128px]">
       <h3 className="text-2xl font-semibold mb-4">Book Appointment</h3>
       <div className="flex flex-col gap-4">
         {loading ? (

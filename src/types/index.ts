@@ -53,7 +53,15 @@ export interface Doctor {
   address: string;
 }
 
-export interface appointmentForm {}
+export interface IAppointmentForm {
+  doctorId: string;
+  // slotId?: string;
+  doctorSlotId: string;
+  hospitalId: string;
+  remarks: string;
+  decease: string;
+  appointmentDate: string;
+}
 
 export interface IloginForm {
   userName: string;
