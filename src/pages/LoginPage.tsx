@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,10 +12,12 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getUserDetails, login } from "@/https/auth-service";
+import { setAccessToken, setUser } from "@/state/reducers";
 import { IloginForm } from "@/types";
-import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
-
 const emailOrPhoneSchema = z.string().refine(
   (value) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -37,22 +39,35 @@ const LoginForm = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+  } = useForm<IloginForm>({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data: IloginForm) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const userNameType = emailRegex.test(data.userName)
-      ? "EMAIL"
-      : "PHONE_NUMBER";
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-    const finalData = {
-      ...data,
-      userNameType,
-    };
+  const onSubmit: SubmitHandler<IloginForm> = async (data: IloginForm) => {
+    try {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const userNameType = emailRegex.test(data.userName)
+        ? "EMAIL"
+        : "PHONE_NUMBER";
 
-    console.log(finalData);
+      const payload = {
+        ...data,
+        userNameType,
+      };
+      const response = await login(payload);
+      const accessToken = response?.data?.data?.accessToken;
+      if (accessToken) {
+        dispatch(setAccessToken(accessToken));
+        const detailsRes = await getUserDetails(accessToken);
+        dispatch(setUser(detailsRes.data.data));
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -76,9 +91,9 @@ const LoginForm = () => {
                 className="border-2 rounded-sm p-2"
                 required
               />
-              {errors.emailOrPhone && (
+              {errors.userName && (
                 <span className="text-red-500">
-                  {errors.emailOrPhone.message as string}
+                  {errors.userName.message as string}
                 </span>
               )}
             </div>

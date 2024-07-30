@@ -8,56 +8,58 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  CalendarPlus2,
-  CircleUser,
-  LayoutDashboard,
-  Stethoscope,
-  Users,
-} from "lucide-react";
-import { Outlet, useLocation } from "react-router-dom";
-
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+import { CircleUser } from "lucide-react";
+import { useSelector } from "react-redux";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { User } from "@/types";
 const navItemIconClass = "h-4 w-4";
 
-const linkToTitle = {
-  "/dashboard": "Dashboard",
-  "/patients": "Patients",
-  "/doctors": "Doctors",
-  "/appointments": "Appointments",
-};
+
 
 const navItems = [
   {
-    label: "Dashboard",
-    icon: <LayoutDashboard className={navItemIconClass} />,
+    label: "Home",
     link: "/dashboard",
   },
-  {
-    label: "Patients",
-    icon: <Users className={navItemIconClass} />,
-    link: "/patients",
-  },
-  {
-    label: "Doctors",
-    icon: <Stethoscope className={navItemIconClass} />,
-    link: "/doctors",
-  },
+
   {
     label: "Appointments",
-    icon: <CalendarPlus2 className={navItemIconClass} />,
-    link: "/appointments",
+    link: "/appointment",
   },
 ];
 
 const DashboardLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const user = useSelector((state:{user:User}) => state.user);
   return (
     <div className="grid min-h-screen w-full ">
       <div className="flex flex-col">
         <header className="flex h-14 items-center gap-4 border-b  px-4 lg:h-[60px] lg:px-6">
           <div className="w-full flex-1">
             <h1 className="text-lg font-semibold md:text-2xl">
-              {linkToTitle[location.pathname as keyof typeof linkToTitle]}
+              {/* {linkToTitle[location.pathname as keyof typeof linkToTitle]} */}
+              Hi <span className="capitalize">{user.name}</span>
             </h1>
+          </div>
+          <div>
+            <NavigationMenu>
+              <NavigationMenuList>
+                {navItems.map((item) => (
+                  <NavigationMenuItem>
+                    <Link to={item.link}>
+                      <NavigationMenuLink className={  navigationMenuTriggerStyle()}>{item.label}</NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                ))}
+              </NavigationMenuList>
+            </NavigationMenu>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -69,10 +71,11 @@ const DashboardLayout = () => {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/profile")}>
+                Profile
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/auth/login")}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </header>

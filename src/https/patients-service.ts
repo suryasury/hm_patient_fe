@@ -15,3 +15,4 @@ export const getWeekdayList = async () => {
     throw error;
   }
 };
+

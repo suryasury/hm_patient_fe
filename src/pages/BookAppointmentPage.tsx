@@ -10,8 +10,8 @@ import DatePicker from "@/components/ui/date-picker";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getDoctorsList } from "@/https/patients-service";
 import { Doctor } from "@/types";
-import { CloudSun, Moon, Sun } from "lucide-react";
-import { useEffect, useState } from "react";
+import { CloudSun, Moon, Stethoscope, Sun, User2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 const getIconForPeriod = (period: string) => {
   switch (period) {
@@ -30,8 +30,8 @@ const DoctorSkeleton = () => {
   return Array(4)
     .fill(0)
     .map((_, index) => (
-      <>
-        <div className="flex justify-between items-center" key={index}>
+      <React.Fragment key={index}>
+        <div className="flex justify-between items-center">
           <div className="doctor-profile-pic flex items-center gap-4">
             <Skeleton className="w-36 h-36 rounded-full" />
             <div>
@@ -44,11 +44,11 @@ const DoctorSkeleton = () => {
           <Skeleton className="h-10 w-32 self-end" />
         </div>
         {index < 3 && <hr className="border-t border-gray-200 my-2" />}
-      </>
+      </React.Fragment>
     ));
 };
 
-const BookAppointmentFrom = () => {
+const BookAppointmentPage = () => {
   const [showSlots, setShowSlots] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date()
@@ -101,8 +101,8 @@ const BookAppointmentFrom = () => {
           <DoctorSkeleton />
         ) : (
           doctorsList.map((doctor, index) => (
-            <>
-              <div key={doctor.id} className="flex flex-col gap-4">
+            <React.Fragment key={doctor.id}>
+              <div className="flex flex-col gap-4">
                 <div className="flex justify-between items-center">
                   <div className="doctor-profile-pic flex items-center gap-4">
                     <Avatar className="w-36 h-36">
@@ -110,7 +110,7 @@ const BookAppointmentFrom = () => {
                         src={doctor.profilePictureUrl}
                         alt={doctor.name}
                       />
-                      <AvatarFallback>{doctor.name[0]}</AvatarFallback>
+                      <AvatarFallback><Stethoscope className="w-10 h-10"/></AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="text-xl font-medium">{doctor.name}</p>
@@ -148,11 +148,8 @@ const BookAppointmentFrom = () => {
                           <div className="flex flex-col gap-2">
                             {Object.entries(timeSlots).map(
                               ([period, slots]) => (
-                                <>
-                                  <div
-                                    key={period}
-                                    className="flex gap-4 items-center"
-                                  >
+                                <React.Fragment key={period}>
+                                  <div className="flex gap-4 items-center">
                                     {getIconForPeriod(period)}
 
                                     <h5 className="text-md font-semibold w-[100px]">
@@ -175,7 +172,7 @@ const BookAppointmentFrom = () => {
                                     </div>
                                   </div>
                                   <hr className="border-t border-gray-200 my-2" />
-                                </>
+                                </React.Fragment>
                               )
                             )}
                           </div>
@@ -188,7 +185,7 @@ const BookAppointmentFrom = () => {
               {index < doctorsList.length - 1 && (
                 <hr className="border-t border-gray-200 my-2" />
               )}
-            </>
+            </React.Fragment>
           ))
         )}
       </div>
@@ -196,4 +193,4 @@ const BookAppointmentFrom = () => {
   );
 };
 
-export default BookAppointmentFrom;
+export default BookAppointmentPage;

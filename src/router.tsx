@@ -4,10 +4,11 @@ import HomePage from "@/pages/HomePage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import { createBrowserRouter } from "react-router-dom";
-import PatientDetails from "./forms/PatientDetails";
-import BookAppointmentForm from "./pages/BookAppointmentPage";
-import BookAppointmentFrom from "./pages/BookAppointmentPage";
 import AppointmentConfirmationPage from "./pages/AppointmentConfirmationPage";
+import BookAppointmentFrom from "./pages/BookAppointmentPage";
+import Profile from "./pages/Profile";
+import BookAppointmentPage from "./pages/BookAppointmentPage";
+import DashboardPage from "./pages/DashboardPage";
 
 const router = createBrowserRouter([
   {
@@ -20,15 +21,19 @@ const router = createBrowserRouter([
       },
       {
         path: "profile",
-        element: <PatientDetails />,
+        element: <Profile />,
       },
       {
-        path:"appointment",
-        element:<BookAppointmentFrom/>
+        path: "appointment",
+        element: <BookAppointmentPage />,
       },
       {
-        path:"appointment/confirm",
-        element:<AppointmentConfirmationPage/>
+        path: "appointment/confirm",
+        element: <AppointmentConfirmationPage />,
+      },
+      {
+        path:"dashboard",
+        element:<DashboardPage/>
       }
     ],
   },
@@ -44,7 +49,6 @@ const router = createBrowserRouter([
         path: "register",
         element: <RegisterPage />,
       },
-     
     ],
   },
 ]);
