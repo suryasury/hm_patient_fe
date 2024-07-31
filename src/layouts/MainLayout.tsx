@@ -12,7 +12,7 @@ import { clearUser } from "@/state/userReducer";
 import { UserState } from "@/types";
 import { CircleUser } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { DynamicBreadcrumbs } from "./DynamicBreadCrumbs";
 
@@ -20,6 +20,7 @@ const DashboardLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state: { user: UserState }) => state.user.user);
+  const location = useLocation();
 
   if (!user) {
     toast.error("You need to login to access this page");
@@ -57,11 +58,13 @@ const DashboardLayout = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </header>
-      <div className="flex flex-col items-center justify-center p-6 ">
-        <h2 className="text-2xl font-bold mb-4">
-          Hi, <span className="capitalize">{user?.name}</span>
-        </h2>
-        <div className="px-8 w-full max-w-[1180px] mb-3">
+      <div className="flex flex-col items-center justify-center p-6">
+        {location.pathname === APP_ROUTES.DASHBOARD && (
+          <h2 className="w-full text-2xl font-bold mb-4">
+            Hi, <span className="capitalize">{user?.name}</span>
+          </h2>
+        )}
+        <div className="px-4 w-full max-w-[1180px] mb-3">
           <DynamicBreadcrumbs />
         </div>
         <div className="w-full max-w-[1180px] flex items-center justify-center overflow-auto">
