@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
-import { Dispatch, SetStateAction, SyntheticEvent } from "react";
+import { Dispatch, SetStateAction, SyntheticEvent, useState } from "react";
 
 const DatePicker = ({
   date,
@@ -23,17 +23,19 @@ const DatePicker = ({
   setDate: Dispatch<SetStateAction<Date | undefined>>;
   disabled?: boolean | Date;
 }) => {
+  const [showCalender, setShowCalender] = useState(false);
+
   const handleReset = (e: SyntheticEvent) => {
     e.stopPropagation();
     setDate(undefined);
   };
   return (
-    <Popover>
-      <PopoverTrigger asChild>
+    <Popover open={showCalender} onOpenChange={setShowCalender}>
+      <PopoverTrigger asChild className="w-full min-w-[250px]">
         <Button
           variant={"outline"}
           className={cn(
-            "w-[240px] justify-between text-left font-normal",
+            "w-full justify-between text-left font-normal",
             !date && "text-muted-foreground"
           )}
         >
@@ -43,7 +45,10 @@ const DatePicker = ({
               {date ? format(date, "PPP") : <span>{placeholder}</span>}
             </div>
             {date ? (
-              <X onClick={handleReset} className="h-4 w-4 hover:scale-125" />
+              <X
+                onClick={handleReset}
+                className="h-4 w-4 hover:scale-125 ml-4"
+              />
             ) : null}
           </div>
         </Button>
@@ -52,7 +57,10 @@ const DatePicker = ({
         <Calendar
           mode="single"
           selected={date}
-          onSelect={setDate}
+          onSelect={(e) => {
+            setDate(e);
+            setShowCalender(false);
+          }}
           initialFocus
           disabled={disabled}
         />

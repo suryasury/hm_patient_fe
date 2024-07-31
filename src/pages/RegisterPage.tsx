@@ -1,3 +1,4 @@
+import { APP_ROUTES } from "@/appRoutes";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -36,7 +37,7 @@ const RegisterPage = () => {
           </div>
           <div className="mt-4 text-center text-sm">
             Already have an account?{" "}
-            <Link to="/auth/login" className="underline">
+            <Link to={APP_ROUTES.LOGIN} className="underline">
               Sign in
             </Link>
           </div>
