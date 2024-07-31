@@ -8,10 +8,12 @@ import {
 } from "@/components/ui/card";
 import DatePicker from "@/components/ui/date-picker";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getDoctorsList } from "@/https/patients-service";
-import { Doctor } from "@/types";
+import { getDoctorsList, getWeekdayList } from "@/https/patients-service";
+import { setWeekdays } from "@/state/appointementReducer";
+import { Doctor, IAppointmentState } from "@/types";
 import { CloudSun, Moon, Stethoscope, Sun } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 const getIconForPeriod = (period: string) => {
   switch (period) {
@@ -58,13 +60,22 @@ const BookAppointmentPage = () => {
   const [doctorsList, setDoctorsList] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
+  const weekdays = useSelector(
+    (state: { appointment: IAppointmentState }) => state.appointment.weekdays
+  );
+
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const fetchDoctorsList = async () => {
     try {
       setLoading(true);
-      const data = await getDoctorsList();
-      setDoctorsList(data.data.data.doctorList);
+      const [doctorsRes, weekdayRes] = await Promise.all([
+        getDoctorsList(),
+        getWeekdayList(),
+      ]);
+      setDoctorsList(doctorsRes.data.data.doctorList);
+      dispatch(setWeekdays(weekdayRes.data.data));
     } catch (error) {
       console.log(error);
     } finally {

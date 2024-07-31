@@ -10,9 +10,8 @@ export const login = async (payload: IloginForm) => {
   }
 };
 
-export const getUserDetails = async (token: string) => {
+export const getUserDetails = async () => {
   try {
-    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     return api.get(API_END_POINTS.USER_DETAILS);
   } catch (error) {
     throw error;

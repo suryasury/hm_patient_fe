@@ -1,4 +1,3 @@
-import { store } from "@/state/store";
 import axios from "axios";
 
 export const api = axios.create({
@@ -6,12 +5,6 @@ export const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
-api.interceptors.request.use((config) => {
-  const accessToken = store.getState().accessToken;
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
-  }
-  return config;
-});

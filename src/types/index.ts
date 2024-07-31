@@ -1,24 +1,26 @@
+// redux state type
+
 export interface UserState {
   user: User | null;
   accessToken: string | null;
 }
 
-// export interface User {
-//   id: string;
-//   createdAt: string;
-//   updatedAt: string;
-//   name: string;
-//   email: string;
-//   password: string;
-//   isEmailVerified: boolean;
-//   isMobileNumberVerified: boolean;
-//   phoneNumber: string;
-//   isd_code: string;
-//   dateOfBirth: string;
-//   gender: "MALE" | "FEMALE" | "OTHER";
-//   profilePictureUrl: string | null;
-// }
+export interface IWeekday {
+  id: string;
+  day:
+    | "Monday"
+    | "Tuesday"
+    | "Wednesday"
+    | "Thursday"
+    | "Friday"
+    | "Saturday"
+    | "Sunday";
+}
+export interface IAppointmentState {
+  weekdays: IWeekday[] | null;
+}
 
+// app types
 export interface User {
   id: string;
   createdAt: string;
@@ -32,7 +34,7 @@ export interface User {
   isd_code: string;
   dateOfBirth: string;
   gender: "MALE" | "FEMALE" | "OTHER";
-  profilePictureUrl: string | undefined ;
+  profilePictureUrl: string | undefined;
   bloodGroup: string;
   address: {
     houseNumber: string;
@@ -55,7 +57,6 @@ export interface Doctor {
 
 export interface IAppointmentForm {
   doctorId: string;
-  // slotId?: string;
   doctorSlotId: string;
   hospitalId: string;
   remarks: string;
