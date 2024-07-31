@@ -19,7 +19,7 @@ const getIconForPeriod = (period: string) => {
       return <Sun className="w-5 h-5 text-yellow-500" />;
     case "Afternoon":
       return <CloudSun className="w-5 h-5 text-orange-500" />;
-    case "Night":
+    case "Evening":
       return <Moon className="w-5 h-5 text-blue-500" />;
     default:
       return null;
@@ -84,9 +84,9 @@ const BookAppointmentPage = () => {
   };
 
   const timeSlots = {
-    Morning: ["7:00 AM", "8:00 AM", "11:00 AM"],
+    Morning: ["7:00 AM", "8:00 AM", "11:00 AM","7:00 AM", "8:00 AM", "11:00 AM","7:00 AM", "8:00 AM", "11:00 AM","7:00 AM", "8:00 AM", "11:00 AM"],
     Afternoon: ["12:00 PM", "1:30 PM", "2:30 PM"],
-    Night: ["7:00 PM", "8:00 PM", "9:00 PM"],
+    Evening: ["7:00 PM", "8:00 PM", "9:00 PM"],
   };
 
   useEffect(() => {
@@ -94,102 +94,101 @@ const BookAppointmentPage = () => {
   }, []);
 
   return (
-    <div className="p-6 rounded-xl border bg-card text-card-foreground  w-[1128px]">
-      <h3 className="text-2xl font-semibold mb-4">Book Appointment</h3>
-      <div className="flex flex-col gap-4">
-        {loading ? (
-          <DoctorSkeleton />
-        ) : (
-          doctorsList.map((doctor, index) => (
-            <React.Fragment key={doctor.id}>
-              <div className="flex flex-col gap-4">
-                <div className="flex justify-between items-center">
-                  <div className="doctor-profile-pic flex items-center gap-4">
-                    <Avatar className="w-36 h-36">
-                      <AvatarImage
-                        src={doctor.profilePictureUrl}
-                        alt={doctor.name}
-                      />
-                      <AvatarFallback><Stethoscope className="w-10 h-10"/></AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="text-xl font-medium">{doctor.name}</p>
-                      <p className="text-gray-600">{doctor.speciality}</p>
-                      <p className="text-gray-600">
-                        Mobile: {doctor.isd_code} {doctor.phoneNumber}
-                      </p>
-                      <p className="text-gray-600">Address: {doctor.address}</p>
-                    </div>
+    <div className="p-6 rounded-xl border bg-card text-card-foreground w-full max-w-[1128px] mx-auto">
+    <h3 className="text-2xl font-semibold mb-4">Book Appointment</h3>
+    <div className="flex flex-col gap-4">
+      {loading ? (
+        <DoctorSkeleton />
+      ) : (
+        doctorsList.map((doctor, index) => (
+          <React.Fragment key={doctor.id}>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="doctor-profile-pic flex items-center gap-4">
+                  <Avatar className="w-24 h-24 md:w-36 md:h-36">
+                    <AvatarImage
+                      src={doctor.profilePictureUrl}
+                      alt={doctor.name}
+                    />
+                    <AvatarFallback>
+                      <Stethoscope className="w-6 h-6 md:w-10 md:h-10" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-lg md:text-xl font-medium">{doctor.name}</p>
+                    <p className="text-gray-600">{doctor.speciality}</p>
+                    <p className="text-gray-600">
+                      Mobile: {doctor.isd_code} {doctor.phoneNumber}
+                    </p>
+                    <p className="text-gray-600">Address: {doctor.address}</p>
                   </div>
-                  <Button
-                    className="self-end"
-                    onClick={() => handleBookAppointmentClick(doctor)}
-                  >
-                    Book Appointment
-                  </Button>
                 </div>
-                {showSlots && selectedDoctor?.id === doctor.id && (
-                  <Card className="mt-4">
-                    {/* <p className="text-md font-medium mb-2">Select Date</p> */}
-                    <CardHeader>
-                      <CardDescription>Select Date</CardDescription>
-                      <DatePicker
-                        date={selectedDate}
-                        setDate={(date) => setSelectedDate(date)}
-                        placeholder="Select a date"
-                      />
-                    </CardHeader>
-                    <CardContent>
-                      {selectedDate && (
-                        <div className="mt-4">
-                          <p className="text-md font-medium mb-2">
-                            Available Slots
-                          </p>
-                          <div className="flex flex-col gap-2">
-                            {Object.entries(timeSlots).map(
-                              ([period, slots]) => (
-                                <React.Fragment key={period}>
-                                  <div className="flex gap-4 items-center">
-                                    {getIconForPeriod(period)}
-
-                                    <h5 className="text-md font-semibold w-[100px]">
-                                      {period}
-                                    </h5>
-                                    <div className="flex gap-2 flex-wrap">
-                                      {slots.map((slot) => (
-                                        <div
-                                          key={slot}
-                                          className={`p-2 rounded cursor-pointer border ${
-                                            selectedSlot === slot
-                                              ? "bg-gray-200"
-                                              : "hover:bg-gray-200"
-                                          }`}
-                                          onClick={() => handleSlotClick(slot)}
-                                        >
-                                          {slot}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                  <hr className="border-t border-gray-200 my-2" />
-                                </React.Fragment>
-                              )
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
+                <Button
+                  className="self-stretch md:self-end"
+                  onClick={() => handleBookAppointmentClick(doctor)}
+                >
+                  Book Appointment
+                </Button>
               </div>
-              {index < doctorsList.length - 1 && (
-                <hr className="border-t border-gray-200 my-2" />
+              {showSlots && selectedDoctor?.id === doctor.id && (
+                <Card className="mt-4">
+                  <CardHeader>
+                    <CardDescription>Select Date</CardDescription>
+                    <DatePicker
+                      date={selectedDate}
+                      setDate={(date) => setSelectedDate(date)}
+                      placeholder="Select a date"
+                    />
+                  </CardHeader>
+                  <CardContent>
+                    {selectedDate && (
+                      <div className="mt-4">
+                        <p className="text-md font-medium mb-2">Available Slots</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {Object.entries(timeSlots).map(([period, slots]) => (
+                            <React.Fragment key={period}>
+                              <div className="col-span-full flex items-center gap-4">
+                                {getIconForPeriod(period)}
+                                <h5 className="text-md font-semibold">{period}</h5>
+                              </div>
+                              <div className="col-span-full grid grid-cols-3 md:grid-cols-7 gap-2">
+                                {slots.map((slot) => (
+                                  <div
+                                    key={slot}
+                                    className={`p-2 rounded cursor-pointer border w-auto text-center ${
+                                      selectedSlot === slot
+                                        ? "bg-gray-200"
+                                        : "hover:bg-gray-200"
+                                    }`}
+                                    onClick={() => handleSlotClick(slot)}
+                                  >
+                                    {slot}
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="col-span-full">
+                                <hr className="border-t border-gray-200 my-2" />
+                              </div>
+                            </React.Fragment>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               )}
-            </React.Fragment>
-          ))
-        )}
-      </div>
+            </div>
+            {index < doctorsList.length - 1 && (
+              <hr className="border-t border-gray-200 my-2" />
+            )}
+          </React.Fragment>
+        ))
+      )}
     </div>
+  </div>
+  
+  
+  
   );
 };
 

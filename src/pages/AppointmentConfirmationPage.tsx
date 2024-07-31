@@ -40,6 +40,19 @@ const patientSchema = z.object({
   remarks: z.string().optional(),
 });
 
+const getIconForPeriod = (period: string) => {
+  switch (period) {
+    case "Morning":
+      return <Sun className="w-5 h-5 text-yellow-500" />;
+    case "Afternoon":
+      return <CloudSun className="w-5 h-5 text-orange-500" />;
+    case "Evening":
+      return <Moon className="w-5 h-5 text-blue-500" />;
+    default:
+      return null;
+  }
+};
+
 const AppointmentConfirmationPage = () => {
   const location = useLocation();
 
@@ -69,20 +82,9 @@ const AppointmentConfirmationPage = () => {
   const timeSlots = {
     Morning: ["7:00 AM", "8:00 AM", "11:00 AM"],
     Afternoon: ["12:00 PM", "1:30 PM", "2:30 PM"],
-    Night: ["7:00 PM", "8:00 PM", "9:00 PM"],
+    Evening: ["7:00 PM", "8:00 PM", "9:00 PM"],
   };
-  const getIconForPeriod = (period: string) => {
-    switch (period) {
-      case "Morning":
-        return <Sun className="w-5 h-5 text-yellow-500" />;
-      case "Afternoon":
-        return <CloudSun className="w-5 h-5 text-orange-500" />;
-      case "Night":
-        return <Moon className="w-5 h-5 text-blue-500" />;
-      default:
-        return null;
-    }
-  };
+
   const handleConfirmAppointment: SubmitHandler<IAppointmentForm> = (
     data: IAppointmentForm
   ) => {
@@ -97,72 +99,84 @@ const AppointmentConfirmationPage = () => {
   }, [location]);
 
   return (
-    <div className="p-6 flex gap-4 w-[1128px]">
-      <div className="w-[50%] h-fit">
-        <Card>
-          <CardHeader>
-            <CardTitle>In-Clinic Appointment</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <hr className="border-t border-gray-200 " />
-            <div className="flex justify-between items-center mt-4">
-              <div className="flex gap-2 items-center">
-                <CalendarCheck className="text-[#414146] w-5 h-5 text-sm" />
-                <p>
-                  On
-                  <span className="ml-2 text-md font-semibold">
-                    {format(
-                      selectedDate ? new Date(selectedDate) : new Date(),
-                      "dd/MM/yyyy"
-                    )}
-                  </span>
-                </p>
+    <div className="p-6 flex flex-col gap-4 w-full max-w-[1128px] mx-auto">
+      <Button
+        className="mb-4 self-start"
+        variant="link"
+        onClick={() => navigate("/appointment")}
+      >
+        <div className="flex gap-2 items-center">
+          <ArrowLeftCircle />
+          <span>Go Back</span>
+        </div>
+      </Button>
+      <div className="flex flex-col sm:flex-row gap-4 w-full">
+        <div className="w-full sm:w-[50%] h-fit">
+          <Card>
+            <CardHeader>
+              <CardTitle>In-Clinic Appointment</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <hr className="border-t border-gray-200" />
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-4 gap-4 sm:gap-0">
+                <div className="flex gap-2 items-center">
+                  <CalendarCheck className="text-[#414146] w-5 h-5 text-sm" />
+                  <p>
+                    On
+                    <span className="ml-2 text-md font-semibold">
+                      {format(
+                        selectedDate ? new Date(selectedDate) : new Date(),
+                        "dd/MM/yyyy"
+                      )}
+                    </span>
+                  </p>
+                </div>
+                <div className="flex gap-2 items-center">
+                  <Clock className="text-[#414146] w-5 h-5 text-sm" />
+                  <p>
+                    At
+                    <span className="ml-2 text-md font-semibold">
+                      {selectedSlot}
+                    </span>
+                  </p>
+                </div>
               </div>
-              <div className="flex gap-2 items-center">
-                <Clock className="text-[#414146] w-5 h-5 text-sm" />
-                <p>
-                  At
-                  <span className="ml-2 text-md font-semibold">
-                    {selectedSlot}
-                  </span>
-                </p>
-              </div>
-            </div>
-            <div className="ml-[-14px]">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="link" className="text-[#199fd9]">
-                    Change Date and time slot
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Change Date and Time Slot</DialogTitle>
-                  </DialogHeader>
-                  <div>
-                    <DatePicker
-                      date={selectedDate}
-                      setDate={(date) => setSelectedDate(date)}
-                      placeholder="Select a date"
-                    />
-                    <div className="mt-4">
-                      <p className="text-md font-medium mb-2">
-                        Available Slots
-                      </p>
-                      <div className="flex flex-col gap-2">
-                        {Object.entries(timeSlots).map(([period, slots]) => (
-                          <React.Fragment key={period}>
-                            <div className="flex gap-4 items-center">
-                              {getIconForPeriod(period)}
 
-                              <h5 className="text-md font-semibold w-[100px]">
-                                {period}
-                              </h5>
-                              <div className="flex gap-2 flex-wrap">
+              <div className="ml-[-14px]">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="link" className="text-[#199fd9]">
+                      Change Date and time slot
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="w-[95%] rounded-lg shadow-lg">
+                    <DialogHeader>
+                      <DialogTitle>Change Date and Time Slot</DialogTitle>
+                    </DialogHeader>
+                    <div>
+                      <DatePicker
+                        date={selectedDate}
+                        setDate={(date) => setSelectedDate(date)}
+                        placeholder="Select a date"
+                      />
+                      <div className="mt-4">
+                        <p className="text-md font-medium mb-2">
+                          Available Slots
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {Object.entries(timeSlots).map(([period, slots]) => (
+                            <React.Fragment key={period}>
+                              <div className="col-span-full flex items-center gap-4">
+                                {getIconForPeriod(period)}
+                                <h5 className="text-md font-semibold">
+                                  {period}
+                                </h5>
+                              </div>
+                              <div className="col-span-full grid grid-cols-3 gap-2">
                                 {slots.map((slot) => (
                                   <div
                                     key={slot}
-                                    className={`p-2 rounded cursor-pointer border ${
+                                    className={`p-2 rounded cursor-pointer border w-auto text-center ${
                                       selectedSlot === slot
                                         ? "bg-gray-200"
                                         : "hover:bg-gray-200"
@@ -173,65 +187,59 @@ const AppointmentConfirmationPage = () => {
                                   </div>
                                 ))}
                               </div>
-                            </div>
-                            <hr className="border-t border-gray-200 my-2" />
-                          </React.Fragment>
-                        ))}
+                              <div className="col-span-full">
+                                <hr className="border-t border-gray-200 my-2" />
+                              </div>
+                            </React.Fragment>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
 
-            <div className="flex flex-col gap-4 mt-4">
-              <div className="flex justify-between items-center">
-                <div className="doctor-profile-pic flex items-center gap-4">
-                  <Avatar className="w-[100px] h-[100px]">
-                    <AvatarImage
-                      src={location.state?.doctor.profilePictureUrl}
-                      alt={location.state?.doctor.name}
-                    />
-                    <AvatarFallback>
-                      <Stethoscope className="w-10 h-10" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-xl font-medium">
-                      {location.state?.doctor.name}
-                    </p>
-                    <p className="text-gray-600">
-                      {location.state?.doctor.speciality}
-                    </p>
-                    <p className="text-gray-600">
-                      Mobile: {location.state?.doctor.isd_code}{" "}
-                      {location.state?.doctor.phoneNumber}
-                    </p>
+              <div className="flex flex-col gap-4 mt-4">
+                <div className="flex justify-between items-center">
+                  <div className="doctor-profile-pic flex items-center gap-4">
+                    <Avatar className="w-[100px] h-[100px]">
+                      <AvatarImage
+                        src={location.state?.doctor.profilePictureUrl}
+                        alt={location.state?.doctor.name}
+                      />
+                      <AvatarFallback>
+                        <Stethoscope className="w-10 h-10" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="text-xl font-medium">
+                        {location.state?.doctor.name}
+                      </p>
+                      <p className="text-gray-600">
+                        {location.state?.doctor.speciality}
+                      </p>
+                      <p className="text-gray-600">
+                        Mobile: {location.state?.doctor.isd_code}{" "}
+                        {location.state?.doctor.phoneNumber}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Button
-          className="mt-4"
-          variant="link"
-          onClick={() => navigate("/appointment")}
-        >
-          <div className="flex gap-2 items-center">
-            <ArrowLeftCircle />
-            <span>Go Back</span>
-          </div>
-        </Button>
-      </div>
-      <Card className="w-[50%]">
-        <CardHeader>
-          <CardTitle>Patient Details</CardTitle>
-          <CardDescription>This in-clinic appointment is for:</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col ">
-            {/* <div className="border-2 rounded-sm p-2">
+            </CardContent>
+          </Card>
+        </div>
+        <div className="w-full sm:w-[50%]">
+          <Card>
+            <CardHeader>
+              <CardTitle>Patient Details</CardTitle>
+              <CardDescription>
+                This in-clinic appointment is for:
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col">
+                {/* <div className="border-2 rounded-sm p-2">
               <RadioGroup
                 onValueChange={(option) => setAppointmentFor(option)}
                 defaultValue={appointmentFor}
@@ -248,68 +256,68 @@ const AppointmentConfirmationPage = () => {
                 </div>
               </RadioGroup>
             </div> */}
-            <form
-              onSubmit={handleSubmit(handleConfirmAppointment)}
-              className="flex flex-col gap-4"
-            >
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="patient-name">Name</Label>
-                <Input
-                  id="patient-name"
-                  type="text"
-                  {...register("patientName")}
-                  className="border-2 rounded-sm p-2"
-                />
-                {errors.patientName && (
-                  <span className="text-red-500">
-                    {errors.patientName.message as string}
-                  </span>
-                )}
-              </div>
+                <form
+                  onSubmit={handleSubmit(handleConfirmAppointment)}
+                  className="flex flex-col gap-4"
+                >
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="patient-name">Name</Label>
+                    <Input
+                      id="patient-name"
+                      type="text"
+                      {...register("patientName")}
+                      className="border-2 rounded-sm p-2"
+                    />
+                    {errors.patientName && (
+                      <span className="text-red-500">
+                        {errors.patientName.message as string}
+                      </span>
+                    )}
+                  </div>
 
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="patient-mobile">Mobile Number</Label>
-                <Input
-                  id="patient-mobile"
-                  type="text"
-                  {...register("patientMobile")}
-                  className="border-2 rounded-sm p-2"
-                  
-                />
-               
-              </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="patient-mobile">Mobile Number</Label>
+                    <Input
+                      id="patient-mobile"
+                      type="text"
+                      {...register("patientMobile")}
+                      className="border-2 rounded-sm p-2"
+                    />
+                  </div>
 
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="ailment">Ailment</Label>
-                <Input
-                  id="ailment"
-                  type="text"
-                  {...register("decease")}
-                  className="border-2 rounded-sm p-2"
-                />
-                {errors.decease && (
-                  <span className="text-red-500">
-                    {errors.decease.message as string}
-                  </span>
-                )}
-              </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="ailment">Ailment</Label>
+                    <Input
+                      id="ailment"
+                      type="text"
+                      {...register("decease")}
+                      className="border-2 rounded-sm p-2"
+                    />
+                    {errors.decease && (
+                      <span className="text-red-500">
+                        {errors.decease.message as string}
+                      </span>
+                    )}
+                  </div>
 
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="remarks">Remarks</Label>
-                <Textarea
-                  id="remarks"
-                  {...register("remarks")}
-                  className="border-2 rounded-sm p-2"
-                />
-              </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="remarks">Remarks</Label>
+                    <Textarea
+                      id="remarks"
+                      {...register("remarks")}
+                      className="border-2 rounded-sm p-2"
+                    />
+                  </div>
 
-              <Button type="submit" className="mt-4">
-                Confirm Appointment
-              </Button>
-            </form>
-          </div>
-        </CardContent>
-      </Card>
+                  <Button type="submit" className="mt-4">
+                    Confirm Appointment
+                  </Button>
+                </form>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };

@@ -9,15 +9,9 @@ upcoming appointements- card
 2. doctor name, speciality, date and time
 
 
-book appointment:
-1. list of doctors to select
-2. select doctor and show time slots
-3. select time slot
-4. show basic details of patient and doctor,disease list dropdown show remarks field:patient can enter any thing to let doctors know
-5. upload records if any, pdf or image
 
 
-prescription reminder:
+prescription reminder -card:
 
 1. no precription found today if there aren't any
 2. show list of medicines to be taken with name and time, and duration
@@ -25,13 +19,6 @@ prescription reminder:
 4. Mark taken if medicine consumed show cta
 
 
-past appointment history:
+past appointment history -card:
 1.Show the last 3 appointment histories and a feedback cta on each appointment which opens up a modal or redirects to a new page where the patient can provide feedback about the appointment and the medicine the doctors have prescribed.
 2.The view all button should redirect the user to all the past appointment page
-
-
- <DatePicker
-              date={selectedDate}
-              setDate={(date) => setSelectedDate(date)}
-              placeholder="Select a date"
-            />
