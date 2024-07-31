@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getUserDetails, login } from "@/https/auth-service";
-import { setAccessToken, setUser } from "@/state/reducers";
+import { setUser } from "@/state/userReducer";
 import { IloginForm } from "@/types";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
@@ -58,13 +58,10 @@ const LoginForm = () => {
         userNameType,
       };
       const response = await login(payload);
-      const accessToken = response?.data?.data?.accessToken;
-      if (accessToken) {
-        dispatch(setAccessToken(accessToken));
-        const detailsRes = await getUserDetails(accessToken);
-        dispatch(setUser(detailsRes.data.data));
-        navigate("/dashboard");
-      }
+
+      const detailsRes = await getUserDetails();
+      dispatch(setUser(detailsRes.data.data));
+      navigate("/dashboard");
     } catch (error) {
       console.log(error);
     }

@@ -1,8 +1,9 @@
-import { configureStore, Reducer } from "@reduxjs/toolkit";
-import { persistStore, persistReducer } from "redux-persist";
+import { IAppointmentState, UserState } from "@/types";
+import { combineReducers, configureStore, Reducer } from "@reduxjs/toolkit";
+import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
-import userReducer from "./reducers";
-import { UserState } from "@/types";
+import appointementReducer from "./appointementReducer";
+import userReducer from "./userReducer";
 
 // Persist configuration
 const persistConfig = {
@@ -10,7 +11,13 @@ const persistConfig = {
   storage,
 };
 
-const persistedReducer = persistReducer(persistConfig, userReducer as Reducer<UserState>);
+const persistedReducer = persistReducer(
+  persistConfig,
+  combineReducers({
+    user: userReducer as Reducer<UserState>,
+    appointment: appointementReducer as Reducer<IAppointmentState>,
+  })
+);
 
 const store = configureStore({
   reducer: persistedReducer,
@@ -19,4 +26,4 @@ const store = configureStore({
 
 const persistor = persistStore(store);
 
-export { store, persistor };
+export { persistor, store };
