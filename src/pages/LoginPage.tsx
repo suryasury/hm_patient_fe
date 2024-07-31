@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 
+import { APP_ROUTES } from "@/appRoutes";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,12 +13,16 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Spinner from "@/components/ui/spinner";
 import { getUserDetails, login } from "@/https/auth-service";
 import { setUser } from "@/state/userReducer";
-import { IloginForm } from "@/types";
-import { useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { IloginForm, UserState } from "@/types";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { z } from "zod";
+
 const emailOrPhoneSchema = z.string().refine(
   (value) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -45,9 +50,17 @@ const LoginForm = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [submitting, setSubmitting] = useState<boolean>(false);
+
+  const user = useSelector((state: { user: UserState }) => state.user.user);
+
+  if (user) {
+    return <Navigate to={APP_ROUTES.DASHBOARD} />;
+  }
 
   const onSubmit: SubmitHandler<IloginForm> = async (data: IloginForm) => {
     try {
+      setSubmitting(true);
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const userNameType = emailRegex.test(data.userName)
         ? "EMAIL"
@@ -58,12 +71,18 @@ const LoginForm = () => {
         userNameType,
       };
       const response = await login(payload);
-
-      const detailsRes = await getUserDetails();
-      dispatch(setUser(detailsRes.data.data));
-      navigate("/dashboard");
+      console.log(response.status);
+      if (response.status === 200) {
+        const detailsRes = await getUserDetails();
+        dispatch(setUser(detailsRes.data.data));
+        navigate(APP_ROUTES.DASHBOARD);
+      }
+      toast.success("Logged in successfully");
     } catch (error) {
       console.log(error);
+      toast.error("Failed to login");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -111,12 +130,19 @@ const LoginForm = () => {
             </div>
           </CardContent>
           <CardFooter className="flex-col">
-            <Button type="submit" className="w-full">
-              Sign in
+            <Button type="submit" className="w-full" disabled={submitting}>
+              {submitting ? (
+                <>
+                  <Spinner type="light" />
+                  Please wait...
+                </>
+              ) : (
+                "Sign in"
+              )}
             </Button>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{" "}
-              <Link to="/auth/register" className="underline">
+              <Link to={APP_ROUTES.REGISTER} className="underline">
                 Sign up
               </Link>
             </div>

@@ -1,11 +1,8 @@
 import { User, UserState } from "@/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-
-
- const initialState: UserState = {
+const initialState: UserState = {
   user: null,
-  accessToken: null,
 };
 
 const userSlice = createSlice({
@@ -15,18 +12,13 @@ const userSlice = createSlice({
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
     },
-    setAccessToken: (state, action: PayloadAction<string>) => {
-      state.accessToken = action.payload;
-    },
     clearUser: (state) => {
-      state.user = null;
-      state.accessToken = null;
+      state = initialState;
+      return state;
     },
   },
 });
 
-
-
-export const { setUser, setAccessToken, clearUser } = userSlice.actions;
+export const { setUser, clearUser } = userSlice.actions;
 
 export default userSlice.reducer;

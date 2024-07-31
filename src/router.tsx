@@ -1,52 +1,47 @@
 import AuthLayout from "@/layouts/AuthLayout";
 import MainLayout from "@/layouts/MainLayout";
-import HomePage from "@/pages/HomePage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import { createBrowserRouter } from "react-router-dom";
 import AppointmentConfirmationPage from "./pages/AppointmentConfirmationPage";
-import BookAppointmentFrom from "./pages/BookAppointmentPage";
-import Profile from "./pages/Profile";
 import BookAppointmentPage from "./pages/BookAppointmentPage";
 import DashboardPage from "./pages/DashboardPage";
+import Profile from "./pages/Profile";
+import { APP_ROUTES } from "./appRoutes";
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/patient",
     element: <MainLayout />,
     children: [
       {
-        path: "patient",
-        element: <HomePage />,
+        path: APP_ROUTES.DASHBOARD,
+        element: <DashboardPage />,
       },
       {
-        path: "profile",
+        path: APP_ROUTES.PROFILE,
         element: <Profile />,
       },
       {
-        path: "appointment",
+        path: APP_ROUTES.APPOINTMENT,
         element: <BookAppointmentPage />,
       },
       {
-        path: "appointment/confirm",
+        path: APP_ROUTES.APPOINTMENT_CONFIRM,
         element: <AppointmentConfirmationPage />,
       },
-      {
-        path:"dashboard",
-        element:<DashboardPage/>
-      }
     ],
   },
   {
-    path: "/auth",
+    path: "/",
     element: <AuthLayout />,
     children: [
       {
-        path: "login",
+        path: APP_ROUTES.LOGIN,
         element: <LoginPage />,
       },
       {
-        path: "register",
+        path: APP_ROUTES.REGISTER,
         element: <RegisterPage />,
       },
     ],

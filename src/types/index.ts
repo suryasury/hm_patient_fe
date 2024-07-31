@@ -2,7 +2,6 @@
 
 export interface UserState {
   user: User | null;
-  accessToken: string | null;
 }
 
 export interface IWeekday {
@@ -46,7 +45,7 @@ export interface User {
   };
 }
 export interface Doctor {
-  id: number;
+  id: string;
   name: string;
   profilePictureUrl: string;
   speciality: string;
@@ -67,4 +66,18 @@ export interface IAppointmentForm {
 export interface IloginForm {
   userName: string;
   password: string;
+}
+export interface ISlot {
+  id: string;
+  startTime: string;
+  hospitalId: string;
+}
+export interface ISlots {
+  Morning?: ISlot[];
+  Afternoon?: ISlot[];
+  Evening?: ISlot[];
+}
+export interface ITimeSlot {
+  isSlotAvailable: boolean;
+  slots: ISlots;
 }

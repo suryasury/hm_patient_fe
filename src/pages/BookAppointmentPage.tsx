@@ -1,3 +1,4 @@
+import { APP_ROUTES } from "@/appRoutes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,13 +9,19 @@ import {
 } from "@/components/ui/card";
 import DatePicker from "@/components/ui/date-picker";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getDoctorsList, getWeekdayList } from "@/https/patients-service";
+import Spinner from "@/components/ui/spinner";
+import {
+  getDoctorsList,
+  getDoctorSlots,
+  getWeekdayList,
+} from "@/https/patients-service";
 import { setWeekdays } from "@/state/appointementReducer";
-import { Doctor, IAppointmentState } from "@/types";
-import { CloudSun, Moon, Stethoscope, Sun } from "lucide-react";
+import { Doctor, IAppointmentState, ISlot, ITimeSlot } from "@/types";
+import { CalendarX, CloudSun, Moon, Stethoscope, Sun } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { getWeekdayId } from "./utils";
 const getIconForPeriod = (period: string) => {
   switch (period) {
     case "Morning":
@@ -55,10 +62,19 @@ const BookAppointmentPage = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date()
   );
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<ISlot>({
+    id: "",
+    startTime: "",
+    hospitalId: "",
+  });
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [doctorsList, setDoctorsList] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [timeSlots, setTimeSlots] = useState<ITimeSlot>({
+    isSlotAvailable: false,
+    slots: {},
+  });
+  const [fetchingTimeSlots, setFetchingTimeSlots] = useState(false);
 
   const weekdays = useSelector(
     (state: { appointment: IAppointmentState }) => state.appointment.weekdays
@@ -82,40 +98,54 @@ const BookAppointmentPage = () => {
       setLoading(false);
     }
   };
-  const handleBookAppointmentClick = (doctor: Doctor) => {
-    setSelectedDoctor(doctor);
-    setShowSlots(true);
+
+  const handleBookAppointmentClick = async (doctor: Doctor, date: Date) => {
+    try {
+      setFetchingTimeSlots(true);
+      const weekdayId = getWeekdayId(weekdays!, date);
+      if (weekdayId) {
+        const res = await getDoctorSlots(doctor.id, weekdayId);
+        const formattedData = (slot: { id: string; slot: ISlot }) => ({
+          id: slot.id,
+          startTime: slot.slot.startTime,
+          hospitalId: slot.slot.hospitalId,
+        });
+        const data = res.data.data.slotDetails;
+        const timeSlotData = {
+          isSlotAvailable: res.data.data.isSlotAvailableForTheDay,
+          slots: {
+            Morning: data.morningSlots.map(formattedData),
+            Afternoon: data.afternoonSlots.map(formattedData),
+            Evening: data.eveningSlots.map(formattedData),
+          },
+        };
+        setTimeSlots(timeSlotData);
+        setSelectedDoctor(doctor);
+        setShowSlots(true);
+        setSelectedDate(date);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setFetchingTimeSlots(false);
+    }
   };
 
-  const handleSlotClick = (slot: string) => {
+  const handleSlotClick = (slot: ISlot) => {
     setSelectedSlot(slot);
-    navigate(`/appointment/confirm`, {
+    navigate(APP_ROUTES.APPOINTMENT_CONFIRM, {
       state: { slot, date: selectedDate, doctor: selectedDoctor },
     });
-  };
-
-  const timeSlots = {
-    Morning: [
-      "7:00 AM",
-      "8:00 AM",
-      "11:00 AM",
-      "7:00 AM",
-      "8:00 AM",
-      "11:00 AM",
-      "7:00 AM",
-      "8:00 AM",
-      "11:00 AM",
-      "7:00 AM",
-      "8:00 AM",
-      "11:00 AM",
-    ],
-    Afternoon: ["12:00 PM", "1:30 PM", "2:30 PM"],
-    Evening: ["7:00 PM", "8:00 PM", "9:00 PM"],
   };
 
   useEffect(() => {
     fetchDoctorsList();
   }, []);
+
+  useEffect(() => {
+    if (selectedDate && selectedDoctor)
+      handleBookAppointmentClick(selectedDoctor, selectedDate);
+  }, [selectedDate]);
 
   return (
     <div className="p-6 rounded-xl border bg-card text-card-foreground w-full max-w-[1128px] mx-auto">
@@ -151,7 +181,9 @@ const BookAppointmentPage = () => {
                   </div>
                   <Button
                     className="self-stretch md:self-end"
-                    onClick={() => handleBookAppointmentClick(doctor)}
+                    onClick={() =>
+                      handleBookAppointmentClick(doctor, new Date())
+                    }
                   >
                     Book Appointment
                   </Button>
@@ -160,51 +192,73 @@ const BookAppointmentPage = () => {
                   <Card className="mt-4">
                     <CardHeader>
                       <CardDescription>Select Date</CardDescription>
-                      <DatePicker
-                        date={selectedDate}
-                        setDate={(date) => setSelectedDate(date)}
-                        placeholder="Select a date"
-                      />
+                      <div className="w-fit">
+                        <DatePicker
+                          date={selectedDate}
+                          setDate={(date) => setSelectedDate(date)}
+                          placeholder="Select a date"
+                        />
+                      </div>
                     </CardHeader>
                     <CardContent>
-                      {selectedDate && (
-                        <div className="mt-4">
-                          <p className="text-md font-medium mb-2">
-                            Available Slots
-                          </p>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {Object.entries(timeSlots).map(
-                              ([period, slots]) => (
-                                <React.Fragment key={period}>
-                                  <div className="col-span-full flex items-center gap-4">
-                                    {getIconForPeriod(period)}
-                                    <h5 className="text-md font-semibold">
-                                      {period}
-                                    </h5>
-                                  </div>
-                                  <div className="col-span-full grid grid-cols-3 md:grid-cols-7 gap-2">
-                                    {slots.map((slot) => (
-                                      <div
-                                        key={slot}
-                                        className={`p-1 md:p-2 rounded cursor-pointer border w-auto text-center ${
-                                          selectedSlot === slot
-                                            ? "bg-gray-200"
-                                            : "hover:bg-gray-200"
-                                        }`}
-                                        onClick={() => handleSlotClick(slot)}
-                                      >
-                                        {slot}
-                                      </div>
-                                    ))}
-                                  </div>
-                                  <div className="col-span-full">
-                                    <hr className="border-t border-gray-200 my-2" />
-                                  </div>
-                                </React.Fragment>
-                              )
-                            )}
-                          </div>
+                      {fetchingTimeSlots ? (
+                        <div className="flex items-center justify-center p-4 bg-gray-100 rounded-md">
+                          <Spinner />
+                          <span className="text-md font-medium text-gray-500">
+                            Looking for slots...
+                          </span>
                         </div>
+                      ) : (
+                        selectedDate &&
+                        (timeSlots.isSlotAvailable ? (
+                          <div className="mt-4">
+                            <p className="text-md font-medium mb-2">
+                              Available Slots
+                            </p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {Object.entries(timeSlots.slots).map(
+                                ([period, slots]) =>
+                                  slots.length !== 0 && (
+                                    <React.Fragment key={period}>
+                                      <div className="col-span-full flex items-center gap-4">
+                                        {getIconForPeriod(period)}
+                                        <h5 className="text-md font-semibold">
+                                          {period}
+                                        </h5>
+                                      </div>
+                                      <div className="col-span-full grid grid-cols-3 md:grid-cols-7 gap-2">
+                                        {slots.map((slot: ISlot) => (
+                                          <div
+                                            key={slot.id}
+                                            className={`p-1 md:p-2 text-sm md:text-base rounded cursor-pointer border w-auto text-center ${
+                                              selectedSlot.id === slot.id
+                                                ? "bg-primary-foreground"
+                                                : "hover:bg-primary-foreground"
+                                            }`}
+                                            onClick={() =>
+                                              handleSlotClick(slot)
+                                            }
+                                          >
+                                            {slot.startTime}
+                                          </div>
+                                        ))}
+                                      </div>
+                                      <div className="col-span-full">
+                                        <hr className="border-t border-gray-200 my-2" />
+                                      </div>
+                                    </React.Fragment>
+                                  )
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="flex items-center justify-center text-red-500 p-4 bg-red-100 rounded-md">
+                            <CalendarX className="w-6 h-6 mr-2" />
+                            <span className="text-md font-medium">
+                              No slots available
+                            </span>
+                          </p>
+                        ))
                       )}
                     </CardContent>
                   </Card>
