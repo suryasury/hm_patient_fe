@@ -22,3 +22,10 @@ prescription reminder -card:
 past appointment history -card:
 1.Show the last 3 appointment histories and a feedback cta on each appointment which opens up a modal or redirects to a new page where the patient can provide feedback about the appointment and the medicine the doctors have prescribed.
 2.The view all button should redirect the user to all the past appointment page
+
+
+01/08/2024
+1. appointement history -> list of all completed -> appointment details(priscription that has been recommended by doctor)
+2. prescription -> from dashboard, need a CTA(like view todays meditaions) -> by default show the todays medication which should be seperated by time of day(morning, night etc..)
+3. user should able to see the past medications
+4. need to CTA to update the medications are taken or skiped
