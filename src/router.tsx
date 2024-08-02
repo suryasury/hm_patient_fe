@@ -3,16 +3,24 @@ import MainLayout from "@/layouts/MainLayout";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import { createBrowserRouter } from "react-router-dom";
+import { APP_ROUTES } from "./appRoutes";
+import ErrorBoundary from "./layouts/ErrorBoundary";
 import AppointmentConfirmationPage from "./pages/AppointmentConfirmationPage";
+import AppointmentDetails from "./pages/AppointmentDetails";
+import AppointmentsList from "./pages/AppointmentsList";
 import BookAppointmentPage from "./pages/BookAppointmentPage";
 import DashboardPage from "./pages/DashboardPage";
+import NotFoundPage from "./pages/NotFoundPage";
 import Profile from "./pages/Profile";
-import { APP_ROUTES } from "./appRoutes";
 
 const router = createBrowserRouter([
   {
     path: "/patient",
-    element: <MainLayout />,
+    element: (
+      <ErrorBoundary>
+        <MainLayout />
+      </ErrorBoundary>
+    ),
     children: [
       {
         path: APP_ROUTES.DASHBOARD,
@@ -30,6 +38,19 @@ const router = createBrowserRouter([
         path: APP_ROUTES.APPOINTMENT_CONFIRM,
         element: <AppointmentConfirmationPage />,
       },
+      {
+        path: APP_ROUTES.APPOINTMENT_LIST,
+        element: <AppointmentsList />,
+      },
+      {
+        path: APP_ROUTES.APPOINTMENT_DETAILS,
+        element: <AppointmentDetails />,
+      },
+      /* 404 page */
+      {
+        path: "*",
+        element: <NotFoundPage />,
+      },
     ],
   },
   {
@@ -44,7 +65,17 @@ const router = createBrowserRouter([
         path: APP_ROUTES.REGISTER,
         element: <RegisterPage />,
       },
+      /* 404 page */
+      {
+        path: "*",
+        element: <NotFoundPage />,
+      },
     ],
+  },
+  /* 404 page */
+  {
+    path: "*",
+    element: <NotFoundPage />,
   },
 ]);
 

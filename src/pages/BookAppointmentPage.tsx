@@ -21,6 +21,7 @@ import { CalendarX, CloudSun, Moon, Stethoscope, Sun } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { getWeekdayId } from "./utils";
 const getIconForPeriod = (period: string) => {
   switch (period) {
@@ -94,6 +95,10 @@ const BookAppointmentPage = () => {
       dispatch(setWeekdays(weekdayRes.data.data));
     } catch (error) {
       console.log(error);
+      toast.error("Failed to fetch doctors list", {
+        description:
+          "Our servers are facing technical issues. Please try again later.",
+      });
     } finally {
       setLoading(false);
     }
@@ -126,6 +131,7 @@ const BookAppointmentPage = () => {
       }
     } catch (error) {
       console.log(error);
+      toast.error("Something went wrong");
     } finally {
       setFetchingTimeSlots(false);
     }
@@ -148,7 +154,7 @@ const BookAppointmentPage = () => {
   }, [selectedDate]);
 
   return (
-    <div className="p-6 rounded-xl border bg-card text-card-foreground w-full max-w-[1128px] mx-auto">
+    <div className="p-6 rounded-xl border bg-card text-card-foreground w-full mx-auto">
       <h3 className="text-2xl font-semibold mb-4">Book Appointment</h3>
       <div className="flex flex-col gap-4">
         {loading ? (
@@ -232,8 +238,8 @@ const BookAppointmentPage = () => {
                                             key={slot.id}
                                             className={`p-1 md:p-2 text-sm md:text-base rounded cursor-pointer border w-auto text-center ${
                                               selectedSlot.id === slot.id
-                                                ? "bg-primary-foreground"
-                                                : "hover:bg-primary-foreground"
+                                                ? "bg-muted"
+                                                : "hover:bg-muted"
                                             }`}
                                             onClick={() =>
                                               handleSlotClick(slot)

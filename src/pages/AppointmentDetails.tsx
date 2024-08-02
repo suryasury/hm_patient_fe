@@ -29,6 +29,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   IAppointmentForm,
+  IAppointmentResponse,
   IAppointmentState,
   ISlot,
   ITimeSlot,
@@ -37,26 +38,15 @@ import {
 import { format } from "date-fns";
 import { Clock } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { APP_ROUTES } from "@/appRoutes";
 import Spinner from "@/components/ui/spinner";
 import { createAppointment, getDoctorSlots } from "@/https/patients-service";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
-import { z } from "zod";
 import { getWeekdayId } from "./utils";
-
-const patientSchema = z.object({
-  patientName: z.string().min(5, "Name is required"),
-  patientMobile: z
-    .string()
-    .regex(/^\d{10}$/, "Mobile number must be 10 digits"),
-  decease: z.string().min(4, "Ailment is required"),
-  remarks: z.string().optional(),
-});
 
 const getIconForPeriod = (period: string) => {
   switch (period) {
@@ -71,19 +61,14 @@ const getIconForPeriod = (period: string) => {
   }
 };
 
-const AppointmentConfirmationPage = () => {
+const AppointmentDetails = () => {
   const location = useLocation();
+  const appointment = location.state as IAppointmentResponse;
 
-  if (!location.state) {
-    return <Navigate to={APP_ROUTES.APPOINTMENT} />;
-  }
-
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    location?.state?.date
-  );
-  const [selectedSlot, setSelectedSlot] = useState<ISlot>(
-    location?.state?.slot
-  );
+  const [selectedSlot, setSelectedSlot] = useState<ISlot>({
+    ...appointment.doctorSlots.slot,
+    id: appointment.doctorSlotId,
+  });
   const [timeSlots, setTimeSlots] = useState<ITimeSlot>({
     isSlotAvailable: false,
     slots: {},
@@ -92,6 +77,9 @@ const AppointmentConfirmationPage = () => {
   const [showChangeTimeDialog, setShowChangeTimeDialog] = useState(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    new Date(appointment.appointmentDate)
+  );
   const user = useSelector((state: { user: UserState }) => state.user.user);
   const weekdays = useSelector(
     (state: { appointment: IAppointmentState }) => state.appointment.weekdays
@@ -104,14 +92,6 @@ const AppointmentConfirmationPage = () => {
     decease: "",
     remarks: "",
   };
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<IAppointmentForm>({
-    resolver: zodResolver(patientSchema),
-    defaultValues,
-  });
 
   const handleConfirmAppointment: SubmitHandler<IAppointmentForm> = async (
     data: IAppointmentForm
@@ -121,17 +101,17 @@ const AppointmentConfirmationPage = () => {
       const { remarks, decease } = data;
 
       const payload: IAppointmentForm = {
-        doctorId: location.state?.doctor?.id,
-        doctorSlotId: location.state?.slot?.id,
-        hospitalId: location.state?.slot?.hospitalId,
+        doctorId: appointment.doctor.id,
+        doctorSlotId: appointment.doctorSlotId,
+        hospitalId: appointment.hospitalId,
         remarks,
         decease,
         appointmentDate: selectedDate!.toISOString(),
       };
       const res = await createAppointment(payload);
       if (res.status === 200) {
-        toast.success("Booked Successfully", {
-          description: "Your Appointment has been booked successfully!",
+        toast.success("Updated Successfully", {
+          description: "Your Appointment has been updated successfully!",
         });
         navigate(APP_ROUTES.DASHBOARD);
       }
@@ -181,7 +161,7 @@ const AppointmentConfirmationPage = () => {
   };
 
   useEffect(() => {
-    if (showChangeTimeDialog) fetchTimeSlots();
+    fetchTimeSlots();
   }, [selectedDate, showChangeTimeDialog]);
 
   return (
@@ -201,7 +181,9 @@ const AppointmentConfirmationPage = () => {
                     On
                     <span className="ml-2 text-md font-semibold">
                       {format(
-                        selectedDate ? new Date(selectedDate) : new Date(),
+                        appointment.appointmentDate
+                          ? new Date(appointment.appointmentDate)
+                          : new Date(),
                         "dd/MM/yyyy"
                       )}
                     </span>
@@ -223,8 +205,6 @@ const AppointmentConfirmationPage = () => {
                   open={showChangeTimeDialog}
                   onOpenChange={(isOpen) => {
                     setShowChangeTimeDialog(isOpen);
-                    !timeSlots.isSlotAvailable &&
-                      setSelectedDate(location?.state?.date);
                   }}
                 >
                   <DialogTrigger asChild>
@@ -350,10 +330,7 @@ const AppointmentConfirmationPage = () => {
             </CardHeader>
             <CardContent>
               <div className="flex flex-col">
-                <form
-                  onSubmit={handleSubmit(handleConfirmAppointment)}
-                  className="flex flex-col gap-4"
-                >
+                <form className="flex flex-col gap-4">
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="patient-name">Name</Label>
                     <Input
@@ -381,22 +358,19 @@ const AppointmentConfirmationPage = () => {
                     <Input
                       id="ailment"
                       type="text"
-                      {...register("decease")}
+                      value={appointment.decease}
                       className="border-2 rounded-sm p-2"
+                      disabled
                     />
-                    {errors.decease && (
-                      <span className="text-red-500">
-                        {errors.decease.message as string}
-                      </span>
-                    )}
                   </div>
 
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="remarks">Remarks</Label>
                     <Textarea
                       id="remarks"
-                      {...register("remarks")}
+                      value={appointment.remarks}
                       className="border-2 rounded-sm p-2"
+                      disabled
                     />
                   </div>
 
@@ -407,7 +381,7 @@ const AppointmentConfirmationPage = () => {
                         Please wait...
                       </>
                     ) : (
-                      "Confirm Appointment"
+                      "Update Appointment"
                     )}
                   </Button>
                 </form>
@@ -420,4 +394,4 @@ const AppointmentConfirmationPage = () => {
   );
 };
 
-export default AppointmentConfirmationPage;
+export default AppointmentDetails;

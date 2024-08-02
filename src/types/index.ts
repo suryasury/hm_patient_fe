@@ -81,3 +81,68 @@ export interface ITimeSlot {
   isSlotAvailable: boolean;
   slots: ISlots;
 }
+
+export interface IAppointmentResponse {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  doctorSlotId: string;
+  doctorId: string;
+  patientId: string;
+  hospitalId: string;
+  remarks: string;
+  doctorRemarks: string | null;
+  decease: string;
+  appointmentStatus:
+    | "SCHEDULED"
+    | "PENDING"
+    | "COMPLETED"
+    | "CANCELED"
+    | "APPROVED";
+  appointmentDate: string;
+  doctor: Doctor;
+  doctorSlots: {
+    id: string;
+    doctorId: string;
+    createdAt: string;
+    updatedAt: string;
+    slotId: string;
+    weekDaysId: string;
+    slotLimit: number;
+    isEnabled: boolean;
+    isActive: boolean;
+    isDeleted: boolean;
+    slot: {
+      id: string;
+      startTime: string;
+      endTime: string;
+      createdAt: string;
+      updatedAt: string;
+      hospitalId: string;
+    };
+  };
+}
+
+export interface IMedicationResponse {
+  prescriptionId: string;
+  appointmentId: string;
+  hospitalId: string;
+  patientId: string;
+  medicationName: string;
+  medicationDosage: string;
+  foodRelation: string;
+  prescriptionDate: string;
+  prescriptionDayId: string;
+  prescriptionTimeOfDayId: string;
+  isPrescriptionTakenForTheDay: boolean;
+  prescriptionTimeOfDay: string;
+  isPrescriptionTaken: boolean;
+}
+
+export interface ITodaysMedicationsResponse {
+  isPriscriptionAvailableForTheDay: boolean;
+  morningPrescription: IMedicationResponse[];
+  afterNoonPrescription: IMedicationResponse[];
+  eveningPrescription: IMedicationResponse[];
+  nightPrescription: IMedicationResponse[];
+}
