@@ -155,7 +155,7 @@ const BookAppointmentPage = () => {
 
   return (
     <div className="p-6 rounded-xl border bg-card text-card-foreground w-full mx-auto">
-      <h3 className="text-2xl font-semibold mb-4">Book Appointment</h3>
+      <h3 className="text-xl font-semibold mb-4">Book Appointment</h3>
       <div className="flex flex-col gap-4">
         {loading ? (
           <DoctorSkeleton />

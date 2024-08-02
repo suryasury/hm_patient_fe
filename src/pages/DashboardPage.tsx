@@ -1,23 +1,8 @@
 import { APP_ROUTES } from "@/appRoutes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import DatePicker from "@/components/ui/date-picker";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import Spinner from "@/components/ui/spinner";
 import {
   getAppointmentHistory,
   getAppointmentList,
@@ -29,18 +14,15 @@ import {
   ArrowUpRight,
   Calendar,
   CalendarOff,
-  Check,
   Clock,
   Cloud,
-  Cross,
+  CloudSun,
   Eye,
   Moon,
   PlusCircle,
-  Star,
   Sun,
-  X,
 } from "lucide-react"; // Import icons
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -72,94 +54,7 @@ const AppointmentCardSkeleton = () => {
       </div>
     ));
 };
-interface MedicationsProps {
-  medicationDate: Date | undefined;
-  setMedicationDate: Dispatch<SetStateAction<Date | undefined>>;
-  loadingMedications: boolean;
-  medications: { [key: string]: IMedicationResponse[] };
-}
 
-const Medications = ({
-  medicationDate,
-  setMedicationDate,
-  loadingMedications,
-  medications,
-}: MedicationsProps) => {
-  return (
-    <DialogContent className="w-[95%] max-h-[90vh] min-h-[40vh] rounded-lg shadow-lg flex flex-col overflow-auto">
-      <DialogHeader>
-        <DialogTitle>Medications</DialogTitle>
-      </DialogHeader>
-      <div className="flex flex-col gap-2">
-        <CardDescription>Select Date</CardDescription>
-        <div className="w-fit">
-          <DatePicker
-            date={medicationDate}
-            setDate={(date) => setMedicationDate(date)}
-            placeholder="Select a date"
-          />
-        </div>
-        {loadingMedications ? (
-          <div className="flex items-center justify-center p-4 bg-gray-100 rounded-md mt-4">
-            <Spinner />
-            <span className="text-md font-medium text-gray-500">
-              Looking for medications...
-            </span>
-          </div>
-        ) : (
-          Object.keys(medications).map((timeOfDay) => (
-            <div key={timeOfDay}>
-              <h3 className="font-semibold capitalize mb-2 flex items-center gap-2">
-                {timeOfDayTitles[timeOfDay].icon}
-                {timeOfDayTitles[timeOfDay].title}
-              </h3>
-              <div className="flex flex-wrap gap-4">
-                {medications[timeOfDay].map((medication) => (
-                  <div
-                    key={medication.prescriptionId}
-                    className={`p-4 rounded-lg border shadow-sm flex flex-col items-start ${
-                      medication.isPrescriptionTaken
-                        ? "bg-green-100"
-                        : "bg-red-100"
-                    }`}
-                  >
-                    <p className="text-sm font-medium">
-                      {medication.medicationName}
-                    </p>
-                    <p className="text-xs text-muted-foreground mb-2">
-                      Dosage: {medication.medicationDosage}
-                    </p>
-                    <p className="text-xs text-muted-foreground mb-2">
-                      {medication.foodRelation === "BEFORE_MEAL"
-                        ? "Take before food"
-                        : "Take after food"}
-                    </p>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="link"
-                        className="text-xs text-green flex items-center gap-1"
-                      >
-                        <Check className="w-4 h-4" />
-                        <span>Taken</span>
-                      </Button>
-                      <Button
-                        variant="link"
-                        className="text-xs text-destructive flex items-center gap-1"
-                        >
-                          <X className="w-4 h-4" />
-                          <span>Skipped</span>
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-    </DialogContent>
-  );
-};
 const statusClasses: { [key: string]: string } = {
   SCHEDULED: "bg-blue-100 text-blue-800",
   PENDING: "bg-yellow-100 text-yellow-800",
@@ -167,22 +62,21 @@ const statusClasses: { [key: string]: string } = {
   CANCELED: "bg-red-100 text-red-800",
   APPROVED: "bg-purple-100 text-purple-800",
 };
-
 const timeOfDayTitles: { [key: string]: { title: string; icon: JSX.Element } } =
   {
     morning: {
       title: "Morning",
-      icon: <Sun className="h-4 w-4 text-gray-600" />,
+      icon: <Sun className="w-4 h-4 text-yellow-500" />,
     },
     afternoon: {
       title: "Afternoon",
-      icon: <Cloud className="h-4 w-4 text-gray-600" />,
+      icon: <CloudSun className="w-4 h-4 text-orange-500" />,
     },
     evening: {
       title: "Evening",
-      icon: <Moon className="h-4 w-4 text-gray-600" />,
+      icon: <Cloud className="h-4 w-4 text-gray-600" />,
     },
-    night: { title: "Night", icon: <Star className="h-4 w-4 text-gray-600" /> },
+    night: { title: "Night", icon: <Moon className="w-4 h-4 text-blue-500" /> },
   };
 
 const DashboardPage = () => {
@@ -453,28 +347,17 @@ const DashboardPage = () => {
         <CardHeader>
           <CardTitle className="flex items-center">
             <p>Today's Medications</p>
-            <Dialog
-              open={showMedicationDetails}
-              onOpenChange={(isOpen) => {
-                setShowMedicationsDetails(isOpen);
-              }}
-              
+
+            <Button
+              size="sm"
+              className="ml-auto gap-1"
+              onClick={() => navigate(APP_ROUTES.MEDICATION)}
             >
-              <DialogTrigger asChild>
-                <Button size="sm" className="ml-auto gap-1">
-                  <div className="flex gap-1 items-center">
-                    <span>Show Details</span>
-                    <ArrowUpRight className="h-4 w-4" />
-                  </div>
-                </Button>
-              </DialogTrigger>
-              <Medications
-                medicationDate={medicationDate}
-                setMedicationDate={setMedicationDate}
-                loadingMedications={loadingMedications}
-                medications={medications}
-              />
-            </Dialog>
+              <div className="flex gap-1 items-center">
+                <span>Show Details</span>
+                <ArrowUpRight className="h-4 w-4" />
+              </div>
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">

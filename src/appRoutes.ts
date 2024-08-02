@@ -7,4 +7,5 @@ export const APP_ROUTES = {
   REGISTER: "/register",
   APPOINTMENT_LIST: "/patient/appointment-list",
   APPOINTMENT_DETAILS: "/patient/appointment-list/details",
+  MEDICATION: "/patient/medication",
 };
