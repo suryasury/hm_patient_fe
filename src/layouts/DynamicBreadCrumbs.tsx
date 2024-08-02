@@ -44,7 +44,7 @@ export function DynamicBreadcrumbs() {
               {item.isLast ? (
                 <BreadcrumbPage>{item.name}</BreadcrumbPage>
               ) : (
-                <BreadcrumbLink onClick={() => navigate(item.to)}>
+                <BreadcrumbLink className="cursor-pointer" onClick={() => navigate(item.to)}>
                   {item.name}
                 </BreadcrumbLink>
               )}

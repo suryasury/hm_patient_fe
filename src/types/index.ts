@@ -1,5 +1,7 @@
 // redux state type
 
+import { Dispatch, SetStateAction } from "react";
+
 export interface UserState {
   user: User | null;
 }
@@ -145,4 +147,11 @@ export interface ITodaysMedicationsResponse {
   afterNoonPrescription: IMedicationResponse[];
   eveningPrescription: IMedicationResponse[];
   nightPrescription: IMedicationResponse[];
+}
+
+export interface MedicationsProps {
+  medicationDate: Date | undefined;
+  setMedicationDate: Dispatch<SetStateAction<Date | undefined>>;
+  loadingMedications: boolean;
+  medications: { [key: string]: IMedicationResponse[] };
 }

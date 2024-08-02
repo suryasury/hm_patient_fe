@@ -12,6 +12,7 @@ import BookAppointmentPage from "./pages/BookAppointmentPage";
 import DashboardPage from "./pages/DashboardPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import Profile from "./pages/Profile";
+import Medications from "./pages/Medications";
 
 const router = createBrowserRouter([
   {
@@ -45,6 +46,10 @@ const router = createBrowserRouter([
       {
         path: APP_ROUTES.APPOINTMENT_DETAILS,
         element: <AppointmentDetails />,
+      },
+      {
+        path: APP_ROUTES.MEDICATION,
+        element: <Medications />,
       },
       /* 404 page */
       {
