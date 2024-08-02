@@ -20,7 +20,7 @@ const statusClasses: { [key: string]: string } = {
 const AppointmentListSkeleton = () => {
   return Array(5)
     .fill(0)
-    .map((i, index) => (
+    .map((_i, index) => (
       <div
         key={index}
         className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4 border-b last:border-none"

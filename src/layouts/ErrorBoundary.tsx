@@ -21,11 +21,12 @@ class ErrorBoundary extends React.Component<
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    console.log("error in react boundary: derived state:", error);
     return { hasError: true };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-    console.log({ error, errorInfo });
+    console.log("error in react boundary:", { error, errorInfo });
   }
 
   render() {
