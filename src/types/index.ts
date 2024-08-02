@@ -155,3 +155,9 @@ export interface MedicationsProps {
   loadingMedications: boolean;
   medications: { [key: string]: IMedicationResponse[] };
 }
+
+export interface IUpdatePrescriptionTakenPayload {
+  prescriptionDayId: string;
+  prescriptionTimeOfDayId: string;
+  isPrescriptionTaken: boolean;
+}

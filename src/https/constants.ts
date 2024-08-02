@@ -8,4 +8,5 @@ export const API_END_POINTS = {
   APPOINTMENT_LIST: "user/appointment/list",
   MEDICATIONS: "user/prescription/daywise/details",
   APPOINTMENT_HISTORY: "user/appointment/history/list",
+  UPDATE_MEDICATION_TAKEN: "user/prescription/medication/status/update",
 };
