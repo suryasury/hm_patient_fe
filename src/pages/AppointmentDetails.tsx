@@ -28,7 +28,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  IAppointmentForm,
   IAppointmentResponse,
   IAppointmentState,
   ISlot,
@@ -38,12 +37,10 @@ import {
 import { format } from "date-fns";
 import { Clock } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
-import { APP_ROUTES } from "@/appRoutes";
 import Spinner from "@/components/ui/spinner";
-import { createAppointment, getDoctorSlots } from "@/https/patients-service";
-import { SubmitHandler } from "react-hook-form";
+import { getDoctorSlots } from "@/https/patients-service";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import { getWeekdayId } from "./utils";
@@ -85,47 +82,41 @@ const AppointmentDetails = () => {
     (state: { appointment: IAppointmentState }) => state.appointment.weekdays
   );
 
-  const navigate = useNavigate();
-  const defaultValues = {
-    patientName: user?.name,
-    patientMobile: `${user?.phoneNumber}`,
-    decease: "",
-    remarks: "",
-  };
+  //   const navigate = useNavigate();
 
-  const handleConfirmAppointment: SubmitHandler<IAppointmentForm> = async (
-    data: IAppointmentForm
-  ) => {
-    try {
-      setSubmitting(true);
-      const { remarks, decease } = data;
+  //   const handleConfirmAppointment: MouseEventHandler<HTMLButtonElement> = async (
+  //     data: IAppointmentForm
+  //   ) => {
+  //     try {
+  //       setSubmitting(true);
+  //       const { remarks, decease } = data;
 
-      const payload: IAppointmentForm = {
-        doctorId: appointment.doctor.id,
-        doctorSlotId: appointment.doctorSlotId,
-        hospitalId: appointment.hospitalId,
-        remarks,
-        decease,
-        appointmentDate: selectedDate!.toISOString(),
-      };
-      const res = await createAppointment(payload);
-      if (res.status === 200) {
-        toast.success("Updated Successfully", {
-          description: "Your Appointment has been updated successfully!",
-        });
-        navigate(APP_ROUTES.DASHBOARD);
-      }
-    } catch (error) {
-      console.log(error);
+  //       const payload: IAppointmentForm = {
+  //         doctorId: appointment.doctor.id,
+  //         doctorSlotId: appointment.doctorSlotId,
+  //         hospitalId: appointment.hospitalId,
+  //         remarks,
+  //         decease,
+  //         appointmentDate: selectedDate!.toISOString(),
+  //       };
+  //       const res = await createAppointment(payload);
+  //       if (res.status === 200) {
+  //         toast.success("Updated Successfully", {
+  //           description: "Your Appointment has been updated successfully!",
+  //         });
+  //         navigate(APP_ROUTES.DASHBOARD);
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
 
-      toast.error("Failed!", {
-        description:
-          "Our systems are facing technical difficulties, please try later!",
-      });
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  //       toast.error("Failed!", {
+  //         description:
+  //           "Our systems are facing technical difficulties, please try later!",
+  //       });
+  //     } finally {
+  //       setSubmitting(false);
+  //     }
+  //   };
 
   const fetchTimeSlots = async () => {
     try {
@@ -374,7 +365,12 @@ const AppointmentDetails = () => {
                     />
                   </div>
 
-                  <Button type="submit" className="mt-4" disabled={submitting}>
+                  <Button
+                    type="submit"
+                    className="mt-4"
+                    disabled={submitting}
+                    onClick={() => setSubmitting((prev) => !prev)}
+                  >
                     {submitting ? (
                       <>
                         <Spinner type="light" />

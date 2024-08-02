@@ -10,9 +10,9 @@ import AppointmentDetails from "./pages/AppointmentDetails";
 import AppointmentsList from "./pages/AppointmentsList";
 import BookAppointmentPage from "./pages/BookAppointmentPage";
 import DashboardPage from "./pages/DashboardPage";
+import Medications from "./pages/Medications";
 import NotFoundPage from "./pages/NotFoundPage";
 import Profile from "./pages/Profile";
-import Medications from "./pages/Medications";
 
 const router = createBrowserRouter([
   {

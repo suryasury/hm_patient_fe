@@ -1,4 +1,4 @@
-import { IAppointmentForm } from "@/types";
+import { IAppointmentForm, IUpdatePrescriptionTakenPayload } from "@/types";
 import { api } from "./api";
 import { API_END_POINTS } from "./constants";
 
@@ -50,9 +50,18 @@ export const getAppointmentHistory = async () => {
 };
 
 export const getMedications = async (date?: string) => {
-  console.log(date);
   try {
     return api.get(API_END_POINTS.MEDICATIONS + `?date=${date}`);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updatePrescriptionTaken = async (
+  payload: IUpdatePrescriptionTakenPayload
+) => {
+  try {
+    return api.patch(API_END_POINTS.UPDATE_MEDICATION_TAKEN, payload);
   } catch (error) {
     throw error;
   }

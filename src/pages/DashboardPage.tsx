@@ -92,11 +92,7 @@ const DashboardPage = () => {
 
   const [loadingAppointments, setLoadingAppointments] = useState(false);
   const [loadingMedications, setLoadingMedications] = useState(false);
-  const [medicationDate, setMedicationDate] = useState<Date | undefined>(
-    new Date()
-  );
-  const [showMedicationDetails, setShowMedicationsDetails] =
-    useState<boolean>(false);
+
   const navigate = useNavigate();
 
   const fetchAppointments = async () => {
@@ -127,7 +123,7 @@ const DashboardPage = () => {
     try {
       setLoadingMedications(true);
       const medicationRes = await getMedications(
-        format(medicationDate!, "yyyy/MM/dd")
+        format(new Date(), "yyyy/MM/dd")
       );
       const transformedMedications = {
         morning: medicationRes.data.data.morningPrescription,
@@ -153,7 +149,7 @@ const DashboardPage = () => {
 
   useEffect(() => {
     fetchMedications();
-  }, [medicationDate]);
+  }, []);
 
   return (
     <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3 w-full">

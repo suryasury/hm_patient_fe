@@ -2,10 +2,22 @@ import { Button } from "@/components/ui/button";
 import { CardDescription } from "@/components/ui/card";
 import DatePicker from "@/components/ui/date-picker";
 import Spinner from "@/components/ui/spinner";
-import { getMedications } from "@/https/patients-service";
+import {
+  getMedications,
+  updatePrescriptionTaken,
+} from "@/https/patients-service";
 import { IMedicationResponse } from "@/types";
 import { format } from "date-fns";
-import { Check, Cloud, CloudSun, Moon, PillBottle, Sun, X } from "lucide-react";
+import {
+  Check,
+  Cloud,
+  CloudSun,
+  Loader,
+  Moon,
+  PillBottle,
+  Sun,
+  X,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -40,6 +52,7 @@ const Medications = () => {
     new Date()
   );
   const [loading, setLoading] = useState<boolean>(false);
+  const [submitting, setSubmitting] = useState<boolean | string>(false);
 
   const fetchMedications = async () => {
     try {
@@ -66,6 +79,30 @@ const Medications = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const updateMedication = async (medication: IMedicationResponse) => {
+    try {
+      setSubmitting(medication.prescriptionTimeOfDayId);
+      const payload = {
+        prescriptionDayId: medication.prescriptionDayId,
+        prescriptionTimeOfDayId: medication.prescriptionTimeOfDayId,
+        isPrescriptionTaken: true,
+      };
+      const res = await updatePrescriptionTaken(payload);
+      if (res.status === 200) {
+        toast.success("Medication status updated successfully");
+        await fetchMedications();
+      }
+    } catch (error) {
+      console.log("error updating medication status:", error);
+      toast.error("Failed to update status", {
+        description:
+          "Our servers are facing technical issues. Please try again later.",
+      });
+    } finally {
+      setSubmitting(false);
     }
   };
   useEffect(() => {
@@ -126,9 +163,22 @@ const Medications = () => {
                         <Button
                           variant="link"
                           className="text-xs text-green h-fit p-0 flex items-center gap-1"
+                          onClick={() => updateMedication(medication)}
+                          disabled={
+                            submitting === medication.prescriptionTimeOfDayId
+                          }
                         >
-                          <Check className="w-4 h-4" />
-                          <span>Taken</span>
+                          {submitting === medication.prescriptionTimeOfDayId ? (
+                            <div className="flex gap-1">
+                              <Loader className="w-4 h-4 animate-spin" />
+                              <span>Updating...</span>
+                            </div>
+                          ) : (
+                            <>
+                              <Check className="w-4 h-4" />
+                              <span>Taken</span>
+                            </>
+                          )}
                         </Button>
                         <Button
                           variant="link"
