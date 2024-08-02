@@ -32,3 +32,28 @@ export const createAppointment = async (payload: IAppointmentForm) => {
     throw error;
   }
 };
+
+export const getAppointmentList = async () => {
+  try {
+    return api.get(API_END_POINTS.APPOINTMENT_LIST);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getAppointmentHistory = async () => {
+  try {
+    return api.get(API_END_POINTS.APPOINTMENT_HISTORY);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getMedications = async (date?: string) => {
+  console.log(date);
+  try {
+    return api.get(API_END_POINTS.MEDICATIONS + `?date=${date}`);
+  } catch (error) {
+    throw error;
+  }
+};

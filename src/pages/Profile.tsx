@@ -51,7 +51,7 @@ const Profile: React.FC = () => {
   const genders = ["MALE", "FEMALE", "OTHERS"];
   const bloodGrops = ["A+", "B+", "O+", "AB+", "A-", "B-", "O-", "AB-"];
   return (
-    <div className="container mx-auto p-4 w-full max-w-[1128px]">
+    <div className="container mx-auto p-4 w-full">
       <Card>
         <CardHeader>
           <CardTitle>User Profile</CardTitle>

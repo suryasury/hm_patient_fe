@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Spinner from "@/components/ui/spinner";
 import { getUserDetails, login } from "@/https/auth-service";
+import { getWeekdayList } from "@/https/patients-service";
+import { setWeekdays } from "@/state/appointementReducer";
 import { setUser } from "@/state/userReducer";
 import { IloginForm, UserState } from "@/types";
 import { useState } from "react";
@@ -73,8 +75,13 @@ const LoginForm = () => {
       const response = await login(payload);
       console.log(response.status);
       if (response.status === 200) {
-        const detailsRes = await getUserDetails();
+        const [detailsRes, weekdayRes] = await Promise.all([
+          getUserDetails(),
+          getWeekdayList(),
+        ]);
+
         dispatch(setUser(detailsRes.data.data));
+        dispatch(setWeekdays(weekdayRes.data.data));
         navigate(APP_ROUTES.DASHBOARD);
       }
       toast.success("Logged in successfully");
