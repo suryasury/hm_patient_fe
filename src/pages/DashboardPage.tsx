@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import useErrorHandler from "@/hooks/useError";
 import {
   getAppointmentHistory,
   getAppointmentList,
@@ -24,7 +25,6 @@ import {
 } from "lucide-react"; // Import icons
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 
 const AppointmentCardSkeleton = () => {
   return Array(3)
@@ -94,6 +94,7 @@ const DashboardPage = () => {
   const [loadingMedications, setLoadingMedications] = useState(false);
 
   const navigate = useNavigate();
+  const handleError = useErrorHandler();
 
   const fetchAppointments = async () => {
     try {
@@ -103,17 +104,16 @@ const DashboardPage = () => {
         getAppointmentHistory(),
       ]);
 
+      if (appointmentHistoryRes.status === 401 || appointmentRes.status === 401)
+        return;
+
       const upcomingAppointments = appointmentRes.data.data.appointmentList;
       const appointmentHistory =
         appointmentHistoryRes.data.data.appointmentList;
       setAppointmentList(upcomingAppointments);
       setPastAppointments(appointmentHistory);
     } catch (error) {
-      console.error("Error fetching appointments", error);
-      toast.error("Error fetching appointments", {
-        description:
-          "Our servers are facing technical issues. Please try again later.",
-      });
+      handleError(error, "Failed to fetch appointments");
     } finally {
       setLoadingAppointments(false);
     }
@@ -125,6 +125,9 @@ const DashboardPage = () => {
       const medicationRes = await getMedications(
         format(new Date(), "yyyy/MM/dd")
       );
+
+      if (medicationRes.status === 401) return;
+
       const transformedMedications = {
         morning: medicationRes.data.data.morningPrescription,
         afternoon: medicationRes.data.data.afterNoonPrescription,
@@ -133,11 +136,7 @@ const DashboardPage = () => {
       };
       setMedications(transformedMedications);
     } catch (error) {
-      console.error("Error fetching medications", error);
-      toast.error("Error fetching medications", {
-        description:
-          "Our servers are facing technical issues. Please try again later.",
-      });
+      handleError(error, "Failed to fetch medications");
     } finally {
       setLoadingMedications(false);
     }
@@ -211,7 +210,7 @@ const DashboardPage = () => {
                       .join("")}
                   </AvatarFallback>
                 </Avatar>
-                <div className="grid gap-1 flex-1">
+                <div className="grid gap-1 flex-1 w-full">
                   <div className="flex items-center justify-between w-full">
                     <div>
                       <p className="text-md font-medium leading-none">
@@ -229,11 +228,15 @@ const DashboardPage = () => {
                       {appointment.appointmentStatus.toLowerCase()}
                     </div>
                   </div>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    {new Date(appointment.appointmentDate).toLocaleDateString()}
-                    <Clock className="h-4 w-4 mx-2" />
-                    {appointment.doctorSlots.slot.startTime}
+                  <div className="flex items-center text-sm text-muted-foreground justify-between w-full">
+                    <div className="flex  items-center">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      {new Date(
+                        appointment.appointmentDate
+                      ).toLocaleDateString()}
+                      <Clock className="h-4 w-4 mx-2" />
+                      <p>{appointment.doctorSlots.slot.startTime}</p>
+                    </div>
                     <Button
                       onClick={() =>
                         navigate(APP_ROUTES.APPOINTMENT_DETAILS, {
@@ -241,91 +244,7 @@ const DashboardPage = () => {
                         })
                       }
                       variant={"link"}
-                    >
-                      <Eye className="h-4 w-4" />
-                      <span className="ml-1">View</span>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Appointment History Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <p>Past Appointments</p>
-            <Button
-              size="sm"
-              className="ml-auto gap-1"
-              onClick={() =>
-                navigate(APP_ROUTES.APPOINTMENT_LIST, {
-                  state: pastAppointments,
-                })
-              }
-              disabled={loadingAppointments}
-            >
-              <div className="flex gap-1 items-center">
-                <span>View All</span>
-                <ArrowUpRight className="h-4 w-4" />
-              </div>
-            </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4">
-          {loadingAppointments ? (
-            <AppointmentCardSkeleton />
-          ) : (
-            pastAppointments.slice(0, 3).map((appointment) => (
-              <div
-                key={appointment.id}
-                className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4 border-b last:border-none"
-              >
-                <Avatar className="hidden h-[50px] w-[50px] sm:flex">
-                  <AvatarImage
-                    src={appointment.doctor.profilePictureUrl}
-                    alt="Avatar"
-                  />
-                  <AvatarFallback>
-                    {appointment.doctor.name
-                      .split(" ")
-                      .map((name) => name[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="grid gap-1 flex-1">
-                  <div className="flex items-center justify-between w-full">
-                    <div>
-                      <p className="text-md font-medium leading-none">
-                        {appointment.doctor.name}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {appointment.doctor.speciality}
-                      </p>
-                    </div>
-                    <div
-                      className={`badge ${
-                        statusClasses[appointment.appointmentStatus]
-                      } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize`}
-                    >
-                      {appointment.appointmentStatus.toLowerCase()}
-                    </div>
-                  </div>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    {new Date(appointment.appointmentDate).toLocaleDateString()}
-                    <Clock className="h-4 w-4 mx-2" />
-                    {appointment.doctorSlots.slot.startTime}
-                    <Button
-                      onClick={() =>
-                        navigate(APP_ROUTES.APPOINTMENT_DETAILS, {
-                          state: appointment,
-                        })
-                      }
-                      variant={"link"}
+                      className="p-0 self-start"
                     >
                       <Eye className="h-4 w-4" />
                       <span className="ml-1">View</span>
@@ -377,6 +296,96 @@ const DashboardPage = () => {
                       </p>
                     </div>
                   ))}
+                </div>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Appointment History Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <p>Past Appointments</p>
+            <Button
+              size="sm"
+              className="ml-auto gap-1"
+              onClick={() =>
+                navigate(APP_ROUTES.APPOINTMENT_LIST, {
+                  state: pastAppointments,
+                })
+              }
+              disabled={loadingAppointments}
+            >
+              <div className="flex gap-1 items-center">
+                <span>View All</span>
+                <ArrowUpRight className="h-4 w-4" />
+              </div>
+            </Button>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          {loadingAppointments ? (
+            <AppointmentCardSkeleton />
+          ) : (
+            pastAppointments.slice(0, 3).map((appointment) => (
+              <div
+                key={appointment.id}
+                className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4 border-b last:border-none"
+              >
+                <Avatar className="hidden h-[50px] w-[50px] sm:flex">
+                  <AvatarImage
+                    src={appointment.doctor.profilePictureUrl}
+                    alt="Avatar"
+                  />
+                  <AvatarFallback>
+                    {appointment.doctor.name
+                      .split(" ")
+                      .map((name) => name[0])
+                      .join("")}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="grid gap-1 flex-1 w-full">
+                  <div className="flex items-center justify-between w-full">
+                    <div>
+                      <p className="text-md font-medium leading-none">
+                        {appointment.doctor.name}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {appointment.doctor.speciality}
+                      </p>
+                    </div>
+                    <div
+                      className={`badge ${
+                        statusClasses[appointment.appointmentStatus]
+                      } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize`}
+                    >
+                      {appointment.appointmentStatus.toLowerCase()}
+                    </div>
+                  </div>
+                  <div className="flex items-center text-sm text-muted-foreground w-full justify-between">
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      {new Date(
+                        appointment.appointmentDate
+                      ).toLocaleDateString()}
+                      <Clock className="h-4 w-4 mx-2" />
+                      {appointment.doctorSlots.slot.startTime}
+                    </div>
+                    <Button
+                      onClick={() =>
+                        navigate(APP_ROUTES.APPOINTMENT_DETAILS, {
+                          state: appointment,
+                        })
+                      }
+                      variant={"link"}
+                      className="p-0 self-start"
+                    >
+                      <Eye className="h-4 w-4" />
+                      <span className="ml-1">View</span>
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))

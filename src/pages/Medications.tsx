@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { CardDescription } from "@/components/ui/card";
 import DatePicker from "@/components/ui/date-picker";
 import Spinner from "@/components/ui/spinner";
+import useErrorHandler from "@/hooks/useError";
 import {
   getMedications,
   updatePrescriptionTaken,
@@ -16,7 +17,6 @@ import {
   Moon,
   PillBottle,
   Sun,
-  X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -53,6 +53,7 @@ const Medications = () => {
   );
   const [loading, setLoading] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean | string>(false);
+  const handleError = useErrorHandler();
 
   const fetchMedications = async () => {
     try {
@@ -72,11 +73,7 @@ const Medications = () => {
       };
       setMedications(transformedMedications);
     } catch (error) {
-      console.error("Error fetching medications", error);
-      toast.error("Error fetching medications", {
-        description:
-          "Our servers are facing technical issues. Please try again later.",
-      });
+      handleError(error, "Failed to fetch medications");
     } finally {
       setLoading(false);
     }
@@ -96,11 +93,7 @@ const Medications = () => {
         await fetchMedications();
       }
     } catch (error) {
-      console.log("error updating medication status:", error);
-      toast.error("Failed to update status", {
-        description:
-          "Our servers are facing technical issues. Please try again later.",
-      });
+      handleError(error, "Failed to update medication status");
     } finally {
       setSubmitting(false);
     }
@@ -129,71 +122,80 @@ const Medications = () => {
             </span>
           </div>
         ) : medications.isPrescriptionAvailable ? (
-          Object.keys(medications.times).map((timeOfDay) => (
-            <div key={timeOfDay}>
-              <h3 className="font-semibold capitalize mb-2 flex items-center gap-2">
-                {timeOfDayTitles[timeOfDay].icon}
-                {timeOfDayTitles[timeOfDay].title}
-              </h3>
-              <div className="flex justify-center md:justify-normal flex-wrap gap-4">
-                {medications.times[timeOfDay].map((medication) => (
-                  <div
-                    key={medication.prescriptionId}
-                    className={`p-4 rounded-lg border shadow-sm flex justify-between w-full max-w-[250px] items-start ${
-                      medication.isPrescriptionTaken
-                        ? "bg-green-100"
-                        : "bg-red-100"
-                    }`}
-                  >
-                    <div className="flex flex-col gap-1">
-                      <p className="text-sm font-medium">
-                        {medication.medicationName}
-                      </p>
-                      <p className="text-xs text-muted-foreground ">
-                        Dosage: {medication.medicationDosage}
-                      </p>
-                      <p className="text-xs text-muted-foreground mb-2">
-                        {medication.foodRelation === "BEFORE_MEAL"
-                          ? "Take before food"
-                          : "Take after food"}
-                      </p>
-                    </div>
-                    {!medication.isPrescriptionTaken && (
-                      <div className="flex flex-col gap-2 ml-4 items-start">
-                        <Button
-                          variant="link"
-                          className="text-xs text-green h-fit p-0 flex items-center gap-1"
-                          onClick={() => updateMedication(medication)}
-                          disabled={
-                            submitting === medication.prescriptionTimeOfDayId
-                          }
-                        >
-                          {submitting === medication.prescriptionTimeOfDayId ? (
-                            <div className="flex gap-1">
-                              <Loader className="w-4 h-4 animate-spin" />
-                              <span>Updating...</span>
-                            </div>
-                          ) : (
-                            <>
-                              <Check className="w-4 h-4" />
-                              <span>Taken</span>
-                            </>
-                          )}
-                        </Button>
-                        <Button
+          Object.keys(medications.times).map((timeOfDay) => {
+            if (medications.times[timeOfDay].length === 0) {
+              return null;
+            }
+
+            return (
+              <div key={timeOfDay}>
+                <h3 className="font-semibold capitalize mb-2 flex items-center gap-2">
+                  {timeOfDayTitles[timeOfDay].icon}
+                  {timeOfDayTitles[timeOfDay].title}
+                </h3>
+                <div className="flex justify-center md:justify-normal flex-wrap gap-4">
+                  {medications.times[timeOfDay].map((medication) => (
+                    <div
+                      key={medication.prescriptionId}
+                      className={`p-4 rounded-lg border shadow-sm flex justify-between w-full max-w-[250px] items-start ${
+                        medication.isPrescriptionTaken
+                          ? "bg-green-100"
+                          : "bg-red-100"
+                      }`}
+                    >
+                      <div className="flex flex-col gap-1">
+                        <p className="text-sm font-medium">
+                          {medication.medicationName}
+                        </p>
+                        <p className="text-xs text-muted-foreground ">
+                          Dosage: {medication.medicationDosage}
+                        </p>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          {medication.foodRelation === "BEFORE_MEAL"
+                            ? "Take before food"
+                            : "Take after food"}
+                        </p>
+                      </div>
+                      {medication.isPrescriptionTaken ? (
+                        <div className="text-sm text-green items-center flex gap-2">
+                          <Check className="w-4 h-4" />
+                          <span className="text-sm">Taken</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-2 ml-4 items-start">
+                          <Button
+                            className="text-xs p-2 flex items-center gap-1"
+                            size={"sm"}
+                            onClick={() => updateMedication(medication)}
+                            disabled={
+                              submitting === medication.prescriptionTimeOfDayId
+                            }
+                          >
+                            {submitting ===
+                            medication.prescriptionTimeOfDayId ? (
+                              <div className="flex gap-1">
+                                <Loader className="w-4 h-4 animate-spin" />
+                                <span>Updating...</span>
+                              </div>
+                            ) : (
+                              "Taken"
+                            )}
+                          </Button>
+                          {/* <Button
                           variant="link"
                           className="text-xs text-destructive h-fit p-0 flex items-center gap-1"
                         >
                           <X className="w-4 h-4" />
                           <span>Skipped</span>
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                        </Button> */}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         ) : (
           <p className="flex items-center justify-center text-red-500 p-4 bg-red-100 rounded-md mt-4">
             <PillBottle className="w-6 h-6 mr-2" />

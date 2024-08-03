@@ -40,9 +40,9 @@ import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 import Spinner from "@/components/ui/spinner";
+import useErrorHandler from "@/hooks/useError";
 import { getDoctorSlots } from "@/https/patients-service";
 import { useSelector } from "react-redux";
-import { toast } from "sonner";
 import { getWeekdayId } from "./utils";
 
 const getIconForPeriod = (period: string) => {
@@ -81,6 +81,8 @@ const AppointmentDetails = () => {
   const weekdays = useSelector(
     (state: { appointment: IAppointmentState }) => state.appointment.weekdays
   );
+
+  const handleError = useErrorHandler();
 
   //   const navigate = useNavigate();
 
@@ -141,11 +143,7 @@ const AppointmentDetails = () => {
         setTimeSlots(timeSlotData);
       }
     } catch (error) {
-      console.log(error);
-      toast.error("Failed to fetch time slots", {
-        description:
-          "Our servers are facing technical issues. Please try again later.",
-      });
+      handleError(error, "Failed to fetch time slots");
     } finally {
       setFetchingTimeSlots(false);
     }
