@@ -29,3 +29,13 @@ past appointment history -card:
 2. prescription -> from dashboard, need a CTA(like view todays meditaions) -> by default show the todays medication which should be seperated by time of day(morning, night etc..)
 3. user should able to see the past medications
 4. need to CTA to update the medications are taken or skiped
+
+03/08/2024
+1. move schedule to end of the card(all the screens)
+2. move todays madication above past appoinemtnts
+3. comment the skip in medication
+4. make taken as button, once user clicked on taken, then shoe the current UI.
+5. dont show the time of day is no medication available
+6. logout one session expired.
+
+backend part - image upload api, update uppointment details, update user details, cancel appointment
