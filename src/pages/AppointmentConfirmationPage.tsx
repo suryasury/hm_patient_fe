@@ -41,6 +41,7 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { APP_ROUTES } from "@/appRoutes";
 import Spinner from "@/components/ui/spinner";
+import useErrorHandler from "@/hooks/useError";
 import { createAppointment, getDoctorSlots } from "@/https/patients-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -97,6 +98,8 @@ const AppointmentConfirmationPage = () => {
     (state: { appointment: IAppointmentState }) => state.appointment.weekdays
   );
 
+  const handleError = useErrorHandler();
+
   const navigate = useNavigate();
   const defaultValues = {
     patientName: user?.name,
@@ -136,12 +139,7 @@ const AppointmentConfirmationPage = () => {
         navigate(APP_ROUTES.DASHBOARD);
       }
     } catch (error) {
-      console.log(error);
-
-      toast.error("Failed!", {
-        description:
-          "Our systems are facing technical difficulties, please try later!",
-      });
+      handleError(error, "Failed to book appointment");
     } finally {
       setSubmitting(false);
     }
@@ -170,11 +168,7 @@ const AppointmentConfirmationPage = () => {
         setTimeSlots(timeSlotData);
       }
     } catch (error) {
-      console.log(error);
-      toast.error("Failed to fetch time slots", {
-        description:
-          "Our servers are facing technical issues. Please try again later.",
-      });
+      handleError(error, "Failed to fetch time slots");
     } finally {
       setFetchingTimeSlots(false);
     }

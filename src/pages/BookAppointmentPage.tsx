@@ -10,6 +10,7 @@ import {
 import DatePicker from "@/components/ui/date-picker";
 import { Skeleton } from "@/components/ui/skeleton";
 import Spinner from "@/components/ui/spinner";
+import useErrorHandler from "@/hooks/useError";
 import {
   getDoctorsList,
   getDoctorSlots,
@@ -21,7 +22,6 @@ import { CalendarX, CloudSun, Moon, Stethoscope, Sun } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 import { getWeekdayId } from "./utils";
 const getIconForPeriod = (period: string) => {
   switch (period) {
@@ -83,6 +83,7 @@ const BookAppointmentPage = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const handleError = useErrorHandler();
 
   const fetchDoctorsList = async () => {
     try {
@@ -94,11 +95,7 @@ const BookAppointmentPage = () => {
       setDoctorsList(doctorsRes.data.data.doctorList);
       dispatch(setWeekdays(weekdayRes.data.data));
     } catch (error) {
-      console.log(error);
-      toast.error("Failed to fetch doctors list", {
-        description:
-          "Our servers are facing technical issues. Please try again later.",
-      });
+      handleError(error, "Failed to fetch doctors list");
     } finally {
       setLoading(false);
     }
@@ -130,8 +127,7 @@ const BookAppointmentPage = () => {
         setSelectedDate(date);
       }
     } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong");
+      handleError(error, "Something went wrong");
     } finally {
       setFetchingTimeSlots(false);
     }

@@ -24,7 +24,7 @@ const DashboardLayout = () => {
   const location = useLocation();
 
   if (!user) {
-    toast.error("You need to login to access this page");
+    toast.error("Session expired. Please login again.");
     return <Navigate to={APP_ROUTES.LOGIN} />;
   }
 

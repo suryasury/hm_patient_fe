@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Spinner from "@/components/ui/spinner";
+import useErrorHandler from "@/hooks/useError";
 import { getUserDetails, login } from "@/https/auth-service";
 import { getWeekdayList } from "@/https/patients-service";
 import { setWeekdays } from "@/state/appointementReducer";
@@ -55,6 +56,7 @@ const LoginForm = () => {
   const [submitting, setSubmitting] = useState<boolean>(false);
 
   const user = useSelector((state: { user: UserState }) => state.user.user);
+  const handleError = useErrorHandler();
 
   if (user) {
     return <Navigate to={APP_ROUTES.DASHBOARD} />;
@@ -86,8 +88,7 @@ const LoginForm = () => {
       }
       toast.success("Logged in successfully");
     } catch (error) {
-      console.log(error);
-      toast.error("Failed to login");
+      handleError(error, "Failed to login");
     } finally {
       setSubmitting(false);
     }

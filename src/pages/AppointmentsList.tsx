@@ -3,12 +3,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import useErrorHandler from "@/hooks/useError";
 import { getAppointmentList } from "@/https/patients-service";
 import { IAppointmentResponse } from "@/types";
 import { Calendar, Clock, Eye } from "lucide-react"; // Import the Eye icon
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 const statusClasses: { [key: string]: string } = {
   SCHEDULED: "bg-blue-100 text-blue-800",
   PENDING: "bg-yellow-100 text-yellow-800",
@@ -53,6 +53,7 @@ const AppointmentsList = () => {
   >([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const handleError = useErrorHandler();
 
   const fetchAppointments = async () => {
     try {
@@ -61,11 +62,7 @@ const AppointmentsList = () => {
       const transformedAppointments = appointmentRes.data.data.appointmentList;
       setAppointmentList(transformedAppointments);
     } catch (error) {
-      console.error("Error fetching appointments", error);
-      toast.error("Error fetching appointments", {
-        description:
-          "Our servers are facing technical issues. Please try again later.",
-      });
+      handleError(error, "Failed to fetch appointments");
     } finally {
       setLoading(false);
     }
