@@ -61,6 +61,7 @@ const DatePicker = ({
             setDate(e);
             setShowCalender(false);
           }}
+          
           initialFocus
           disabled={disabled}
         />

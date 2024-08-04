@@ -3,9 +3,30 @@ import * as React from "react";
 import { DayPicker } from "react-day-picker";
 
 import { buttonVariants } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
+const monthMapping: { [key: string]: number } = {
+  January: 0,
+  February: 1,
+  March: 2,
+  April: 3,
+  May: 4,
+  June: 5,
+  July: 6,
+  August: 7,
+  September: 8,
+  October: 9,
+  November: 10,
+  December: 11,
+};
 
 function Calendar({
   className,
@@ -13,9 +34,111 @@ function Calendar({
   showOutsideDays = true,
   ...props
 }: CalendarProps) {
+  const [selectedMonth, setSelectedMonth] = React.useState(new Date());
+
+  const handleMonthChange = (month: Date) => {
+    setSelectedMonth(month);
+  };
+
+  const handleMonthSelect = (month: string) => {
+    console.log(month);
+
+    const newMonth = new Date(selectedMonth);
+    newMonth.setMonth(monthMapping[month]);
+    setSelectedMonth(newMonth);
+  };
+
+  const handleYearSelect = (year: string) => {
+    const newYear = new Date(selectedMonth);
+    newYear.setFullYear(parseInt(year));
+    setSelectedMonth(newYear);
+  };
+
+  const handlePrevMonth = () => {
+    const newMonth = new Date(selectedMonth);
+    newMonth.setMonth(selectedMonth.getMonth() - 1);
+    setSelectedMonth(newMonth);
+  };
+
+  const handleNextMonth = () => {
+    const newMonth = new Date(selectedMonth);
+    newMonth.setMonth(selectedMonth.getMonth() + 1);
+    setSelectedMonth(newMonth);
+  };
+
+  const months = Array.from({ length: 12 }, (_, i) =>
+    new Date(0, i).toLocaleString("default", { month: "long" })
+  );
+  const currentYear = new Date().getFullYear();
+  const years = Array.from(
+    { length: currentYear - 1900 + 1 },
+    (_, i) => 1900 + i
+  );
+
+  const CustomCaption = () => (
+    <div className="flex justify-center items-center mb-4">
+      <button
+        onClick={handlePrevMonth}
+        className={cn(
+          buttonVariants({ variant: "outline" }),
+          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 mr-2"
+        )}
+      >
+        <ChevronLeftIcon className="h-4 w-4" />
+      </button>
+
+      <Select
+        value={months[selectedMonth.getMonth()]}
+        onValueChange={(month: string) => handleMonthSelect(month)}
+      >
+        <SelectTrigger className=" border rounded-lg p-1 bg-transparent w-[94px] opacity-50 hover:opacity-100 mr-2">
+          <SelectValue placeholder="Select Year" />
+        </SelectTrigger>
+        <SelectContent className="min-w-0">
+          <SelectGroup className="max-w-fit">
+            {months.map((month) => (
+              <SelectItem value={String(month)} key={month}>
+                {month}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+
+      <Select
+        value={selectedMonth.getFullYear().toString()}
+        onValueChange={(year: string) => handleYearSelect(year)}
+      >
+        <SelectTrigger className=" border rounded-lg p-1 bg-transparent w-fit opacity-50 hover:opacity-100 mr-2">
+          <SelectValue placeholder="Select Year" />
+        </SelectTrigger>
+        <SelectContent className="min-w-0">
+          <SelectGroup className="max-w-fit">
+            {years.map((year) => (
+              <SelectItem value={year.toString()} key={year}>
+                {year}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      <button
+        onClick={handleNextMonth}
+        className={cn(
+          buttonVariants({ variant: "outline" }),
+          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 ml-2"
+        )}
+      >
+        <ChevronRightIcon className="h-4 w-4" />
+      </button>
+    </div>
+  );
+
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
+      month={selectedMonth}
+      onMonthChange={handleMonthChange}
       className={cn("p-3", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
@@ -60,6 +183,7 @@ function Calendar({
       components={{
         IconLeft: () => <ChevronLeftIcon className="h-4 w-4" />,
         IconRight: () => <ChevronRightIcon className="h-4 w-4" />,
+        Caption: CustomCaption,
       }}
       {...props}
     />

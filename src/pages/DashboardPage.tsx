@@ -298,90 +298,94 @@ const DashboardPage = () => {
       </Card>
 
       {/* Appointment History Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <p>Past Appointments</p>
-            <Button
-              size="sm"
-              className="ml-auto gap-1"
-              onClick={() => navigate(`${APP_ROUTES.APPOINTMENT_LIST}/history`)}
-              disabled={loadingAppointments}
-            >
-              <div className="flex gap-1 items-center">
-                <span>View All</span>
-                <ArrowUpRight className="h-4 w-4" />
-              </div>
-            </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4">
-          {loadingAppointments ? (
-            <AppointmentCardSkeleton />
-          ) : (
-            pastAppointments.slice(0, 3).map((appointment) => (
-              <div
-                key={appointment.id}
-                className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4 border-b last:border-none"
+      {pastAppointments.length !== 0 && !loadingAppointments && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <p>Past Appointments</p>
+              <Button
+                size="sm"
+                className="ml-auto gap-1"
+                onClick={() =>
+                  navigate(`${APP_ROUTES.APPOINTMENT_LIST}/history`)
+                }
+                disabled={loadingAppointments}
               >
-                <Avatar className="hidden h-[50px] w-[50px] sm:flex">
-                  <AvatarImage
-                    src={appointment.doctor.profilePictureUrl}
-                    alt="Avatar"
-                  />
-                  <AvatarFallback>
-                    {appointment.doctor.name
-                      .split(" ")
-                      .map((name) => name[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="grid gap-1 flex-1 w-full">
-                  <div className="flex items-center justify-between w-full">
-                    <div>
-                      <p className="text-md font-medium leading-none">
-                        {appointment.doctor.name}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {appointment.doctor.speciality}
-                      </p>
+                <div className="flex gap-1 items-center">
+                  <span>View All</span>
+                  <ArrowUpRight className="h-4 w-4" />
+                </div>
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            {loadingAppointments ? (
+              <AppointmentCardSkeleton />
+            ) : (
+              pastAppointments.slice(0, 3).map((appointment) => (
+                <div
+                  key={appointment.id}
+                  className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4 border-b last:border-none"
+                >
+                  <Avatar className="hidden h-[50px] w-[50px] sm:flex">
+                    <AvatarImage
+                      src={appointment.doctor.profilePictureUrl}
+                      alt="Avatar"
+                    />
+                    <AvatarFallback>
+                      {appointment.doctor.name
+                        .split(" ")
+                        .map((name) => name[0])
+                        .join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="grid gap-1 flex-1 w-full">
+                    <div className="flex items-center justify-between w-full">
+                      <div>
+                        <p className="text-md font-medium leading-none">
+                          {appointment.doctor.name}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {appointment.doctor.speciality}
+                        </p>
+                      </div>
+                      <div
+                        className={`badge ${
+                          statusClasses[appointment.appointmentStatus]
+                        } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize`}
+                      >
+                        {appointment.appointmentStatus.toLowerCase()}
+                      </div>
                     </div>
-                    <div
-                      className={`badge ${
-                        statusClasses[appointment.appointmentStatus]
-                      } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize`}
-                    >
-                      {appointment.appointmentStatus.toLowerCase()}
+                    <div className="flex items-center text-sm text-muted-foreground w-full justify-between">
+                      <div className="flex items-center">
+                        <Calendar className="h-4 w-4 mr-1" />
+                        {new Date(
+                          appointment.appointmentDate
+                        ).toLocaleDateString()}
+                        <Clock className="h-4 w-4 mx-2" />
+                        {appointment.doctorSlots.slot.startTime}
+                      </div>
+                      <Button
+                        onClick={() =>
+                          navigate(
+                            `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
+                          )
+                        }
+                        variant={"link"}
+                        className="p-0 self-start"
+                      >
+                        <Eye className="h-4 w-4" />
+                        <span className="ml-1">View</span>
+                      </Button>
                     </div>
-                  </div>
-                  <div className="flex items-center text-sm text-muted-foreground w-full justify-between">
-                    <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-1" />
-                      {new Date(
-                        appointment.appointmentDate
-                      ).toLocaleDateString()}
-                      <Clock className="h-4 w-4 mx-2" />
-                      {appointment.doctorSlots.slot.startTime}
-                    </div>
-                    <Button
-                      onClick={() =>
-                        navigate(
-                          `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
-                        )
-                      }
-                      variant={"link"}
-                      className="p-0 self-start"
-                    >
-                      <Eye className="h-4 w-4" />
-                      <span className="ml-1">View</span>
-                    </Button>
                   </div>
                 </div>
-              </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

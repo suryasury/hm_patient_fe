@@ -13,14 +13,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import useErrorHandler from "@/hooks/useError";
+import { getUserDetails } from "@/https/auth-service";
+import { uploadProfilePicture } from "@/https/patients-service";
+import { setUser } from "@/state/userReducer";
 import { User, UserState } from "@/types";
-import { UserIcon } from "lucide-react";
+import { Loader, UserIcon } from "lucide-react";
 import React, { Dispatch, SetStateAction, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
 const Profile: React.FC = () => {
   const user = useSelector((state: { user: UserState }) => state.user.user!);
   const imageRef = useRef<HTMLInputElement>(null);
+
   const {
     register,
     handleSubmit,
@@ -34,6 +40,11 @@ const Profile: React.FC = () => {
     new Date(user.dateOfBirth)
   );
   const [bloodGroup, setBloodGroup] = useState("A+");
+  
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const handleError = useErrorHandler();
+
+  const dispatch = useDispatch();
 
   const onSubmit = (data: User) => {
     console.log(data);
@@ -48,8 +59,35 @@ const Profile: React.FC = () => {
       date ? (date as Date).toISOString().split("T")[0] : ""
     );
   };
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = e.target.files?.[0];
+      setUploadingImage(true);
+      if (file) {
+        const validImageTypes = ["image/jpeg", "image/png"];
+        if (!validImageTypes.includes(file.type)) {
+          toast.error("Only images are allowed");
+          throw new Error("Not an image");
+        }
+        const formData = new FormData();
+        formData.append("file", file);
+        const response = await uploadProfilePicture(formData);
+        toast.success("Profile picture uploaded successfully");
+        const detailsRes = await getUserDetails();
+        dispatch(setUser(detailsRes.data.data));
+      } else {
+        throw new Error("No file selected");
+      }
+    } catch (error) {
+      console.error(error);
+      handleError(error, "Failed to upload profile picture");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
   const genders = ["MALE", "FEMALE", "OTHERS"];
   const bloodGrops = ["A+", "B+", "O+", "AB+", "A-", "B-", "O-", "AB-"];
+
   return (
     <div className="container mx-auto p-4 w-full">
       <Card>
@@ -62,14 +100,17 @@ const Profile: React.FC = () => {
             <div className="flex flex-wrap gap-4 mb-4">
               <div className="flex items-center w-full md:w-1/3">
                 <div className="flex gap-3 items-center">
-                  <Avatar className="w-20 h-20">
-                    <AvatarImage src={user.profilePictureUrl} alt="image" />
+                  <Avatar className="w-24 h-24">
+                    <AvatarImage
+                      src={user.signedUrl}
+                      alt="image"
+                      className="object-fit aspect-square"
+                    />
                     <AvatarFallback
                       className="hover:cursor-pointer"
                       onClick={() => imageRef?.current?.click()}
                     >
                       <UserIcon className="w-12 h-12" />
-                      <input ref={imageRef} type="file" className="hidden" />
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start ml-4">
@@ -79,12 +120,31 @@ const Profile: React.FC = () => {
                     </p>
                     <Button
                       variant="link"
-                      onClick={() => imageRef?.current?.click()}
-                      className="mt-2"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        imageRef?.current?.click();
+                      }}
+                      className="mt-2 ml-[-12px]"
                     >
-                      Add Photo
+                      {uploadingImage ? (
+                        <>
+                          <Loader className="animate-spin" />
+                          Uploading...
+                        </>
+                      ) : user.signedUrl ? (
+                        "Update Photo"
+                      ) : (
+                        "Add Photo"
+                      )}
                     </Button>
                   </div>
+                  <input
+                    ref={imageRef}
+                    type="file"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                    accept="image/jpeg,image/png"
+                  />
                 </div>
               </div>
               <div className="w-full md:w-2/3">

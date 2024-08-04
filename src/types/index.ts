@@ -45,6 +45,7 @@ export interface User {
     country: string;
     pincode: string;
   };
+  signedUrl: string;
 }
 export interface Doctor {
   id: string;
@@ -162,4 +163,21 @@ export interface IUpdatePrescriptionTakenPayload {
   prescriptionDayId: string;
   prescriptionTimeOfDayId: string;
   isPrescriptionTaken: boolean;
+}
+export interface ISignupForm {
+  name: string;
+  email: string;
+  password: string;
+  phoneNumber: string;
+  isd_code: string;
+  dateOfBirth: string;
+  gender: string;
+  bloodGroup: string;
+  houseNumber?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  country?: string;
 }
