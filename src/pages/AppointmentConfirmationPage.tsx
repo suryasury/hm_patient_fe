@@ -7,15 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  CalendarCheck,
-  CalendarX,
-  CloudSun,
-  Moon,
-  Stethoscope,
-  Sun,
-} from "lucide-react";
-
 import DatePicker from "@/components/ui/date-picker";
 import {
   Dialog,
@@ -35,14 +26,29 @@ import {
   UserState,
 } from "@/types";
 import { format } from "date-fns";
-import { Clock } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import {
+  CalendarCheck,
+  CalendarX,
+  Clock,
+  CloudSun,
+  Moon,
+  Stethoscope,
+  Sun,
+  UploadCloud,
+  X,
+} from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { APP_ROUTES } from "@/appRoutes";
+import { Badge } from "@/components/ui/badge";
 import Spinner from "@/components/ui/spinner";
 import useErrorHandler from "@/hooks/useError";
-import { createAppointment, getDoctorSlots } from "@/https/patients-service";
+import {
+  createAppointment,
+  getDoctorSlots,
+  uploadDocuments,
+} from "@/https/patients-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
@@ -91,12 +97,16 @@ const AppointmentConfirmationPage = () => {
   });
   const [fetchingTimeSlots, setFetchingTimeSlots] = useState(false);
   const [showChangeTimeDialog, setShowChangeTimeDialog] = useState(false);
-  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [files, setFiles] = useState<File[]>([]);
+  const [submitting, setSubmitting] = useState<boolean | string>(false);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
 
   const user = useSelector((state: { user: UserState }) => state.user.user);
   const weekdays = useSelector(
     (state: { appointment: IAppointmentState }) => state.appointment.weekdays
   );
+
+  const [viewFile, setViewFiles] = useState<File | null>(null);
 
   const handleError = useErrorHandler();
 
@@ -120,9 +130,8 @@ const AppointmentConfirmationPage = () => {
     data: IAppointmentForm
   ) => {
     try {
-      setSubmitting(true);
       const { remarks, decease } = data;
-
+      const documents = await uploadDocs();
       const payload: IAppointmentForm = {
         doctorId: location.state?.doctor?.id,
         doctorSlotId: location.state?.slot?.id,
@@ -130,7 +139,9 @@ const AppointmentConfirmationPage = () => {
         remarks,
         decease,
         appointmentDate: selectedDate!.toISOString(),
+        documents: documents,
       };
+      setSubmitting("form");
       const res = await createAppointment(payload);
       if (res.status === 200) {
         toast.success("Booked Successfully", {
@@ -142,6 +153,22 @@ const AppointmentConfirmationPage = () => {
       handleError(error, "Failed to book appointment");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const uploadDocs = async () => {
+    try {
+      setSubmitting("docs");
+      const formData = new FormData();
+      files.forEach((file) => {
+        formData.append("files", file);
+      });
+      const res = await uploadDocuments(formData);
+      if (res.status === 200) {
+        return res.data.data;
+      }
+    } catch (error) {
+      throw error;
     }
   };
 
@@ -171,6 +198,14 @@ const AppointmentConfirmationPage = () => {
       handleError(error, "Failed to fetch time slots");
     } finally {
       setFetchingTimeSlots(false);
+    }
+  };
+
+  const handleUploadDocChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      setFiles((prev) => [...prev, file]);
     }
   };
 
@@ -355,7 +390,6 @@ const AppointmentConfirmationPage = () => {
                       type="text"
                       value={user?.name}
                       disabled
-                      className="border-2 rounded-sm p-2"
                     />
                   </div>
 
@@ -366,18 +400,12 @@ const AppointmentConfirmationPage = () => {
                       type="text"
                       value={user?.phoneNumber}
                       disabled
-                      className="border-2 rounded-sm p-2"
                     />
                   </div>
 
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="ailment">Ailment</Label>
-                    <Input
-                      id="ailment"
-                      type="text"
-                      {...register("decease")}
-                      className="border-2 rounded-sm p-2"
-                    />
+                    <Input id="ailment" type="text" {...register("decease")} />
                     {errors.decease && (
                       <span className="text-red-500">
                         {errors.decease.message as string}
@@ -386,19 +414,97 @@ const AppointmentConfirmationPage = () => {
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="remarks">Remarks</Label>
-                    <Textarea
-                      id="remarks"
-                      {...register("remarks")}
-                      className="border-2 rounded-sm p-2"
+                    <Label htmlFor="remarks">Remarks(optional)</Label>
+                    <Textarea id="remarks" {...register("remarks")} />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="documents">Documents(optional)</Label>
+                    <div className="flex flex-col gap-2 flex-wrap gap-1">
+                      <div className="flex gap-1 items-center">
+                        {files.map((file, index) => (
+                          <Dialog>
+                            <DialogTrigger>
+                              <Badge
+                                variant={"secondary"}
+                                key={index}
+                                className="cursor-pointer"
+                                onClick={() => setViewFiles(file)}
+                              >
+                                <div className="flex w-full gap-2 items-center">
+                                  <p>{`Record ${index + 1}.${file.name
+                                    .split(".")
+                                    .pop()}`}</p>
+                                  <X
+                                    className="w-3 h-3 hover:scale-110"
+                                    onClick={(e) => {
+                                      setFiles((prev) =>
+                                        prev.filter((_, i) => i !== index)
+                                      );
+                                      e.stopPropagation();
+                                    }}
+                                  />
+                                </div>
+                              </Badge>
+                            </DialogTrigger>
+
+                            <DialogContent className="max-w-[900px] max-h-[600px] min-h-[40vh] rounded-lg shadow-lg flex flex-col overflow-auto">
+                              <DialogTitle>
+                                <DialogHeader>{file.name}</DialogHeader>
+                              </DialogTitle>
+                              {file.name.split(".").pop() === "pdf" ? (
+                                <div className="flex justify-center items-center w-full h-90">
+                                  <embed
+                                    src={URL.createObjectURL(file)}
+                                    className="w-full h-full border-none"
+                                    style={{ minHeight: "80vh" }}
+                                  />
+                                </div>
+                              ) : (
+                                <img
+                                  src={URL.createObjectURL(file)}
+                                  alt="record"
+                                  width={"100%"}
+                                  className="max-h-[500px] object-contain "
+                                />
+                              )}
+                            </DialogContent>
+                          </Dialog>
+                        ))}
+                      </div>
+                      <Button
+                        className="w-fit"
+                        size="sm"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          uploadInputRef.current?.click();
+                        }}
+                      >
+                        <div className="flex gap-1 items-center">
+                          <UploadCloud className="w-4 h-4" />
+                          Upload
+                        </div>
+                      </Button>
+                    </div>
+                    <input
+                      className="hidden"
+                      ref={uploadInputRef}
+                      onChange={handleUploadDocChange}
+                      type="file"
+                      accept=".png, .jpeg, .jpg, .pdf"
                     />
                   </div>
 
-                  <Button type="submit" className="mt-4" disabled={submitting}>
+                  <Button
+                    type="submit"
+                    className="mt-4"
+                    disabled={submitting !== false}
+                  >
                     {submitting ? (
                       <>
                         <Spinner type="light" />
-                        Please wait...
+                        {submitting === "form"
+                          ? "Confirming..."
+                          : "Uploading documents..."}
                       </>
                     ) : (
                       "Confirm Appointment"
