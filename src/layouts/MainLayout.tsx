@@ -1,4 +1,5 @@
 import { APP_ROUTES } from "@/appRoutes";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { clearUser } from "@/state/userReducer";
 import { UserState } from "@/types";
-import { CircleUser, PlusCircle } from "lucide-react";
+import { PlusCircle, UserIcon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -37,7 +38,16 @@ const DashboardLayout = () => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="secondary" size="icon" className="rounded-full">
-              <CircleUser className="h-5 w-5" />
+              <Avatar className="w-10 h-10">
+                <AvatarImage
+                  src={user.signedUrl}
+                  alt="image"
+                  className="object-fit aspect-square"
+                />
+                <AvatarFallback className="hover:cursor-pointer">
+                  <UserIcon className="w-12 h-12" />
+                </AvatarFallback>
+              </Avatar>
               <span className="sr-only">Toggle user menu</span>
             </Button>
           </DropdownMenuTrigger>

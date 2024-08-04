@@ -47,12 +47,10 @@ import {
   getAppointmentDetails,
   getDoctorSlots,
 } from "@/https/patients-service";
-import { pdfjs } from "react-pdf";
-import "react-pdf/dist/esm/Page/AnnotationLayer.css";
+
 import { useSelector } from "react-redux";
 import { getWeekdayId } from "./utils";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const getIconForPeriod = (period: string) => {
   switch (period) {

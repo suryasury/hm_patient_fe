@@ -86,3 +86,11 @@ export const getAppointmentDetails = async (appointmentId: string) => {
     throw error;
   }
 };
+
+export const uploadProfilePicture = async (data: FormData) => {
+  try {
+    return api.post(API_END_POINTS.UPLOAD_PROFiLE_PICTURE, data);
+  } catch (error) {
+    throw error;
+  }
+}

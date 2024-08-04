@@ -1,4 +1,4 @@
-import { IloginForm } from "@/types";
+import { IloginForm, ISignupForm } from "@/types";
 import { api } from "./api";
 import { API_END_POINTS } from "./constants";
 
@@ -17,3 +17,11 @@ export const getUserDetails = async () => {
     throw error;
   }
 };
+
+export const register = async (payload: ISignupForm) => {
+  try {
+    return api.post(API_END_POINTS.REGISTER, payload);
+  } catch (error) {
+    throw error;
+  }
+}

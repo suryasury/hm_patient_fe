@@ -73,28 +73,32 @@ const AppointmentsList = () => {
     fetchAppointments();
   }, [type]);
 
+  const getTextAndLink = () => {
+    if (type === "upcoming") {
+      return {
+        text: "Upcoming",
+        link: `${APP_ROUTES.APPOINTMENT_LIST}/history`,
+      };
+    } else {
+      return {
+        text: "Past",
+        link: `${APP_ROUTES.APPOINTMENT_LIST}/upcoming`,
+      };
+    }
+  };
+
   return (
     <Card className="w-full h-100">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 justify-between ">
+        <CardTitle className="flex items-center gap-2 flex-wrap justify-between ">
           <p>{type === "upcoming" ? "Upcoming" : "Past"} Appointments</p>
-          {type === "upcoming" ? (
-            <Button
-              size="sm"
-              onClick={() => navigate(`${APP_ROUTES.APPOINTMENT_LIST}/history`)}
-            >
-              Show Past Appointments
-            </Button>
-          ) : (
-            <Button
-              size="sm"
-              onClick={() =>
-                navigate(`${APP_ROUTES.APPOINTMENT_LIST}/upcoming`)
-              }
-            >
-              Show Upcoming Appointments
-            </Button>
-          )}
+          <Button
+            size="sm"
+            className="mt-2 md:mt-0"
+            onClick={() => navigate(getTextAndLink().link)}
+          >
+            {getTextAndLink().text} Appointments
+          </Button>
         </CardTitle>
       </CardHeader>
       <CardContent className="grid gap-4 h-100 ">
@@ -118,7 +122,7 @@ const AppointmentsList = () => {
                     .join("")}
                 </AvatarFallback>
               </Avatar>
-              <div className="grid gap-1 flex-1">
+              <div className="grid gap-1 flex-1 w-full">
                 <div className="flex items-center justify-between w-full">
                   <div>
                     <p className="text-md font-medium leading-none">

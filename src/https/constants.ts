@@ -9,6 +9,8 @@ export const API_END_POINTS = {
   MEDICATIONS: "user/prescription/daywise/details",
   APPOINTMENT_HISTORY: "user/appointment/history/list",
   UPDATE_MEDICATION_TAKEN: "user/prescription/medication/status/update",
-  UPLOAD_DOCUMENTS: "/common/customer/upload/records",
-  APPOINTMENT_DETAILS: "user/appointment/details", 
+  UPLOAD_DOCUMENTS: "common/customer/upload/records",
+  APPOINTMENT_DETAILS: "user/appointment/details",
+  UPLOAD_PROFiLE_PICTURE: "common/customer/upload/profilepicture",
+  REGISTER:"/user/signup"
 };

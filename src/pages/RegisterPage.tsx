@@ -7,11 +7,107 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import DatePicker from "@/components/ui/date-picker";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Link } from "react-router-dom";
+import { PhoneInput } from "@/components/ui/phone-input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import Spinner from "@/components/ui/spinner";
+import { register } from "@/https/auth-service";
+import { ISignupForm } from "@/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { AxiosError, AxiosResponse } from "axios";
+import { Dispatch, SetStateAction, useState } from "react";
+import { useForm, useFormContext } from "react-hook-form";
+import { isValidPhoneNumber } from "react-phone-number-input";
+import "react-phone-number-input/style.css";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { z } from "zod";
+
+const registerSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().min(1, "Email/Mobile Number is required"),
+  password: z.string().min(1, "Password is required"),
+  phoneNumber: z
+    .string()
+    .refine(isValidPhoneNumber, { message: "Invalid phone number" })
+    .or(z.literal("")),
+  dateOfBirth: z.date({ required_error: "Date of Birth is required" }),
+  gender: z.string().min(1, "Gender is required"),
+  bloodGroup: z.string().min(1, "Blood Group is required"),
+});
+
+type RegisterFormInputs = z.infer<typeof registerSchema>;
 
 const RegisterPage = () => {
+  const form = useForm<RegisterFormInputs>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      phoneNumber: "",
+      dateOfBirth: undefined,
+      gender: "",
+      bloodGroup: "",
+    },
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const formCtx = useFormContext();
+
+  const genders = ["MALE", "FEMALE", "OTHER"];
+  const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+
+  const onSubmit = async (data: RegisterFormInputs) => {
+    try {
+      setSubmitting(true);
+      const payload: ISignupForm = {
+        ...data,
+        phoneNumber: data.phoneNumber.substring(3),
+        isd_code: data.phoneNumber.substring(0, 3),
+        dateOfBirth: data.dateOfBirth.toISOString(),
+      };
+
+      const response: AxiosResponse = await register(payload);
+      toast.success("Registration successful");
+    } catch (error: AxiosError | unknown) {
+      console.error("Error:", error);
+      let message =
+        "Our servers are facing some issues. Please try again later";
+
+      if (error?.response!.status === 409) {
+        message = "User already exists";
+      }
+
+      toast.error("Registration failed", {
+        description: message,
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+  const handleDateChange: Dispatch<SetStateAction<Date | undefined>> = (
+    date
+  ) => {
+    formCtx?.setValue("dateOfBirth", date);
+  };
+
   return (
     <section className="flex items-center justify-center h-screen">
       <Card className="w-full max-w-sm">
@@ -22,19 +118,166 @@ const RegisterPage = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email/Mobile Number</Label>
-              <Input id="email-ph-number" type="text" required />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" />
-            </div>
-            <Button type="submit" className="w-full">
-              Get Started!
-            </Button>
-          </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email/Mobile Number</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter your email or mobile number"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="Enter your password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phoneNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <PhoneInput
+                        defaultCountry="IN"
+                        placeholder="Enter a phone number"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="dateOfBirth"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date of Birth</FormLabel>
+                    <FormControl>
+                      <DatePicker
+                        date={field.value}
+                        setDate={(date) => {
+                          field.onChange(date);
+                          handleDateChange(date);
+                        }}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="gender"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Gender</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                  <SelectTrigger className="capitalize">
+                  <SelectValue placeholder="Select Gender" />
+                        </SelectTrigger>
+                        <SelectContent className="capitalize">
+                          <SelectGroup>
+                            {genders.map((item) => (
+                              <SelectItem
+                                value={item}
+                                key={item}
+                                className="capitalize"
+                              >
+                                {item.toLowerCase()}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="bloodGroup"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Blood Group</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Blood Group" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {bloodGroups.map((item) => (
+                              <SelectItem value={item} key={item}>
+                                {item}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? (
+                  <>
+                    <Spinner type="light" />
+                    Please wait...
+                  </>
+                ) : (
+                  "Get Started!"
+                )}
+              </Button>
+            </form>
+          </Form>
           <div className="mt-4 text-center text-sm">
             Already have an account?{" "}
             <Link to={APP_ROUTES.LOGIN} className="underline">
