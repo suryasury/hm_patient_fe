@@ -12,9 +12,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 export function DynamicBreadcrumbs() {
   const location = useLocation();
   const navigate = useNavigate();
-  const pathnames = location.pathname
-    .split("/")
-    .filter((x) => x && x !== "patient"); // Filter out 'patient'
+  const pathnames = location.pathname.split("/").filter((x, index, arr) => {
+    // Filter out 'patient' and discard any part after 'details'
+    if (x === "patient") return false;
+    const detailsIndex = arr.indexOf("details");
+    if (detailsIndex !== -1 && index > detailsIndex) return false;
+    return true;
+  }).filter(x => x!=="");
 
   // Create breadcrumbs, excluding 'patient' from the path
   const breadcrumbItems: Array<{ name: string; to: string; isLast?: boolean }> =
@@ -34,6 +38,7 @@ export function DynamicBreadcrumbs() {
         };
       }),
     ];
+    
   return (
     <Breadcrumb>
       <BreadcrumbList>
@@ -44,7 +49,10 @@ export function DynamicBreadcrumbs() {
               {item.isLast ? (
                 <BreadcrumbPage>{item.name}</BreadcrumbPage>
               ) : (
-                <BreadcrumbLink className="cursor-pointer" onClick={() => navigate(item.to)}>
+                <BreadcrumbLink
+                  className="cursor-pointer"
+                  onClick={() => navigate(item.to)}
+                >
                   {item.name}
                 </BreadcrumbLink>
               )}

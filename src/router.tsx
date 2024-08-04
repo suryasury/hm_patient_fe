@@ -40,11 +40,15 @@ const router = createBrowserRouter([
         element: <AppointmentConfirmationPage />,
       },
       {
+        path: APP_ROUTES.APPOINTMENT_LIST + "/:type",
+        element: <AppointmentsList />,
+      },
+      {
         path: APP_ROUTES.APPOINTMENT_LIST,
         element: <AppointmentsList />,
       },
       {
-        path: APP_ROUTES.APPOINTMENT_DETAILS,
+        path: APP_ROUTES.APPOINTMENT_DETAILS + "/:id",
         element: <AppointmentDetails />,
       },
       {

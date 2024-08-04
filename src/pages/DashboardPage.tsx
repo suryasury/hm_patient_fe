@@ -4,11 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import useErrorHandler from "@/hooks/useError";
-import {
-  getAppointmentHistory,
-  getAppointmentList,
-  getMedications,
-} from "@/https/patients-service";
+import { getAppointmentList, getMedications } from "@/https/patients-service";
 import { IAppointmentResponse, IMedicationResponse } from "@/types";
 import { format } from "date-fns";
 import {
@@ -100,8 +96,8 @@ const DashboardPage = () => {
     try {
       setLoadingAppointments(true);
       const [appointmentRes, appointmentHistoryRes] = await Promise.all([
-        getAppointmentList(),
-        getAppointmentHistory(),
+        getAppointmentList("upcoming"),
+        getAppointmentList("history"),
       ]);
 
       if (appointmentHistoryRes.status === 401 || appointmentRes.status === 401)
@@ -162,9 +158,7 @@ const DashboardPage = () => {
                 size="sm"
                 className="ml-auto gap-1 self-end"
                 onClick={() =>
-                  navigate(APP_ROUTES.APPOINTMENT_LIST, {
-                    state: appointmentList,
-                  })
+                  navigate(`${APP_ROUTES.APPOINTMENT_LIST}/upcoming`)
                 }
                 disabled={loadingAppointments}
               >
@@ -239,9 +233,9 @@ const DashboardPage = () => {
                     </div>
                     <Button
                       onClick={() =>
-                        navigate(APP_ROUTES.APPOINTMENT_DETAILS, {
-                          state: appointment,
-                        })
+                        navigate(
+                          `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
+                        )
                       }
                       variant={"link"}
                       className="p-0 self-start"
@@ -311,11 +305,7 @@ const DashboardPage = () => {
             <Button
               size="sm"
               className="ml-auto gap-1"
-              onClick={() =>
-                navigate(APP_ROUTES.APPOINTMENT_LIST, {
-                  state: pastAppointments,
-                })
-              }
+              onClick={() => navigate(`${APP_ROUTES.APPOINTMENT_LIST}/history`)}
               disabled={loadingAppointments}
             >
               <div className="flex gap-1 items-center">
@@ -375,9 +365,9 @@ const DashboardPage = () => {
                     </div>
                     <Button
                       onClick={() =>
-                        navigate(APP_ROUTES.APPOINTMENT_DETAILS, {
-                          state: appointment,
-                        })
+                        navigate(
+                          `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
+                        )
                       }
                       variant={"link"}
                       className="p-0 self-start"

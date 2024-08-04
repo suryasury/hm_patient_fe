@@ -63,6 +63,7 @@ export interface IAppointmentForm {
   remarks: string;
   decease: string;
   appointmentDate: string;
+  documents?: Record<string, string>[];
 }
 
 export interface IloginForm {
@@ -123,6 +124,7 @@ export interface IAppointmentResponse {
       hospitalId: string;
     };
   };
+  patientAppointmentDocs?: Record<string, string>[];
 }
 
 export interface IMedicationResponse {

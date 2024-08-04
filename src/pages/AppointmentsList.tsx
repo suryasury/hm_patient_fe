@@ -8,7 +8,7 @@ import { getAppointmentList } from "@/https/patients-service";
 import { IAppointmentResponse } from "@/types";
 import { Calendar, Clock, Eye } from "lucide-react"; // Import the Eye icon
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 const statusClasses: { [key: string]: string } = {
   SCHEDULED: "bg-blue-100 text-blue-800",
   PENDING: "bg-yellow-100 text-yellow-800",
@@ -54,11 +54,12 @@ const AppointmentsList = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const handleError = useErrorHandler();
+  const { type = "upcoming" } = useParams();
 
   const fetchAppointments = async () => {
     try {
       setLoading(true);
-      const appointmentRes = await getAppointmentList();
+      const appointmentRes = await getAppointmentList(type!);
       const transformedAppointments = appointmentRes.data.data.appointmentList;
       setAppointmentList(transformedAppointments);
     } catch (error) {
@@ -70,16 +71,33 @@ const AppointmentsList = () => {
 
   useEffect(() => {
     fetchAppointments();
-  }, []);
+  }, [type]);
 
   return (
     <Card className="w-full h-100">
       <CardHeader>
-        <CardTitle className="flex items-center">
-          <p>My Appointments</p>
+        <CardTitle className="flex items-center gap-2 justify-between ">
+          <p>{type === "upcoming" ? "Upcoming" : "Past"} Appointments</p>
+          {type === "upcoming" ? (
+            <Button
+              size="sm"
+              onClick={() => navigate(`${APP_ROUTES.APPOINTMENT_LIST}/history`)}
+            >
+              Show Past Appointments
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              onClick={() =>
+                navigate(`${APP_ROUTES.APPOINTMENT_LIST}/upcoming`)
+              }
+            >
+              Show Upcoming Appointments
+            </Button>
+          )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="grid gap-4 h-100 overflow-scroll">
+      <CardContent className="grid gap-4 h-100 ">
         {loading ? (
           <AppointmentListSkeleton />
         ) : (
@@ -118,18 +136,21 @@ const AppointmentsList = () => {
                     {appointment.appointmentStatus.toLowerCase()}
                   </div>
                 </div>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4 mr-1" />
-                  {new Date(appointment.appointmentDate).toLocaleDateString()}
-                  <Clock className="h-4 w-4 mx-2" />
-                  {appointment.doctorSlots.slot.startTime}
+                <div className="flex items-center text-sm text-muted-foreground w-full justify-between">
+                  <div className="flex items-center">
+                    <Calendar className="h-4 w-4 mr-1" />
+                    {new Date(appointment.appointmentDate).toLocaleDateString()}
+                    <Clock className="h-4 w-4 mx-2" />
+                    {appointment.doctorSlots.slot.startTime}
+                  </div>
                   <Button
                     onClick={() =>
-                      navigate(APP_ROUTES.APPOINTMENT_DETAILS, {
-                        state: appointment,
-                      })
+                      navigate(
+                        `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
+                      )
                     }
                     variant={"link"}
+                    className="p-0 self-start"
                   >
                     <Eye className="h-4 w-4" />
                     <span className="ml-1">View</span>

@@ -33,9 +33,13 @@ export const createAppointment = async (payload: IAppointmentForm) => {
   }
 };
 
-export const getAppointmentList = async () => {
+export const getAppointmentList = async (type: string) => {
   try {
-    return api.get(API_END_POINTS.APPOINTMENT_LIST);
+    const URL =
+      type === "upcoming"
+        ? API_END_POINTS.APPOINTMENT_LIST
+        : API_END_POINTS.APPOINTMENT_HISTORY;
+    return api.get(URL);
   } catch (error) {
     throw error;
   }
@@ -62,6 +66,22 @@ export const updatePrescriptionTaken = async (
 ) => {
   try {
     return api.patch(API_END_POINTS.UPDATE_MEDICATION_TAKEN, payload);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const uploadDocuments = async (data: FormData) => {
+  try {
+    return api.post(API_END_POINTS.UPLOAD_DOCUMENTS, data);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getAppointmentDetails = async (appointmentId: string) => {
+  try {
+    return api.get(`${API_END_POINTS.APPOINTMENT_DETAILS}/${appointmentId}`);
   } catch (error) {
     throw error;
   }
