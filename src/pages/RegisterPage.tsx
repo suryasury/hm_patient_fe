@@ -27,7 +27,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Spinner from "@/components/ui/spinner";
-import { register } from "@/https/auth-service";
+import { getUserDetails, register } from "@/https/auth-service";
+import { setUser } from "@/state/userReducer";
 import { ISignupForm } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError, AxiosResponse } from "axios";
@@ -35,6 +36,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { useForm, useFormContext } from "react-hook-form";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
+import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -70,6 +72,7 @@ const RegisterPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
   const formCtx = useFormContext();
+  const dispatch = useDispatch()
 
   const genders = ["MALE", "FEMALE", "OTHER"];
   const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -86,6 +89,9 @@ const RegisterPage = () => {
 
       const response: AxiosResponse = await register(payload);
       toast.success("Registration successful");
+      const detailsRes = await getUserDetails();
+      dispatch(setUser(detailsRes.data.data));
+      navigate(APP_ROUTES.DASHBOARD);
     } catch (error: AxiosError | unknown) {
       console.error("Error:", error);
       let message =
@@ -138,7 +144,7 @@ const RegisterPage = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email/Mobile Number</FormLabel>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Enter your email or mobile number"
@@ -215,8 +221,8 @@ const RegisterPage = () => {
                         value={field.value}
                         onValueChange={field.onChange}
                       >
-                  <SelectTrigger className="capitalize">
-                  <SelectValue placeholder="Select Gender" />
+                        <SelectTrigger className="capitalize">
+                          <SelectValue placeholder="Select Gender" />
                         </SelectTrigger>
                         <SelectContent className="capitalize">
                           <SelectGroup>

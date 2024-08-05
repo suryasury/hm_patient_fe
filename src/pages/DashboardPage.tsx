@@ -3,9 +3,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import Spinner from "@/components/ui/spinner";
 import useErrorHandler from "@/hooks/useError";
 import { getAppointmentList, getMedications } from "@/https/patients-service";
-import { IAppointmentResponse, IMedicationResponse } from "@/types";
+import { IAppointmentResponse, MedicationRes } from "@/types";
 import { format } from "date-fns";
 import {
   ArrowUpRight,
@@ -16,6 +17,7 @@ import {
   CloudSun,
   Eye,
   Moon,
+  PillBottle,
   PlusCircle,
   Sun,
 } from "lucide-react"; // Import icons
@@ -82,9 +84,10 @@ const DashboardPage = () => {
   const [pastAppointments, setPastAppointments] = useState<
     IAppointmentResponse[]
   >([]);
-  const [medications, setMedications] = useState<{
-    [key: string]: IMedicationResponse[];
-  }>({});
+  const [medications, setMedications] = useState<MedicationRes>({
+    isPrescriptionAvailable: false,
+    times: {},
+  });
 
   const [loadingAppointments, setLoadingAppointments] = useState(false);
   const [loadingMedications, setLoadingMedications] = useState(false);
@@ -124,11 +127,16 @@ const DashboardPage = () => {
 
       if (medicationRes.status === 401) return;
 
-      const transformedMedications = {
-        morning: medicationRes.data.data.morningPrescription,
-        afternoon: medicationRes.data.data.afterNoonPrescription,
-        evening: medicationRes.data.data.eveningPrescription,
-        night: medicationRes.data.data.nightPrescription,
+      const transformedMedications: MedicationRes = {
+        isPrescriptionAvailable:
+          medicationRes.data.data.isPriscriptionAvailableForTheDay,
+
+        times: {
+          morning: medicationRes.data.data.morningPrescription,
+          afternoon: medicationRes.data.data.afterNoonPrescription,
+          evening: medicationRes.data.data.eveningPrescription,
+          night: medicationRes.data.data.nightPrescription,
+        },
       };
       setMedications(transformedMedications);
     } catch (error) {
@@ -271,28 +279,46 @@ const DashboardPage = () => {
         </CardHeader>
         <CardContent className="space-y-6">
           {loadingMedications ? (
-            <AppointmentCardSkeleton />
-          ) : (
-            Object.keys(medications).map((timeOfDay) => (
-              <div key={timeOfDay}>
-                <h3 className="font-semibold capitalize mb-2 flex items-center gap-2">
-                  {timeOfDayTitles[timeOfDay].icon}
-                  {timeOfDayTitles[timeOfDay].title}
-                </h3>
-                <div className="flex flex-wrap gap-4">
-                  {medications[timeOfDay].map((medication) => (
-                    <div
-                      key={medication.prescriptionId}
-                      className="p-2 rounded-lg border bg-white shadow-sm flex items-center justify-between"
-                    >
-                      <p className="text-sm font-medium">
-                        {medication.medicationName}
-                      </p>
-                    </div>
-                  ))}
+            <div className="flex items-center justify-center p-4 bg-gray-100 rounded-md mt-4">
+              <Spinner />
+              <span className="text-md font-medium text-gray-500">
+                Looking for medications...
+              </span>
+            </div>
+          ) : medications.isPrescriptionAvailable ? (
+            Object.keys(medications.times).map((timeOfDay) => {
+              if (medications.times[timeOfDay].length === 0) {
+                return null;
+              }
+
+              return (
+                <div key={timeOfDay}>
+                  <h3 className="font-semibold capitalize mb-2 flex items-center gap-2">
+                    {timeOfDayTitles[timeOfDay].icon}
+                    {timeOfDayTitles[timeOfDay].title}
+                  </h3>
+                  <div className="flex flex-wrap gap-4">
+                    {medications.times[timeOfDay].map((medication) => (
+                      <div
+                        key={medication.prescriptionId}
+                        className="p-2 rounded-lg border bg-white shadow-sm flex items-center justify-between"
+                      >
+                        <p className="text-sm font-medium">
+                          {medication.medicationName}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
+          ) : (
+            <p className="flex items-center justify-center text-blue-500 p-4 bg-blue-100 rounded-md mt-4">
+              <PillBottle className="w-6 h-6 mr-2" />
+              <span className="text-md font-medium">
+                No Medication available for today!
+              </span>
+            </p>
           )}
         </CardContent>
       </Card>
