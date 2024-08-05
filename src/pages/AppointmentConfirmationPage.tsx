@@ -31,6 +31,7 @@ import {
   CalendarX,
   Clock,
   CloudSun,
+  Loader,
   Moon,
   Stethoscope,
   Sun,
@@ -107,6 +108,7 @@ const AppointmentConfirmationPage = () => {
   );
 
   const [viewFile, setViewFiles] = useState<File | null>(null);
+  const [loadingDocument, setLoadingDocument] = useState(true);
 
   const handleError = useErrorHandler();
 
@@ -204,8 +206,17 @@ const AppointmentConfirmationPage = () => {
   const handleUploadDocChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      const file = files[0];
-      setFiles((prev) => [...prev, file]);
+      const validFiles = Array.from(files).filter((file) => {
+        const isValid =
+          file.type.startsWith("image/") || file.type === "application/pdf";
+        if (!isValid) {
+          toast.error(`Invalid file type: ${file.name}`, {
+            description: "Only images and pdf files are allowed",
+          });
+        }
+        return isValid;
+      });
+      setFiles((prev) => [...prev, ...validFiles]);
     }
   };
 
@@ -419,8 +430,8 @@ const AppointmentConfirmationPage = () => {
                   </div>
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="documents">Documents(optional)</Label>
-                    <div className="flex flex-col gap-2 flex-wrap gap-1">
-                      <div className="flex gap-1 items-center">
+                    <div className="flex flex-col flex-wrap gap-1">
+                      <div className="flex gap-1 items-center flex-wrap">
                         {files.map((file, index) => (
                           <Dialog>
                             <DialogTrigger>
@@ -428,7 +439,7 @@ const AppointmentConfirmationPage = () => {
                                 variant={"secondary"}
                                 key={index}
                                 className="cursor-pointer"
-                                onClick={() => setViewFiles(file)}
+                                onClick={() => setLoadingDocument(true)}
                               >
                                 <div className="flex w-full gap-2 items-center">
                                   <p>{`Record ${index + 1}.${file.name
@@ -491,6 +502,7 @@ const AppointmentConfirmationPage = () => {
                       onChange={handleUploadDocChange}
                       type="file"
                       accept=".png, .jpeg, .jpg, .pdf"
+                      multiple
                     />
                   </div>
 

@@ -181,3 +181,9 @@ export interface ISignupForm {
   pincode?: string;
   country?: string;
 }
+
+
+export interface MedicationRes {
+  isPrescriptionAvailable: boolean;
+  times: { [key: string]: IMedicationResponse[] };
+}

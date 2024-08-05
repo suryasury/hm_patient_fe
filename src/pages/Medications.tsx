@@ -7,7 +7,7 @@ import {
   getMedications,
   updatePrescriptionTaken,
 } from "@/https/patients-service";
-import { IMedicationResponse } from "@/types";
+import { IMedicationResponse, MedicationRes } from "@/types";
 import { format } from "date-fns";
 import {
   Check,
@@ -21,10 +21,7 @@ import {
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-interface MedicationRes {
-  isPrescriptionAvailable: boolean;
-  times: { [key: string]: IMedicationResponse[] };
-}
+
 
 const timeOfDayTitles: { [key: string]: { title: string; icon: JSX.Element } } =
   {
