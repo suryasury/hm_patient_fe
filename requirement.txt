@@ -39,3 +39,10 @@ past appointment history -card:
 6. logout one session expired.
 
 backend part - image upload api, update uppointment details, update user details, cancel appointment
+
+05/08/2024
+1. show no medication available today if there is no data in the dashboard
+2. multiselect file while booking the appointment
+3. after signup, redirect to dashboard
+4. in signup page rename "Email/Mobile Number" field to "Email" as we already have the mobile number field separately
+
