@@ -405,7 +405,7 @@ const AppointmentDetails = () => {
                     <div className="flex flex-col gap-2">
                       <Label htmlFor="documents">Documents</Label>
                       <div className="flex flex-col gap-2 flex-wrap">
-                        <div className="flex gap-1 items-center">
+                        <div className="flex gap-1 flex-wrap items-center">
                           {appointmentDetails?.patientAppointmentDocs?.map(
                             (file, index) => (
                               <Dialog key={file.id}>
