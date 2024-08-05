@@ -21,8 +21,6 @@ import {
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-
-
 const timeOfDayTitles: { [key: string]: { title: string; icon: JSX.Element } } =
   {
     morning: {
@@ -194,9 +192,11 @@ const Medications = () => {
             );
           })
         ) : (
-          <p className="flex items-center justify-center text-red-500 p-4 bg-red-100 rounded-md mt-4">
+          <p className="flex items-center justify-center text-blue-500 p-4 bg-blue-100 rounded-md mt-4">
             <PillBottle className="w-6 h-6 mr-2" />
-            <span className="text-md font-medium">No Medication available</span>
+            <span className="text-md font-medium">
+              No Medication available!
+            </span>
           </p>
         )}
       </div>
