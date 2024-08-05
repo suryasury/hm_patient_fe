@@ -40,7 +40,7 @@ const Profile: React.FC = () => {
     new Date(user.dateOfBirth)
   );
   const [bloodGroup, setBloodGroup] = useState("A+");
-  
+
   const [uploadingImage, setUploadingImage] = useState(false);
   const handleError = useErrorHandler();
 
@@ -71,7 +71,7 @@ const Profile: React.FC = () => {
         }
         const formData = new FormData();
         formData.append("file", file);
-        const response = await uploadProfilePicture(formData);
+        await uploadProfilePicture(formData);
         toast.success("Profile picture uploaded successfully");
         const detailsRes = await getUserDetails();
         dispatch(setUser(detailsRes.data.data));

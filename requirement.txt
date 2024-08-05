@@ -46,3 +46,12 @@ backend part - image upload api, update uppointment details, update user details
 3. after signup, redirect to dashboard
 4. in signup page rename "Email/Mobile Number" field to "Email" as we already have the mobile number field separately
 
+06/08/2024
+
+1. Show precription recommended in appointment details for completed appointment
+2. Show feedback, star based rating and ask for remarks
+3. Add appoinment status in appointment details page
+4. Provide option to edit reviews
+5. Remove update and chnage slot buttons in appointment details
+6. Doctor remarks in patient details once appointment is completed
+7. Update profile api integration.

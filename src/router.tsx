@@ -1,7 +1,7 @@
 import AuthLayout from "@/layouts/AuthLayout";
 import MainLayout from "@/layouts/MainLayout";
 import LoginPage from "@/pages/LoginPage";
-import RegisterPage from "@/pages/RegisterPage";
+import React, { Suspense } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import { APP_ROUTES } from "./appRoutes";
 import ErrorBoundary from "./layouts/ErrorBoundary";
@@ -13,7 +13,7 @@ import DashboardPage from "./pages/DashboardPage";
 import Medications from "./pages/Medications";
 import NotFoundPage from "./pages/NotFoundPage";
 import Profile from "./pages/Profile";
-
+const RegisterPage = React.lazy(() => import("@/pages/RegisterPage"));
 const router = createBrowserRouter([
   {
     path: "/patient",
@@ -72,7 +72,11 @@ const router = createBrowserRouter([
       },
       {
         path: APP_ROUTES.REGISTER,
-        element: <RegisterPage />,
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <RegisterPage />
+          </Suspense>
+        ),
       },
       /* 404 page */
       {

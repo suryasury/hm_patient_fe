@@ -31,7 +31,6 @@ import {
   CalendarX,
   Clock,
   CloudSun,
-  Loader,
   Moon,
   Stethoscope,
   Sun,
@@ -106,9 +105,6 @@ const AppointmentConfirmationPage = () => {
   const weekdays = useSelector(
     (state: { appointment: IAppointmentState }) => state.appointment.weekdays
   );
-
-  const [viewFile, setViewFiles] = useState<File | null>(null);
-  const [loadingDocument, setLoadingDocument] = useState(true);
 
   const handleError = useErrorHandler();
 
@@ -439,7 +435,6 @@ const AppointmentConfirmationPage = () => {
                                 variant={"secondary"}
                                 key={index}
                                 className="cursor-pointer"
-                                onClick={() => setLoadingDocument(true)}
                               >
                                 <div className="flex w-full gap-2 items-center">
                                   <p>{`Record ${index + 1}.${file.name
