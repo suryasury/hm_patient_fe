@@ -55,3 +55,6 @@ backend part - image upload api, update uppointment details, update user details
 5. Remove update and chnage slot buttons in appointment details
 6. Doctor remarks in patient details once appointment is completed
 7. Update profile api integration.
+8. Show no past appointments message(add message for all empty pages)
+9. change Documents -> Medical records
+10. disable past date while selecting the slots while booking add editing the appointment
