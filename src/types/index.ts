@@ -234,6 +234,7 @@ export interface IUpdateAppointmentDetails {
     fileExtension: string;
     documentTypeId: string;
   }[];
+  appointmentStatus?: string;
 }
 
 export interface IUpdateUserProfile {

@@ -31,7 +31,7 @@ import {
   IUpdateAppointmentDetails,
   UserState,
 } from "@/types";
-import { Loader, Pencil, X } from "lucide-react";
+import { Loader, Pencil, SquarePen, X } from "lucide-react";
 import { useState } from "react";
 import { SubmitHandler, UseFormReturn } from "react-hook-form";
 import { useSelector } from "react-redux";
@@ -79,8 +79,8 @@ const PatientDetails = ({
             <div className="flex w-full items-center justify-between">
               <p>Patient Details</p>
               {!isEdit && (
-                <Pencil
-                  className="w-4 h-4 cursor-pointer hover:scale-125"
+                <SquarePen
+                  className="w-5 h-5 cursor-pointer hover:scale-125"
                   type="button"
                   onClick={(event: any) => handleEdit(event as any)}
                 />
@@ -246,7 +246,7 @@ const PatientDetails = ({
                         form.reset();
                       }}
                     >
-                      Cancel Edit
+                      Cancel
                     </Button>
                     <Button
                       className="flex-1"

@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import useErrorHandler from "@/hooks/useError";
 import { editFeedback, submitFeedback } from "@/https/patients-service";
 import { IAppointmentResponse } from "@/types";
-import { Pencil } from "lucide-react";
+import { SquarePen } from "lucide-react";
 import { useState } from "react";
 import ReactStars from "react-rating-stars-component";
 import { toast } from "sonner";
@@ -70,9 +70,9 @@ const Feedback = ({ appointmentDetails }: FeedbackComponentProps) => {
           <CardTitle>
             <div className="flex w-full items-center justify-between">
               <p>Feedback</p>
-              {!isEdit || !isFeedbackGiven && (
-                <Pencil
-                  className="w-4 h-4 cursor-pointer hover:scale-125"
+              {(!isEdit || !isFeedbackGiven) && (
+                <SquarePen
+                  className="w-5 h-5 cursor-pointer hover:scale-125"
                   onClick={() => setIsEdit(true)}
                 />
               )}
@@ -94,12 +94,12 @@ const Feedback = ({ appointmentDetails }: FeedbackComponentProps) => {
                       )
                 }
                 onChange={(newRating) => {
-                  if (!isEdit) return;
                   setFeedback((prev) => ({ ...prev, rating: newRating }));
                 }}
                 size={24}
                 activeColor="#ffd700"
                 disabled={true}
+                edit={isEdit || !isFeedbackGiven}
               />
             </div>
             <div className="flex flex-col gap-2">
