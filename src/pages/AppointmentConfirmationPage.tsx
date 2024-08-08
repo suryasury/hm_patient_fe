@@ -63,12 +63,9 @@ import UploadReport from "./shared/UploadReport";
 import { getWeekdayId } from "./utils";
 
 const patientSchema = z.object({
-  patientName: z.string().min(5, "Name is required"),
-  patientMobile: z
-    .string()
-    .regex(/^\d{10}$/, "Mobile number must be 10 digits"),
   ailmentId: z.string().min(1, "Ailment is required"),
   remarks: z.string().optional(),
+  documents: z.array(z.object({})).optional(),
 });
 
 const getIconForPeriod = (period: string) => {
@@ -103,7 +100,7 @@ const AppointmentConfirmationPage = () => {
   });
   const [fetchingTimeSlots, setFetchingTimeSlots] = useState(false);
   const [showChangeTimeDialog, setShowChangeTimeDialog] = useState(false);
-  const [submitting, setSubmitting] = useState<boolean | string>(false);
+  const [submitting, setSubmitting] = useState<boolean>(false);
 
   const user = useSelector((state: { user: UserState }) => state.user.user);
   const weekdays = useSelector(
@@ -133,6 +130,7 @@ const AppointmentConfirmationPage = () => {
     data: IAppointmentForm
   ) => {
     try {
+      setSubmitting(true);
       const { remarks, ailmentId } = data;
 
       const payload: IAppointmentForm = {
@@ -144,7 +142,6 @@ const AppointmentConfirmationPage = () => {
         appointmentDate: selectedDate!.toISOString(),
         documents: medicalReports,
       };
-      setSubmitting("form");
       const res = await createAppointment(payload);
       if (res.status === 200) {
         toast.success("Booked Successfully", {
@@ -153,6 +150,7 @@ const AppointmentConfirmationPage = () => {
         navigate(APP_ROUTES.DASHBOARD);
       }
     } catch (error) {
+      console.log(error);
       handleError(error, "Failed to book appointment");
     } finally {
       setSubmitting(false);
@@ -191,7 +189,6 @@ const AppointmentConfirmationPage = () => {
   useEffect(() => {
     if (showChangeTimeDialog) fetchTimeSlots();
   }, [selectedDate, showChangeTimeDialog]);
-
   return (
     <div className="flex flex-col gap-4 w-full mx-auto">
       <div className="flex flex-col sm:flex-row gap-4 w-full">
@@ -236,7 +233,7 @@ const AppointmentConfirmationPage = () => {
                   }}
                 >
                   <DialogTrigger asChild>
-                    <Button variant="link" className="text-[#199fd9]">
+                    <Button variant="link" className="text-primary">
                       Change Date and time slot
                     </Button>
                   </DialogTrigger>
@@ -502,14 +499,12 @@ const AppointmentConfirmationPage = () => {
                     <Button
                       type="submit"
                       className="w-full mt-4"
-                      disabled={submitting !== false}
+                      disabled={submitting}
                     >
                       {submitting ? (
                         <>
                           <Spinner type="light" />
-                          {submitting === "form"
-                            ? "Confirming..."
-                            : "Uploading documents..."}
+                          Confirming...
                         </>
                       ) : (
                         "Confirm Appointment"

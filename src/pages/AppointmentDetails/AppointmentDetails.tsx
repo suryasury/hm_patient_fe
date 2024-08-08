@@ -1,3 +1,14 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,9 +33,9 @@ import {
   IUpdateAppointmentDetails,
 } from "@/types";
 import { format } from "date-fns";
-import { CalendarCheck, Clock, Loader, Stethoscope } from "lucide-react";
+import { CalendarCheck, Clock, Loader, Stethoscope, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import useErrorHandler from "@/hooks/useError";
 import {
@@ -33,6 +44,8 @@ import {
   updateAppointment,
 } from "@/https/patients-service";
 
+import { APP_ROUTES } from "@/appRoutes";
+import Spinner from "@/components/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
@@ -103,8 +116,11 @@ const AppointmentDetails = () => {
   );
 
   const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [showCancelDialog, setShowCancelDialog] = useState<boolean>(false);
+  const [cancelSubmitting, setCancelSubmitting] = useState<boolean>(false);
 
   const handleError = useErrorHandler();
+  const navigate = useNavigate();
 
   const form = useForm<IUpdateAppointmentDetails>({
     resolver: zodResolver(updateAppoitmentSchema),
@@ -143,6 +159,25 @@ const AppointmentDetails = () => {
     }
   };
 
+  const handleCancelAppointment = async () => {
+    try {
+      setCancelSubmitting(true);
+      const payload: IUpdateAppointmentDetails = {
+        appointmentStatus: "CANCELLED",
+      };
+
+      const res = await updateAppointment(payload, appointmentDetails!.id);
+      if (res.status === 200) {
+        toast.success("Appointment cancelled successfully");
+        setIsEdit(false);
+        navigate(APP_ROUTES.DASHBOARD);
+      }
+    } catch (error) {
+      handleError(error, "Failed to cancel appointment");
+    } finally {
+      setCancelSubmitting(false);
+    }
+  };
   const fetchAppointmentDetails = async () => {
     try {
       setLoading(true);
@@ -219,7 +254,6 @@ const AppointmentDetails = () => {
   useEffect(() => {
     fetchAppointmentDetails();
   }, []);
-  console.log(form.getValues(), form.formState.dirtyFields);
 
   return (
     <div className="flex flex-col gap-4 w-full mx-auto">
@@ -240,7 +274,7 @@ const AppointmentDetails = () => {
                   <div
                     className={`badge ${
                       statusClasses[appointmentDetails.appointmentStatus]
-                    } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize absolute right-5 top-4`}
+                    } px-2 py-1 rounded-lg text-xs font-medium w-[90px] text-center capitalize absolute right-5 top-4`}
                   >
                     {appointmentDetails?.appointmentStatus.toLowerCase()}
                   </div>
@@ -275,58 +309,100 @@ const AppointmentDetails = () => {
                 </div>
 
                 {isEdit && (
-                  <div className="ml-[-14px]">
-                    <Dialog
-                      open={showChangeTimeDialog}
-                      onOpenChange={(isOpen) => {
-                        setShowChangeTimeDialog(isOpen);
-                      }}
-                    >
-                      <DialogTrigger asChild>
-                        <Button variant="link" className="text-[#199fd9]">
-                          Change Date and time slot
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="w-[95%] max-h-[90vh] min-h-[40vh] rounded-lg shadow-lg flex flex-col overflow-auto">
-                        <DialogHeader>
-                          <DialogTitle>Change Date and Time Slot</DialogTitle>
-                        </DialogHeader>
+                  <div className="flex justify-between items-center w-full flex-wrap">
+                    <div className="ml-[-14px]">
+                      <Dialog
+                        open={showChangeTimeDialog}
+                        onOpenChange={(isOpen) => {
+                          setShowChangeTimeDialog(isOpen);
+                        }}
+                      >
+                        <DialogTrigger asChild>
+                          <Button variant="link" className="text-primary">
+                            Change Date and time slot
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="w-[95%] max-h-[90vh] min-h-[40vh] rounded-lg shadow-lg flex flex-col overflow-auto">
+                          <DialogHeader>
+                            <DialogTitle>Change Date and Time Slot</DialogTitle>
+                          </DialogHeader>
 
-                        <div className="flex flex-col gap-2">
-                          <CardDescription>Select Date</CardDescription>
-                          <div className="w-fit">
-                            <TimeSlotDatePicker
-                              selectedDate={selectedDate}
-                              setSelectedDate={(date) => {
-                                setSelectedDate(date);
-                                form.setValue(
-                                  "appointmentDetails.appointmentDate",
-                                  date?.toString()
-                                );
-                              }}
-                            />
-                          </div>
-                          {fetchingTimeSlots ? (
-                            <FetchingTimeSlots />
-                          ) : (
-                            selectedDate &&
-                            (timeSlots.isSlotAvailable ? (
-                              <AvailableSlots
-                                timeSlots={timeSlots}
-                                selectedSlot={selectedSlot}
-                                handleSlotClick={(slot) => {
-                                  setSelectedSlot(slot);
-                                  setShowChangeTimeDialog(false);
+                          <div className="flex flex-col gap-2">
+                            <CardDescription>Select Date</CardDescription>
+                            <div className="w-fit">
+                              <TimeSlotDatePicker
+                                selectedDate={selectedDate}
+                                setSelectedDate={(date) => {
+                                  setSelectedDate(date);
+                                  form.setValue(
+                                    "appointmentDetails.appointmentDate",
+                                    date?.toString()
+                                  );
                                 }}
-                                short={true}
                               />
+                            </div>
+                            {fetchingTimeSlots ? (
+                              <FetchingTimeSlots />
                             ) : (
-                              <NoTimeSlots />
-                            ))
+                              selectedDate &&
+                              (timeSlots.isSlotAvailable ? (
+                                <AvailableSlots
+                                  timeSlots={timeSlots}
+                                  selectedSlot={selectedSlot}
+                                  handleSlotClick={(slot) => {
+                                    setSelectedSlot(slot);
+                                    setShowChangeTimeDialog(false);
+                                  }}
+                                  short={true}
+                                />
+                              ) : (
+                                <NoTimeSlots />
+                              ))
+                            )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                    <AlertDialog
+                      open={showCancelDialog}
+                      onOpenChange={setShowCancelDialog}
+                    >
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant={"link"}
+                          className="self-end m-0 p-0 text-red-600"
+                        >
+                          {cancelSubmitting ? (
+                            <>
+                              <Spinner />
+                              <span>Cancelling...</span>
+                            </>
+                          ) : (
+                            <>
+                              <X className="h-4 w-4 mr-1" />
+                              <span>Cancel Appointment</span>
+                            </>
                           )}
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Are you absolutely sure?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently
+                            cancel your appointment.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleCancelAppointment}>
+                            Continue
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 )}
 

@@ -27,6 +27,8 @@ const AppointmentsList = () => {
   const handleError = useErrorHandler();
   const { type = "upcoming" } = useParams();
 
+  console.log(type);
+
   const fetchAppointments = async () => {
     try {
       setLoading(true);
@@ -47,12 +49,12 @@ const AppointmentsList = () => {
   const getTextAndLink = () => {
     if (type === "upcoming") {
       return {
-        text: "Upcoming",
+        text: "Past",
         link: `${APP_ROUTES.APPOINTMENT_LIST}/history`,
       };
     } else {
       return {
-        text: "Past",
+        text: "Upcoming",
         link: `${APP_ROUTES.APPOINTMENT_LIST}/upcoming`,
       };
     }
