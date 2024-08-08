@@ -11,18 +11,18 @@ import { format } from "date-fns";
 import {
   ArrowUpRight,
   Calendar,
-  CalendarOff,
   Clock,
   Cloud,
   CloudSun,
   Eye,
   Moon,
   PillBottle,
-  PlusCircle,
   Sun,
 } from "lucide-react"; // Import icons
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import NoAppointmentPage from "./NoAppointmentPage";
+import { statusClasses } from "./utils";
 
 const AppointmentCardSkeleton = () => {
   return Array(3)
@@ -53,13 +53,6 @@ const AppointmentCardSkeleton = () => {
     ));
 };
 
-const statusClasses: { [key: string]: string } = {
-  SCHEDULED: "bg-blue-100 text-blue-800",
-  PENDING: "bg-yellow-100 text-yellow-800",
-  COMPLETED: "bg-green-100 text-green-800",
-  CANCELED: "bg-red-100 text-red-800",
-  APPROVED: "bg-purple-100 text-purple-800",
-};
 const timeOfDayTitles: { [key: string]: { title: string; icon: JSX.Element } } =
   {
     morning: {
@@ -180,27 +173,21 @@ const DashboardPage = () => {
         </CardHeader>
         <CardContent className="grid gap-4  items-center">
           {loadingAppointments ? (
-            <AppointmentCardSkeleton />
-          ) : appointmentList.length === 0 ? (
-            <div className="flex flex-col items-center justify-center text-center py-8  ">
-              <div className="text-4xl text-muted-foreground mb-4">
-                <CalendarOff className="h-8 w-8" />
-              </div>
-              <p className="text-lg font-medium text-muted-foreground mb-4">
-                No upcoming appointments
-              </p>
-              <Button onClick={() => navigate(APP_ROUTES.APPOINTMENT)}>
-                <PlusCircle className="h-4 w-4 mr-2" />
-                Book Appointment
-              </Button>
+            <div className="flex items-center justify-center p-4 bg-gray-100 rounded-md mt-4">
+              <Spinner />
+              <span className="text-md font-medium text-gray-500">
+                Looking for appointments...
+              </span>
             </div>
+          ) : appointmentList.length === 0 ? (
+            <NoAppointmentPage />
           ) : (
             appointmentList.slice(0, 3).map((appointment) => (
               <div
                 key={appointment.id}
                 className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4 border-b last:border-none"
               >
-                <Avatar className="hidden h-[50px] w-[50px] sm:flex">
+                <Avatar className="hidden h-[50px] w-[50px] sm:flex self-start mt-[-8px]">
                   <AvatarImage
                     src={appointment.doctor.profilePictureUrl}
                     alt="Avatar"
@@ -260,21 +247,24 @@ const DashboardPage = () => {
       </Card>
 
       {/* Today's Medications Card */}
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
             <p>Today's Medications</p>
 
-            <Button
-              size="sm"
-              className="ml-auto gap-1"
-              onClick={() => navigate(APP_ROUTES.MEDICATION)}
-            >
-              <div className="flex gap-1 items-center">
-                <span>Show Details</span>
-                <ArrowUpRight className="h-4 w-4" />
-              </div>
-            </Button>
+            {medications.isPrescriptionAvailable && (
+              <Button
+                size="sm"
+                className="ml-auto gap-1"
+                onClick={() => navigate(APP_ROUTES.MEDICATION)}
+              >
+                <div className="flex gap-1 items-center">
+                  <span>Show Details</span>
+                  <ArrowUpRight className="h-4 w-4" />
+                </div>
+              </Button>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -324,11 +314,12 @@ const DashboardPage = () => {
       </Card>
 
       {/* Appointment History Card */}
-      {pastAppointments.length !== 0 && !loadingAppointments && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <p>Past Appointments</p>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <p>Past Appointments</p>
+            {pastAppointments.length !== 0 && (
               <Button
                 size="sm"
                 className="ml-auto gap-1"
@@ -342,76 +333,78 @@ const DashboardPage = () => {
                   <ArrowUpRight className="h-4 w-4" />
                 </div>
               </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            {loadingAppointments ? (
-              <AppointmentCardSkeleton />
-            ) : (
-              pastAppointments.slice(0, 3).map((appointment) => (
-                <div
-                  key={appointment.id}
-                  className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4 border-b last:border-none"
-                >
-                  <Avatar className="hidden h-[50px] w-[50px] sm:flex">
-                    <AvatarImage
-                      src={appointment.doctor.profilePictureUrl}
-                      alt="Avatar"
-                    />
-                    <AvatarFallback>
-                      {appointment.doctor.name
-                        .split(" ")
-                        .map((name) => name[0])
-                        .join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="grid gap-1 flex-1 w-full">
-                    <div className="flex items-center justify-between w-full">
-                      <div>
-                        <p className="text-md font-medium leading-none">
-                          {appointment.doctor.name}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {appointment.doctor.speciality}
-                        </p>
-                      </div>
-                      <div
-                        className={`badge ${
-                          statusClasses[appointment.appointmentStatus]
-                        } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize`}
-                      >
-                        {appointment.appointmentStatus.toLowerCase()}
-                      </div>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          {loadingAppointments ? (
+            <AppointmentCardSkeleton />
+          ) : pastAppointments.length === 0 ? (
+            <NoAppointmentPage message="No Past Appointments" />
+          ) : (
+            pastAppointments.slice(0, 3).map((appointment) => (
+              <div
+                key={appointment.id}
+                className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4 border-b last:border-none"
+              >
+                <Avatar className="hidden h-[50px] w-[50px] sm:flex">
+                  <AvatarImage
+                    src={appointment.doctor.profilePictureUrl}
+                    alt="Avatar"
+                  />
+                  <AvatarFallback>
+                    {appointment.doctor.name
+                      .split(" ")
+                      .map((name) => name[0])
+                      .join("")}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="grid gap-1 flex-1 w-full">
+                  <div className="flex items-center justify-between w-full">
+                    <div>
+                      <p className="text-md font-medium leading-none">
+                        {appointment.doctor.name}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {appointment.doctor.speciality}
+                      </p>
                     </div>
-                    <div className="flex items-center text-sm text-muted-foreground w-full justify-between">
-                      <div className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        {new Date(
-                          appointment.appointmentDate
-                        ).toLocaleDateString()}
-                        <Clock className="h-4 w-4 mx-2" />
-                        {appointment.doctorSlots.slot.startTime}
-                      </div>
-                      <Button
-                        onClick={() =>
-                          navigate(
-                            `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
-                          )
-                        }
-                        variant={"link"}
-                        className="p-0 self-start"
-                      >
-                        <Eye className="h-4 w-4" />
-                        <span className="ml-1">View</span>
-                      </Button>
+                    <div
+                      className={`badge ${
+                        statusClasses[appointment.appointmentStatus]
+                      } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize`}
+                    >
+                      {appointment.appointmentStatus.toLowerCase()}
                     </div>
                   </div>
+                  <div className="flex items-center text-sm text-muted-foreground w-full justify-between">
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      {new Date(
+                        appointment.appointmentDate
+                      ).toLocaleDateString()}
+                      <Clock className="h-4 w-4 mx-2" />
+                      {appointment.doctorSlots.slot.startTime}
+                    </div>
+                    <Button
+                      onClick={() =>
+                        navigate(
+                          `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
+                        )
+                      }
+                      variant={"link"}
+                      className="p-0 self-start"
+                    >
+                      <Eye className="h-4 w-4" />
+                      <span className="ml-1">View</span>
+                    </Button>
+                  </div>
                 </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
-      )}
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

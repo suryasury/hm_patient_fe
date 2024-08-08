@@ -1,4 +1,9 @@
-import { IAppointmentForm, IUpdatePrescriptionTakenPayload } from "@/types";
+import {
+  IAppointmentForm,
+  IUpdateAppointmentDetails,
+  IUpdatePrescriptionTakenPayload,
+  IUpdateUserProfile,
+} from "@/types";
 import { api } from "./api";
 import { API_END_POINTS } from "./constants";
 
@@ -93,4 +98,61 @@ export const uploadProfilePicture = async (data: FormData) => {
   } catch (error) {
     throw error;
   }
-}
+};
+
+export const submitFeedback = async (payload: any) => {
+  try {
+    return api.post(API_END_POINTS.SUBMIT_FEEDBACK, payload);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const editFeedback = async (payload: any, feedbackId: string) => {
+  try {
+    return api.patch(
+      API_END_POINTS.SUBMIT_FEEDBACK + `/${feedbackId}`,
+      payload
+    );
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getAilmentList = async (hospitalId: string) => {
+  try {
+    return api.get(`${API_END_POINTS.AILMENT_LIST}/${hospitalId}`);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getReportTypeList = async (hostpitalId: string) => {
+  try {
+    return api.get(`${API_END_POINTS.REPORT_TYPE_LIST}/${hostpitalId}`);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateAppointment = async (
+  payload: IUpdateAppointmentDetails,
+  appointmentId: string
+) => {
+  try {
+    return api.patch(
+      `${API_END_POINTS.UPDATE_APPOINTMENT}/${appointmentId}`,
+      payload
+    );
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateProfile = async (payload: IUpdateUserProfile) => {
+  try {
+    return api.patch(API_END_POINTS.UPDATE_PROFILE, payload);
+  } catch (error) {
+    throw error;
+  }
+};

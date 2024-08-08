@@ -6,13 +6,13 @@ import { createBrowserRouter } from "react-router-dom";
 import { APP_ROUTES } from "./appRoutes";
 import ErrorBoundary from "./layouts/ErrorBoundary";
 import AppointmentConfirmationPage from "./pages/AppointmentConfirmationPage";
-import AppointmentDetails from "./pages/AppointmentDetails";
 import AppointmentsList from "./pages/AppointmentsList";
 import BookAppointmentPage from "./pages/BookAppointmentPage";
 import DashboardPage from "./pages/DashboardPage";
 import Medications from "./pages/Medications";
 import NotFoundPage from "./pages/NotFoundPage";
 import Profile from "./pages/Profile";
+import AppointmentDetails from "./pages/AppointmentDetails/AppointmentDetails";
 const RegisterPage = React.lazy(() => import("@/pages/RegisterPage"));
 const router = createBrowserRouter([
   {

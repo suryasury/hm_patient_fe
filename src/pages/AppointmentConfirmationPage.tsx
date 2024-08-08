@@ -15,8 +15,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import {
   IAppointmentForm,
@@ -31,29 +37,29 @@ import {
   CalendarX,
   Clock,
   CloudSun,
+  Loader,
   Moon,
   Stethoscope,
   Sun,
-  UploadCloud,
   X,
 } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { APP_ROUTES } from "@/appRoutes";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import Spinner from "@/components/ui/spinner";
 import useErrorHandler from "@/hooks/useError";
-import {
-  createAppointment,
-  getDoctorSlots,
-  uploadDocuments,
-} from "@/https/patients-service";
+import { createAppointment, getDoctorSlots } from "@/https/patients-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import { z } from "zod";
+import Ailment from "./shared/Ailment";
+import UploadReport from "./shared/UploadReport";
 import { getWeekdayId } from "./utils";
 
 const patientSchema = z.object({
@@ -61,7 +67,7 @@ const patientSchema = z.object({
   patientMobile: z
     .string()
     .regex(/^\d{10}$/, "Mobile number must be 10 digits"),
-  decease: z.string().min(4, "Ailment is required"),
+  ailmentId: z.string().min(1, "Ailment is required"),
   remarks: z.string().optional(),
 });
 
@@ -97,14 +103,16 @@ const AppointmentConfirmationPage = () => {
   });
   const [fetchingTimeSlots, setFetchingTimeSlots] = useState(false);
   const [showChangeTimeDialog, setShowChangeTimeDialog] = useState(false);
-  const [files, setFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState<boolean | string>(false);
-  const uploadInputRef = useRef<HTMLInputElement>(null);
 
   const user = useSelector((state: { user: UserState }) => state.user.user);
   const weekdays = useSelector(
     (state: { appointment: IAppointmentState }) => state.appointment.weekdays
   );
+  const [medicalReports, setMedicalReports] = useState<
+    Record<string, string>[]
+  >([]);
+  const [loadingReport, setLoadingReport] = useState<boolean>(true);
 
   const handleError = useErrorHandler();
 
@@ -112,14 +120,11 @@ const AppointmentConfirmationPage = () => {
   const defaultValues = {
     patientName: user?.name,
     patientMobile: `${user?.phoneNumber}`,
-    decease: "",
+    ailmentId: "",
     remarks: "",
   };
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<IAppointmentForm>({
+
+  const form = useForm<IAppointmentForm>({
     resolver: zodResolver(patientSchema),
     defaultValues,
   });
@@ -128,16 +133,16 @@ const AppointmentConfirmationPage = () => {
     data: IAppointmentForm
   ) => {
     try {
-      const { remarks, decease } = data;
-      const documents = await uploadDocs();
+      const { remarks, ailmentId } = data;
+
       const payload: IAppointmentForm = {
         doctorId: location.state?.doctor?.id,
         doctorSlotId: location.state?.slot?.id,
         hospitalId: location.state?.slot?.hospitalId,
         remarks,
-        decease,
+        ailmentId,
         appointmentDate: selectedDate!.toISOString(),
-        documents: documents,
+        documents: medicalReports,
       };
       setSubmitting("form");
       const res = await createAppointment(payload);
@@ -151,22 +156,6 @@ const AppointmentConfirmationPage = () => {
       handleError(error, "Failed to book appointment");
     } finally {
       setSubmitting(false);
-    }
-  };
-
-  const uploadDocs = async () => {
-    try {
-      setSubmitting("docs");
-      const formData = new FormData();
-      files.forEach((file) => {
-        formData.append("files", file);
-      });
-      const res = await uploadDocuments(formData);
-      if (res.status === 200) {
-        return res.data.data;
-      }
-    } catch (error) {
-      throw error;
     }
   };
 
@@ -196,23 +185,6 @@ const AppointmentConfirmationPage = () => {
       handleError(error, "Failed to fetch time slots");
     } finally {
       setFetchingTimeSlots(false);
-    }
-  };
-
-  const handleUploadDocChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      const validFiles = Array.from(files).filter((file) => {
-        const isValid =
-          file.type.startsWith("image/") || file.type === "application/pdf";
-        if (!isValid) {
-          toast.error(`Invalid file type: ${file.name}`, {
-            description: "Only images and pdf files are allowed",
-          });
-        }
-        return isValid;
-      });
-      setFiles((prev) => [...prev, ...validFiles]);
     }
   };
 
@@ -279,6 +251,7 @@ const AppointmentConfirmationPage = () => {
                           date={selectedDate}
                           setDate={(date) => setSelectedDate(date)}
                           placeholder="Select a date"
+                          disabled={{ before: new Date() }}
                         />
                       </div>
                       {fetchingTimeSlots ? (
@@ -386,138 +359,164 @@ const AppointmentConfirmationPage = () => {
             </CardHeader>
             <CardContent>
               <div className="flex flex-col">
-                <form
-                  onSubmit={handleSubmit(handleConfirmAppointment)}
-                  className="flex flex-col gap-4"
-                >
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="patient-name">Name</Label>
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(handleConfirmAppointment)}
+                    className="space-y-4"
+                  >
+                    <Label>Patient Name</Label>
                     <Input
-                      id="patient-name"
-                      type="text"
+                      className="!mt-2 capitalize"
                       value={user?.name}
                       disabled
                     />
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="patient-mobile">Mobile Number</Label>
+                    <Label>Mobile Number</Label>
                     <Input
-                      id="patient-mobile"
-                      type="text"
+                      className="!mt-2"
                       value={user?.phoneNumber}
                       disabled
                     />
-                  </div>
 
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="ailment">Ailment</Label>
-                    <Input id="ailment" type="text" {...register("decease")} />
-                    {errors.decease && (
-                      <span className="text-red-500">
-                        {errors.decease.message as string}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="remarks">Remarks(optional)</Label>
-                    <Textarea id="remarks" {...register("remarks")} />
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="documents">Documents(optional)</Label>
-                    <div className="flex flex-col flex-wrap gap-1">
-                      <div className="flex gap-1 items-center flex-wrap">
-                        {files.map((file, index) => (
-                          <Dialog>
-                            <DialogTrigger>
-                              <Badge
-                                variant={"secondary"}
-                                key={index}
-                                className="cursor-pointer"
-                              >
-                                <div className="flex w-full gap-2 items-center">
-                                  <p>{`Record ${index + 1}.${file.name
-                                    .split(".")
-                                    .pop()}`}</p>
-                                  <X
-                                    className="w-3 h-3 hover:scale-110"
-                                    onClick={(e) => {
-                                      setFiles((prev) =>
-                                        prev.filter((_, i) => i !== index)
-                                      );
-                                      e.stopPropagation();
-                                    }}
-                                  />
-                                </div>
-                              </Badge>
-                            </DialogTrigger>
-
-                            <DialogContent className="max-w-[900px] max-h-[600px] min-h-[40vh] rounded-lg shadow-lg flex flex-col overflow-auto">
-                              <DialogTitle>
-                                <DialogHeader>{file.name}</DialogHeader>
-                              </DialogTitle>
-                              {file.name.split(".").pop() === "pdf" ? (
-                                <div className="flex justify-center items-center w-full h-90">
-                                  <embed
-                                    src={URL.createObjectURL(file)}
-                                    className="w-full h-full border-none"
-                                    style={{ minHeight: "80vh" }}
-                                  />
-                                </div>
-                              ) : (
-                                <img
-                                  src={URL.createObjectURL(file)}
-                                  alt="record"
-                                  width={"100%"}
-                                  className="max-h-[500px] object-contain "
-                                />
-                              )}
-                            </DialogContent>
-                          </Dialog>
-                        ))}
-                      </div>
-                      <Button
-                        className="w-fit"
-                        size="sm"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          uploadInputRef.current?.click();
-                        }}
-                      >
-                        <div className="flex gap-1 items-center">
-                          <UploadCloud className="w-4 h-4" />
-                          Upload
-                        </div>
-                      </Button>
-                    </div>
-                    <input
-                      className="hidden"
-                      ref={uploadInputRef}
-                      onChange={handleUploadDocChange}
-                      type="file"
-                      accept=".png, .jpeg, .jpg, .pdf"
-                      multiple
+                    <FormField
+                      control={form.control}
+                      name="ailmentId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Ailment</FormLabel>
+                          <FormControl>
+                            <Ailment
+                              hospitalId={location.state?.slot?.hospitalId}
+                              onChange={field.onChange}
+                              selectedValue={field.value}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
 
-                  <Button
-                    type="submit"
-                    className="mt-4"
-                    disabled={submitting !== false}
-                  >
-                    {submitting ? (
-                      <>
-                        <Spinner type="light" />
-                        {submitting === "form"
-                          ? "Confirming..."
-                          : "Uploading documents..."}
-                      </>
-                    ) : (
-                      "Confirm Appointment"
-                    )}
-                  </Button>
-                </form>
+                    <FormField
+                      control={form.control}
+                      name="remarks"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Remarks (optional)</FormLabel>
+                          <FormControl>
+                            <Textarea {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="documents"
+                      render={() => (
+                        <FormItem>
+                          <FormLabel>Medical Reports (optional)</FormLabel>
+                          <FormControl>
+                            <div className="flex flex-col flex-wrap gap-1">
+                              <div className="flex gap-1 items-center flex-wrap">
+                                {medicalReports.map((file, index) => {
+                                  if (!file) return null;
+                                  const fileName = file?.fileName;
+                                  return (
+                                    <Dialog key={index}>
+                                      <DialogTrigger>
+                                        <Badge
+                                          variant={"secondary"}
+                                          className="cursor-pointer"
+                                        >
+                                          <div className="flex w-full gap-2 items-center capitalize">
+                                            <p>{`Report - ${index + 1}.${
+                                              file.fileExtension
+                                            }`}</p>
+                                            <X
+                                              className="w-3 h-3 hover:scale-110"
+                                              onClick={(e) => {
+                                                setMedicalReports((prev) =>
+                                                  prev.filter(
+                                                    (_, i) => i !== index
+                                                  )
+                                                );
+                                                e.stopPropagation();
+                                              }}
+                                            />
+                                          </div>
+                                        </Badge>
+                                      </DialogTrigger>
+                                      <DialogContent className="max-w-[900px] max-h-[600px] min-h-[40vh] rounded-lg shadow-lg flex flex-col overflow-auto">
+                                        <DialogTitle>
+                                          <DialogHeader>
+                                            {fileName}
+                                          </DialogHeader>
+                                        </DialogTitle>
+                                        {fileName.split(".").pop() === "pdf" ? (
+                                          <div className="flex justify-center items-center w-full h-90">
+                                            <div className="flex justify-center items-center w-full  flex-col gap-2 h-90">
+                                              {loadingReport && (
+                                                <div className="flex gap-2">
+                                                  <Loader className="animate-spin" />
+                                                  <p className="text-md font-medium text-gray-500">
+                                                    Loading Document...
+                                                  </p>
+                                                </div>
+                                              )}
+                                              <object
+                                                data={`https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(
+                                                  file.signedUrl
+                                                )}`}
+                                                className="w-full h-full border-none"
+                                                style={{ minHeight: "600px" }}
+                                                onLoad={() =>
+                                                  setLoadingReport(false)
+                                                }
+                                              />
+                                            </div>
+                                          </div>
+                                        ) : (
+                                          <img
+                                            src={file.signedUrl}
+                                            alt="record"
+                                            width={"100%"}
+                                            className="max-h-[500px] object-contain"
+                                          />
+                                        )}
+                                      </DialogContent>
+                                    </Dialog>
+                                  );
+                                })}
+                              </div>
+                              <UploadReport
+                                hospitalId={location.state?.slot?.hospitalId}
+                                setMedicalReports={setMedicalReports}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <Button
+                      type="submit"
+                      className="w-full mt-4"
+                      disabled={submitting !== false}
+                    >
+                      {submitting ? (
+                        <>
+                          <Spinner type="light" />
+                          {submitting === "form"
+                            ? "Confirming..."
+                            : "Uploading documents..."}
+                        </>
+                      ) : (
+                        "Confirm Appointment"
+                      )}
+                    </Button>
+                  </form>
+                </Form>
               </div>
             </CardContent>
           </Card>

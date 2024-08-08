@@ -7,9 +7,7 @@ import {
   CardDescription,
   CardHeader,
 } from "@/components/ui/card";
-import DatePicker from "@/components/ui/date-picker";
 import { Skeleton } from "@/components/ui/skeleton";
-import Spinner from "@/components/ui/spinner";
 import useErrorHandler from "@/hooks/useError";
 import {
   getDoctorsList,
@@ -18,23 +16,17 @@ import {
 } from "@/https/patients-service";
 import { setWeekdays } from "@/state/appointementReducer";
 import { Doctor, IAppointmentState, ISlot, ITimeSlot } from "@/types";
-import { CalendarX, CloudSun, Moon, Stethoscope, Sun } from "lucide-react";
+import { Stethoscope, UserRoundX } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import {
+  AvailableSlots,
+  FetchingTimeSlots,
+  NoTimeSlots,
+  TimeSlotDatePicker,
+} from "./shared/TimeSlots";
 import { getWeekdayId } from "./utils";
-const getIconForPeriod = (period: string) => {
-  switch (period) {
-    case "Morning":
-      return <Sun className="w-5 h-5 text-yellow-500" />;
-    case "Afternoon":
-      return <CloudSun className="w-5 h-5 text-orange-500" />;
-    case "Evening":
-      return <Moon className="w-5 h-5 text-blue-500" />;
-    default:
-      return null;
-  }
-};
 
 const DoctorSkeleton = () => {
   return Array(4)
@@ -155,6 +147,15 @@ const BookAppointmentPage = () => {
       <div className="flex flex-col gap-4">
         {loading ? (
           <DoctorSkeleton />
+        ) : doctorsList.length === 0 ? (
+          <div className="flex flex-col items-center justify-center text-center py-8  ">
+            <div className="text-4xl text-muted-foreground mb-4">
+              <UserRoundX className="h-8 w-8" />
+            </div>
+            <p className="text-lg font-medium text-muted-foreground mb-4">
+              No Doctors Available for the moment, please try later
+            </p>
+          </div>
         ) : (
           doctorsList.map((doctor, index) => (
             <React.Fragment key={doctor.id}>
@@ -195,71 +196,25 @@ const BookAppointmentPage = () => {
                     <CardHeader>
                       <CardDescription>Select Date</CardDescription>
                       <div className="w-fit">
-                        <DatePicker
-                          date={selectedDate}
-                          setDate={(date) => setSelectedDate(date)}
-                          placeholder="Select a date"
+                        <TimeSlotDatePicker
+                          selectedDate={selectedDate}
+                          setSelectedDate={setSelectedDate}
                         />
                       </div>
                     </CardHeader>
                     <CardContent>
                       {fetchingTimeSlots ? (
-                        <div className="flex items-center justify-center p-4 bg-gray-100 rounded-md">
-                          <Spinner />
-                          <span className="text-md font-medium text-gray-500">
-                            Looking for slots...
-                          </span>
-                        </div>
+                        <FetchingTimeSlots />
                       ) : (
                         selectedDate &&
                         (timeSlots.isSlotAvailable ? (
-                          <div className="mt-4">
-                            <p className="text-md font-medium mb-2">
-                              Available Slots
-                            </p>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                              {Object.entries(timeSlots.slots).map(
-                                ([period, slots]) =>
-                                  slots.length !== 0 && (
-                                    <React.Fragment key={period}>
-                                      <div className="col-span-full flex items-center gap-4">
-                                        {getIconForPeriod(period)}
-                                        <h5 className="text-md font-semibold">
-                                          {period}
-                                        </h5>
-                                      </div>
-                                      <div className="col-span-full grid grid-cols-3 md:grid-cols-7 gap-2">
-                                        {slots.map((slot: ISlot) => (
-                                          <div
-                                            key={slot.id}
-                                            className={`p-1 md:p-2 text-sm md:text-base rounded cursor-pointer border w-auto text-center ${
-                                              selectedSlot.id === slot.id
-                                                ? "bg-muted"
-                                                : "hover:bg-muted"
-                                            }`}
-                                            onClick={() =>
-                                              handleSlotClick(slot)
-                                            }
-                                          >
-                                            {slot.startTime}
-                                          </div>
-                                        ))}
-                                      </div>
-                                      <div className="col-span-full">
-                                        <hr className="border-t border-gray-200 my-2" />
-                                      </div>
-                                    </React.Fragment>
-                                  )
-                              )}
-                            </div>
-                          </div>
+                          <AvailableSlots
+                            timeSlots={timeSlots}
+                            selectedSlot={selectedSlot}
+                            handleSlotClick={handleSlotClick}
+                          />
                         ) : (
-                          <p className="flex items-center justify-center text-red-500 p-4 bg-red-100 rounded-md">
-                            <CalendarX className="w-6 h-6 mr-2" />
-                            <span className="text-md font-medium">
-                              No slots available
-                            </span>
-                          </p>
+                          <NoTimeSlots />
                         ))
                       )}
                     </CardContent>
