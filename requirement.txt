@@ -58,4 +58,9 @@ backend part - image upload api, update uppointment details, update user details
 8. Show no past appointments message(add message for all empty pages)
 9. change Documents -> Medical records
 10. disable past date while selecting the slots while booking add editing the appointment
-11. keep the number of documents user can upload while booking appointment to 5
+
+
+08/08/2024
+1. documenttype type api, show modal to upload file and choose type both are required if file is selected
+2. add aliment as dropdown - will provide api well
+

@@ -10,7 +10,12 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
-import { Dispatch, SetStateAction, SyntheticEvent, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  SyntheticEvent,
+  useState,
+} from "react";
 
 const DatePicker = ({
   date,
@@ -21,7 +26,7 @@ const DatePicker = ({
   date: Date | undefined;
   placeholder?: string | null | undefined;
   setDate: Dispatch<SetStateAction<Date | undefined>>;
-  disabled?: boolean | Date;
+  disabled?: React.ComponentProps<typeof Calendar>["disabled"];
 }) => {
   const [showCalender, setShowCalender] = useState(false);
 
@@ -61,7 +66,6 @@ const DatePicker = ({
             setDate(e);
             setShowCalender(false);
           }}
-          
           initialFocus
           disabled={disabled}
         />

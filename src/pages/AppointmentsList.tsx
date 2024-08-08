@@ -2,13 +2,14 @@ import { APP_ROUTES } from "@/appRoutes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import Spinner from "@/components/ui/spinner";
 import useErrorHandler from "@/hooks/useError";
 import { getAppointmentList } from "@/https/patients-service";
 import { IAppointmentResponse } from "@/types";
 import { Calendar, Clock, Eye } from "lucide-react"; // Import the Eye icon
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import NoAppointmentPage from "./NoAppointmentPage";
 const statusClasses: { [key: string]: string } = {
   SCHEDULED: "bg-blue-100 text-blue-800",
   PENDING: "bg-yellow-100 text-yellow-800",
@@ -17,36 +18,6 @@ const statusClasses: { [key: string]: string } = {
   APPROVED: "bg-purple-100 text-purple-800",
 };
 
-const AppointmentListSkeleton = () => {
-  return Array(5)
-    .fill(0)
-    .map((_i, index) => (
-      <div
-        key={index}
-        className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4 border-b last:border-none"
-      >
-        <div className="hidden h-[50px] w-[50px] sm:flex">
-          <Skeleton className="rounded-full h-[50px] w-[50px]" />
-        </div>
-        <div className="grid gap-1 flex-1">
-          <div className="flex items-center justify-between w-full">
-            <div>
-              <Skeleton className="h-[10px] w-[100px] mb-1" />
-              <Skeleton className="h-[8px] w-[80px]" />
-            </div>
-            <Skeleton className="h-[20px] w-[90px]" />
-          </div>
-          <div className="flex items-center text-sm text-muted-foreground">
-            <Skeleton className="h-[10px] w-[20px] mr-2" />
-            <Skeleton className="h-[10px] w-[100px] mr-2" />
-            <Skeleton className="h-[10px] w-[20px] mr-2" />
-            <Skeleton className="h-[10px] w-[50px] mr-2" />
-            <Skeleton className="h-[10px] w-[50px]" />
-          </div>
-        </div>
-      </div>
-    ));
-};
 const AppointmentsList = () => {
   const [appointmentList, setAppointmentList] = useState<
     IAppointmentResponse[]
@@ -92,18 +63,27 @@ const AppointmentsList = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 flex-wrap justify-between ">
           <p>{type === "upcoming" ? "Upcoming" : "Past"} Appointments</p>
-          <Button
-            size="sm"
-            className="mt-2 md:mt-0"
-            onClick={() => navigate(getTextAndLink().link)}
-          >
-            {getTextAndLink().text} Appointments
-          </Button>
+          {appointmentList.length !== 0 && (
+            <Button
+              size="sm"
+              className="mt-2 md:mt-0"
+              onClick={() => navigate(getTextAndLink().link)}
+            >
+              {getTextAndLink().text} Appointments
+            </Button>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="grid gap-4 h-100 ">
         {loading ? (
-          <AppointmentListSkeleton />
+          <div className="flex items-center justify-center p-4 bg-gray-100 rounded-md mt-4">
+            <Spinner />
+            <span className="text-md font-medium text-gray-500">
+              Looking for appointments...
+            </span>
+          </div>
+        ) : appointmentList.length === 0 ? (
+          <NoAppointmentPage />
         ) : (
           appointmentList.map((appointment: IAppointmentResponse) => (
             <div

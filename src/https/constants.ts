@@ -12,5 +12,10 @@ export const API_END_POINTS = {
   UPLOAD_DOCUMENTS: "common/customer/upload/records",
   APPOINTMENT_DETAILS: "user/appointment/details",
   UPLOAD_PROFiLE_PICTURE: "common/customer/upload/profilepicture",
-  REGISTER:"/user/signup"
+  REGISTER: "/user/signup",
+  SUBMIT_FEEDBACK: "user/appointment/feedback",
+  AILMENT_LIST: "user/ailment/list",
+  REPORT_TYPE_LIST: "user/documenttype/list",
+  UPDATE_APPOINTMENT:"user/appointment/update",
+  UPDATE_PROFILE:"user/profile/details/update"
 };

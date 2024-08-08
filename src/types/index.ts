@@ -21,6 +21,7 @@ export interface IAppointmentState {
   weekdays: IWeekday[] | null;
 }
 
+
 // app types
 export interface User {
   id: string;
@@ -34,7 +35,7 @@ export interface User {
   phoneNumber: string;
   isd_code: string;
   dateOfBirth: string;
-  gender: "MALE" | "FEMALE" | "OTHER";
+  gender: "MALE" | "FEMALE" | "OTHERS";
   profilePictureUrl: string | undefined;
   bloodGroup: string;
   address: {
@@ -62,7 +63,7 @@ export interface IAppointmentForm {
   doctorSlotId: string;
   hospitalId: string;
   remarks: string;
-  decease: string;
+  ailmentId: string;
   appointmentDate: string;
   documents?: Record<string, string>[];
 }
@@ -96,7 +97,7 @@ export interface IAppointmentResponse {
   hospitalId: string;
   remarks: string;
   doctorRemarks: string | null;
-  decease: string;
+  ailmentId: string;
   appointmentStatus:
     | "SCHEDULED"
     | "PENDING"
@@ -126,6 +127,29 @@ export interface IAppointmentResponse {
     };
   };
   patientAppointmentDocs?: Record<string, string>[];
+  isFeedbackProvided: boolean;
+  appointmentFeedbacks: Record<string, string>;
+  patientPrescription: IPrescription[];
+}
+
+export interface IMedicationStock {
+  id: string;
+  medicationName: string;
+  medicationDosage: string;
+  description: string;
+}
+
+export interface IPrescription {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  appointmentId: string;
+  patientId: string;
+  hospitalId: string;
+  durationInDays: number;
+  medicationStockId: string;
+  foodRelation: string;
+  medicationStock: IMedicationStock;
 }
 
 export interface IMedicationResponse {
@@ -182,8 +206,48 @@ export interface ISignupForm {
   country?: string;
 }
 
-
 export interface MedicationRes {
   isPrescriptionAvailable: boolean;
   times: { [key: string]: IMedicationResponse[] };
+}
+
+export interface IReportUpload {
+  [reportType: string]: File;
+}
+
+export interface IUpdateAppointmentDetails {
+  appointmentDetails?: {
+    remarks?: string;
+    ailmentId?: string;
+    appointmentDate?: string;
+    doctorSlotId?: string;
+  };
+  removedDocuments?: {
+    id: string;
+    bucketPath: string;
+  }[];
+  documents?: {
+    signedUrl: string;
+    bucketPath: string;
+    fileName: string;
+    contentType: string;
+    fileExtension: string;
+    documentTypeId: string;
+  }[];
+}
+
+export interface IUpdateUserProfile {
+  name?: string;
+  email?: string;
+  dateOfBirth?: string;
+  gender?: "MALE" | "FEMALE" | "OTHERS";
+  bloodGroup?: string;
+  houseNumber?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  country?: string;
+  phoneNumber?: string;
 }
