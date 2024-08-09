@@ -4,6 +4,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -43,7 +44,7 @@ import { z } from "zod";
 
 const registerSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  email: z.string().min(1, "Email/Mobile Number is required"),
+  email: z.string().email({ message: "Entar a valid email" }),
   password: z.string().min(1, "Password is required"),
   phoneNumber: z
     .string()
@@ -115,7 +116,7 @@ const RegisterPage = () => {
   };
 
   return (
-    <section className="flex items-center justify-center h-screen p-6">
+    <section className="flex items-center justify-center">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="text-2xl">Sign up</CardTitle>
@@ -123,9 +124,9 @@ const RegisterPage = () => {
             Enter your information to create an account
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} >
+            <CardContent className="space-y-2">
               <FormField
                 control={form.control}
                 name="name"
@@ -146,10 +147,7 @@ const RegisterPage = () => {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Enter your email or mobile number"
-                        {...field}
-                      />
+                      <Input placeholder="Enter your email" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -272,11 +270,10 @@ const RegisterPage = () => {
                   </FormItem>
                 )}
               />
-              <Button
-                type="submit"
-                className="w-full !mt-4"
-                disabled={submitting}
-              >
+            </CardContent>
+
+            <CardFooter className="flex-col w-full">
+              <Button type="submit" className="w-full" disabled={submitting}>
                 {submitting ? (
                   <>
                     <Spinner type="light" />
@@ -286,15 +283,15 @@ const RegisterPage = () => {
                   "Get Started!"
                 )}
               </Button>
-            </form>
-          </Form>
-          <div className="mt-4 text-center flex gap-2 items-center text-sm">
-            <span>Already have an account?</span>
-            <Link to={APP_ROUTES.LOGIN} className="underline">
-              Sign in
-            </Link>
-          </div>
-        </CardContent>
+              <div className="mt-4 text-center flex gap-2 items-center text-sm">
+                <span>Already have an account?</span>
+                <Link to={APP_ROUTES.LOGIN} className="underline">
+                  Sign in
+                </Link>
+              </div>
+            </CardFooter>
+          </form>
+        </Form>
       </Card>
     </section>
   );

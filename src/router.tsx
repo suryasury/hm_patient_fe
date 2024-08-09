@@ -4,15 +4,16 @@ import LoginPage from "@/pages/LoginPage";
 import React, { Suspense } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import { APP_ROUTES } from "./appRoutes";
+import Spinner from "./components/ui/spinner";
 import ErrorBoundary from "./layouts/ErrorBoundary";
 import AppointmentConfirmationPage from "./pages/AppointmentConfirmationPage";
+import AppointmentDetails from "./pages/AppointmentDetails/AppointmentDetails";
 import AppointmentsList from "./pages/AppointmentsList";
 import BookAppointmentPage from "./pages/BookAppointmentPage";
 import DashboardPage from "./pages/DashboardPage";
 import Medications from "./pages/Medications";
 import NotFoundPage from "./pages/NotFoundPage";
 import Profile from "./pages/Profile";
-import AppointmentDetails from "./pages/AppointmentDetails/AppointmentDetails";
 const RegisterPage = React.lazy(() => import("@/pages/RegisterPage"));
 const router = createBrowserRouter([
   {
@@ -64,7 +65,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/",
-    element: <AuthLayout />,
+    element: (
+      <ErrorBoundary>
+        <AuthLayout />
+      </ErrorBoundary>
+    ),
     children: [
       {
         path: APP_ROUTES.LOGIN,
@@ -73,7 +78,14 @@ const router = createBrowserRouter([
       {
         path: APP_ROUTES.REGISTER,
         element: (
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense
+            fallback={
+              <>
+                <Spinner />
+                Please wait...
+              </>
+            }
+          >
             <RegisterPage />
           </Suspense>
         ),

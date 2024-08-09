@@ -1,23 +1,29 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import StarRating from "@/components/ui/star";
 import { Textarea } from "@/components/ui/textarea";
 import useErrorHandler from "@/hooks/useError";
 import { editFeedback, submitFeedback } from "@/https/patients-service";
 import { IAppointmentResponse } from "@/types";
 import { SquarePen } from "lucide-react";
 import { useState } from "react";
-import ReactStars from "react-rating-stars-component";
 import { toast } from "sonner";
 
 interface FeedbackComponentProps {
   appointmentDetails: IAppointmentResponse | null | undefined;
+  fetchAppointmentDetails: () => Promise<void>;
 }
 
-const Feedback = ({ appointmentDetails }: FeedbackComponentProps) => {
+const Feedback = ({
+  appointmentDetails,
+  fetchAppointmentDetails,
+}: FeedbackComponentProps) => {
   const [feedback, setFeedback] = useState({
-    rating: 0,
-    remarks: "",
+    rating: Number(
+      appointmentDetails?.appointmentFeedbacks?.overallSatisfaction ?? 0
+    ),
+    remarks: appointmentDetails?.appointmentFeedbacks?.feedBackRemarks ?? "",
     feedbackId: "",
   });
   const [submitting, setSubmitting] = useState(false);
@@ -40,6 +46,8 @@ const Feedback = ({ appointmentDetails }: FeedbackComponentProps) => {
     try {
       await submitFeedback(payload);
       toast.success("Feedback submitted successfully!");
+      await fetchAppointmentDetails();
+      setIsEdit(false);
     } catch (error) {
       handleError(error, "Failed to submit feedback");
     } finally {
@@ -57,12 +65,22 @@ const Feedback = ({ appointmentDetails }: FeedbackComponentProps) => {
     try {
       await editFeedback(payload, appointmentDetails!.appointmentFeedbacks!.id);
       toast.success("Feedback edited successfully!");
+      await fetchAppointmentDetails();
+
     } catch (error) {
       handleError(error, "Failed to edit feedback");
     } finally {
       setSubmitting(false);
     }
   };
+
+  const allowFeedback = () => {
+    return !isFeedbackGiven;
+  };
+  const handleRatingClick = (rating: number) => {
+    setFeedback((prev) => ({ ...prev, rating }));
+  };
+
   return (
     <div className="w-full sm:w-[50%] h-fit">
       <Card>
@@ -70,7 +88,7 @@ const Feedback = ({ appointmentDetails }: FeedbackComponentProps) => {
           <CardTitle>
             <div className="flex w-full items-center justify-between">
               <p>Feedback</p>
-              {(!isEdit || !isFeedbackGiven) && (
+              {isFeedbackGiven && (
                 <SquarePen
                   className="w-5 h-5 cursor-pointer hover:scale-125"
                   onClick={() => setIsEdit(true)}
@@ -83,46 +101,30 @@ const Feedback = ({ appointmentDetails }: FeedbackComponentProps) => {
           <div className="flex flex-col gap-4">
             <div className="flex justify-between items-center">
               <p className="text-md font-semibold">Rating:</p>
-              <ReactStars
-                count={5}
-                value={
-                  feedback.rating !== 0
-                    ? feedback.rating
-                    : Number(
-                        appointmentDetails?.appointmentFeedbacks
-                          ?.overallSatisfaction
-                      )
-                }
-                onChange={(newRating) => {
-                  setFeedback((prev) => ({ ...prev, rating: newRating }));
-                }}
-                size={24}
-                activeColor="#ffd700"
-                disabled={true}
-                edit={isEdit || !isFeedbackGiven}
+              <StarRating
+                totalStars={5}
+                onClick={handleRatingClick}
+                value={feedback.rating}
+                disable={!isEdit && isFeedbackGiven}
               />
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="remarks">Remarks:</Label>
               <Textarea
                 id="remarks"
-                value={
-                  feedback.remarks !== ""
-                    ? feedback.remarks
-                    : appointmentDetails?.appointmentFeedbacks?.feedBackRemarks
-                }
+                value={feedback.remarks}
                 onChange={(e) =>
                   setFeedback((prev) => ({
                     ...prev,
                     remarks: e.target.value,
                   }))
                 }
-                disabled={isEdit ? false : isFeedbackGiven}
+                disabled={!isEdit && isFeedbackGiven}
                 placeholder="Share your experience..."
               />
             </div>
-            <div className="flex justify-end">
-              {(isEdit || !isFeedbackGiven) && (
+            {(isEdit || allowFeedback()) && (
+              <div className="flex justify-end">
                 <Button
                   onClick={
                     isFeedbackGiven ? handleFeedbackEdit : handleFeedbackSubmit
@@ -135,8 +137,8 @@ const Feedback = ({ appointmentDetails }: FeedbackComponentProps) => {
                     ? "Edit Feedback"
                     : "Submit Feedback"}
                 </Button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

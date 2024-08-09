@@ -1,4 +1,5 @@
 import { APP_ROUTES } from "@/appRoutes";
+import logo from "@/assets/hms-logo.jpeg";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +18,6 @@ import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { DynamicBreadcrumbs } from "./DynamicBreadCrumbs";
 import ErrorBoundary from "./ErrorBoundary";
-
 const DashboardLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -33,12 +33,11 @@ const DashboardLayout = () => {
     <div className="min-h-screen w-full bg-gray-50">
       <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-white px-4 lg:h-20 lg:px-6">
         <div className="flex-1 ">
-          <h1
-            className="text-xl font-semibold md:text-2xl cursor-pointer"
+          <img
+            src={logo}
+            className="w-12 h-12 aspect-square object-fit"
             onClick={() => navigate(APP_ROUTES.DASHBOARD)}
-          >
-            HMS-Patient
-          </h1>
+          />
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -47,7 +46,7 @@ const DashboardLayout = () => {
                 <AvatarImage
                   src={user.signedUrl}
                   alt="image"
-                  className="object-fit aspect-square"
+                  className="object-fit "
                 />
                 <AvatarFallback className="hover:cursor-pointer">
                   <UserIcon className="w-12 h-12" />

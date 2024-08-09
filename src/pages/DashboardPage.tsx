@@ -2,7 +2,6 @@ import { APP_ROUTES } from "@/appRoutes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import Spinner from "@/components/ui/spinner";
 import useErrorHandler from "@/hooks/useError";
 import { getAppointmentList, getMedications } from "@/https/patients-service";
@@ -23,8 +22,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NoAppointmentPage from "./NoAppointmentPage";
 import { statusClasses } from "./utils";
-
-
 
 const timeOfDayTitles: { [key: string]: { title: string; icon: JSX.Element } } =
   {
@@ -229,10 +226,10 @@ const DashboardPage = () => {
             {medications.isPrescriptionAvailable && (
               <Button
                 variant={"link"}
-                className="ml-auto gap-1"
+                className="ml-auto gap-1 self-end"
                 onClick={() => navigate(APP_ROUTES.MEDICATION)}
               >
-                <div className="flex gap-1 items-center">
+               <div className="flex items-center gap-1">
                   <span>Show Details</span>
                   <ArrowUpRight className="h-4 w-4" />
                 </div>
@@ -294,9 +291,8 @@ const DashboardPage = () => {
             <p>Past Appointments</p>
             {pastAppointments.length !== 0 && (
               <Button
-                size="sm"
                 variant={"link"}
-                className="ml-auto gap-1"
+                className="ml-auto gap-1 self-end"
                 onClick={() =>
                   navigate(`${APP_ROUTES.APPOINTMENT_LIST}/history`)
                 }
