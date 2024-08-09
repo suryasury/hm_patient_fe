@@ -126,7 +126,7 @@ const Profile: React.FC = () => {
   const bloodGroups = ["A+", "B+", "O+", "AB+", "A-", "B-", "O-", "AB-"];
 
   return (
-    <div className="container mx-auto p-4 w-full">
+    <div className=" mx-auto w-full">
       <Card>
         <CardHeader>
           <CardTitle>User Profile</CardTitle>
@@ -152,7 +152,7 @@ const Profile: React.FC = () => {
                 <div className="flex flex-col items-start ml-4">
                   <Label>Profile Picture</Label>
                   <p className="text-gray-400 text-sm mt-1">
-                    Pick a photo from your computer
+                    Choose a photo from your device
                   </p>
                   <Button
                     variant="link"
@@ -168,9 +168,9 @@ const Profile: React.FC = () => {
                         Uploading...
                       </>
                     ) : user.signedUrl ? (
-                      "Update Photo"
+                      "Update Picture"
                     ) : (
-                      "Add Photo"
+                      "Add Picture"
                     )}
                   </Button>
                 </div>
@@ -419,7 +419,7 @@ const Profile: React.FC = () => {
 
               <Button
                 type="submit"
-                className="w-full mt-4"
+                className="md:w-fit w-full mt-4"
                 disabled={submitting || !form.formState.isDirty}
               >
                 {submitting ? (

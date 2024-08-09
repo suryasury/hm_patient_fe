@@ -498,7 +498,7 @@ const AppointmentDetails = () => {
                             )}
                           </Button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent>
+                        <AlertDialogContent className="max-w-[360px] md:max-w-fit">
                           <AlertDialogHeader>
                             <AlertDialogTitle>
                               Are you absolutely sure?

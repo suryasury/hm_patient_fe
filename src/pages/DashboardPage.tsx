@@ -226,10 +226,10 @@ const DashboardPage = () => {
             {medications.isPrescriptionAvailable && (
               <Button
                 variant={"link"}
-                className="ml-auto gap-1"
+                className="ml-auto gap-1 self-end"
                 onClick={() => navigate(APP_ROUTES.MEDICATION)}
               >
-                <div className="flex gap-1 items-center">
+               <div className="flex items-center gap-1">
                   <span>Show Details</span>
                   <ArrowUpRight className="h-4 w-4" />
                 </div>
@@ -291,9 +291,8 @@ const DashboardPage = () => {
             <p>Past Appointments</p>
             {pastAppointments.length !== 0 && (
               <Button
-                size="sm"
                 variant={"link"}
-                className="ml-auto gap-1"
+                className="ml-auto gap-1 self-end"
                 onClick={() =>
                   navigate(`${APP_ROUTES.APPOINTMENT_LIST}/history`)
                 }

@@ -11,8 +11,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import Spinner from "@/components/ui/spinner";
 import useErrorHandler from "@/hooks/useError";
 import { getUserDetails, login } from "@/https/auth-service";
@@ -33,7 +40,7 @@ const emailOrPhoneSchema = z.string().refine(
     return emailRegex.test(value) || phoneRegex.test(value);
   },
   {
-    message: "Must be a valid email address or a 10-digit phone number",
+    message: "Enter valid email address or  phone number",
   }
 );
 
@@ -43,11 +50,7 @@ const loginSchema = z.object({
 });
 
 const LoginForm = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<IloginForm>({
+  const form = useForm<IloginForm>({
     resolver: zodResolver(loginSchema),
   });
 
@@ -61,7 +64,7 @@ const LoginForm = () => {
   if (user) {
     return <Navigate to={APP_ROUTES.DASHBOARD} />;
   }
-
+  console.log(form.formState.errors);
   const onSubmit: SubmitHandler<IloginForm> = async (data: IloginForm) => {
     try {
       setSubmitting(true);
@@ -95,65 +98,65 @@ const LoginForm = () => {
   };
 
   return (
-    <section className="flex justify-center items-center h-screen p-6">
+    <section className="flex justify-center items-center">
       <Card className="w-full max-w-sm">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <CardHeader>
-            <CardTitle className="text-2xl">Welcome</CardTitle>
-            <CardDescription>Log in to your account</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="emailOrPhone">Email / Mobile</Label>
-              <Input
-                id="userName"
-                type="text"
-                placeholder="m@example.com / 9898989898"
-                {...register("userName")}
-                className="border-2 rounded-sm p-2"
-                required
+        <CardHeader>
+          <CardTitle className="text-2xl">Welcome</CardTitle>
+          <CardDescription>Log in to your account</CardDescription>
+        </CardHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+            <CardContent className="grid gap-4">
+              <FormField
+                control={form.control}
+                name="userName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email / Mobile</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="m@example.com / 9898989898"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {errors.userName && (
-                <span className="text-red-500">
-                  {errors.userName.message as string}
-                </span>
-              )}
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                {...register("password")}
-                className="border-2 rounded-sm p-2"
-                required
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="password" placeholder="************" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {errors.password && (
-                <span className="text-red-500">
-                  {errors.password.message as string}
-                </span>
-              )}
-            </div>
-          </CardContent>
-          <CardFooter className="flex-col">
-            <Button type="submit" className="w-full" disabled={submitting}>
-              {submitting ? (
-                <>
-                  <Spinner type="light" />
-                  Please wait...
-                </>
-              ) : (
-                "Sign in"
-              )}
-            </Button>
-            <div className="mt-4 self-start flex gap-2 items-center justifu-center text-sm">
-              <span>Don&apos;t have an account?</span>
-              <Link to={APP_ROUTES.REGISTER} className="underline m-0 p-0">
-                Sign up
-              </Link>
-            </div>
-          </CardFooter>
-        </form>
+            </CardContent>
+            <CardFooter className="flex-col">
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? (
+                  <>
+                    <Spinner type="light" />
+                    Please wait...
+                  </>
+                ) : (
+                  "Sign in"
+                )}
+              </Button>
+              <div className="mt-4 self-start flex gap-2 items-center justifu-center text-sm">
+                <span>Don&apos;t have an account?</span>
+                <Link to={APP_ROUTES.REGISTER} className="underline m-0 p-0">
+                  Sign up
+                </Link>
+              </div>
+            </CardFooter>
+          </form>
+        </Form>
       </Card>
     </section>
   );
