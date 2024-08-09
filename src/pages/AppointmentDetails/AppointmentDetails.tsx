@@ -74,7 +74,7 @@ import Prescription from "./Prescription";
 const updateAppoitmentSchema = z.object({
   appointmentDetails: z
     .object({
-      remarks: z.string().min(1, "Ailment is required"),
+      remarks: z.string().optional(),
       ailmentId: z.string().min(1, "Ailment is required"),
       appointmentDate: z.string().min(1, "Appointment Date is required"),
       doctorSlotId: z.string().min(1, "Please select slot"),
