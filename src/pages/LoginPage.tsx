@@ -95,14 +95,12 @@ const LoginForm = () => {
   };
 
   return (
-    <section className="flex justify-center items-center h-screen">
+    <section className="flex justify-center items-center h-screen p-6">
       <Card className="w-full max-w-sm">
         <form onSubmit={handleSubmit(onSubmit)}>
           <CardHeader>
-            <CardTitle className="text-2xl">Login</CardTitle>
-            <CardDescription>
-              Enter your email or mobile number below to login to your account.
-            </CardDescription>
+            <CardTitle className="text-2xl">Welcome</CardTitle>
+            <CardDescription>Log in to your account</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
             <div className="grid gap-2">
@@ -148,9 +146,9 @@ const LoginForm = () => {
                 "Sign in"
               )}
             </Button>
-            <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <Link to={APP_ROUTES.REGISTER} className="underline">
+            <div className="mt-4 self-start flex gap-2 items-center justifu-center text-sm">
+              <span>Don&apos;t have an account?</span>
+              <Link to={APP_ROUTES.REGISTER} className="underline m-0 p-0">
                 Sign up
               </Link>
             </div>

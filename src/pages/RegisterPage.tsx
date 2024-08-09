@@ -115,10 +115,10 @@ const RegisterPage = () => {
   };
 
   return (
-    <section className="flex items-center justify-center h-screen">
+    <section className="flex items-center justify-center h-screen p-6">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-xl">Sign Up</CardTitle>
+          <CardTitle className="text-2xl">Sign up</CardTitle>
           <CardDescription>
             Enter your information to create an account
           </CardDescription>
@@ -272,7 +272,11 @@ const RegisterPage = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={submitting}>
+              <Button
+                type="submit"
+                className="w-full !mt-4"
+                disabled={submitting}
+              >
                 {submitting ? (
                   <>
                     <Spinner type="light" />
@@ -284,8 +288,8 @@ const RegisterPage = () => {
               </Button>
             </form>
           </Form>
-          <div className="mt-4 text-center text-sm">
-            Already have an account?{" "}
+          <div className="mt-4 text-center flex gap-2 items-center text-sm">
+            <span>Already have an account?</span>
             <Link to={APP_ROUTES.LOGIN} className="underline">
               Sign in
             </Link>

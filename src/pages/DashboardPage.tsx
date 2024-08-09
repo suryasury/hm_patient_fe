@@ -9,12 +9,12 @@ import { getAppointmentList, getMedications } from "@/https/patients-service";
 import { IAppointmentResponse, MedicationRes } from "@/types";
 import { format } from "date-fns";
 import {
+  ArrowRight,
   ArrowUpRight,
   Calendar,
   Clock,
   Cloud,
   CloudSun,
-  Eye,
   Moon,
   PillBottle,
   Sun,
@@ -156,12 +156,12 @@ const DashboardPage = () => {
             <p>Upcoming Appointments</p>
             {appointmentList.length !== 0 && (
               <Button
-                size="sm"
                 className="ml-auto gap-1 self-end"
                 onClick={() =>
                   navigate(`${APP_ROUTES.APPOINTMENT_LIST}/upcoming`)
                 }
                 disabled={loadingAppointments}
+                variant={"link"}
               >
                 <div className="flex items-center gap-1">
                   <span>View All</span>
@@ -235,8 +235,8 @@ const DashboardPage = () => {
                       variant={"link"}
                       className="p-0 self-start"
                     >
-                      <Eye className="h-4 w-4" />
-                      <span className="ml-1">View</span>
+                      <span className="mr-1">View</span>
+                      <ArrowRight className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -255,7 +255,7 @@ const DashboardPage = () => {
 
             {medications.isPrescriptionAvailable && (
               <Button
-                size="sm"
+                variant={"link"}
                 className="ml-auto gap-1"
                 onClick={() => navigate(APP_ROUTES.MEDICATION)}
               >
@@ -304,8 +304,8 @@ const DashboardPage = () => {
             })
           ) : (
             <p className="flex items-center justify-center text-blue-500 p-4 bg-blue-100 rounded-md mt-4">
-              <PillBottle className="w-6 h-6 mr-2" />
-              <span className="text-md font-medium">
+              <PillBottle className="md:w-6 md:h-6 w-8 h-8 sm:self-start mr-2" />
+              <span className="text-md font-medium text-center">
                 No Medication available for today!
               </span>
             </p>
@@ -322,6 +322,7 @@ const DashboardPage = () => {
             {pastAppointments.length !== 0 && (
               <Button
                 size="sm"
+                variant={"link"}
                 className="ml-auto gap-1"
                 onClick={() =>
                   navigate(`${APP_ROUTES.APPOINTMENT_LIST}/history`)
@@ -338,7 +339,12 @@ const DashboardPage = () => {
         </CardHeader>
         <CardContent className="grid gap-4">
           {loadingAppointments ? (
-            <AppointmentCardSkeleton />
+            <div className="flex items-center justify-center p-4 bg-gray-100 rounded-md mt-4">
+              <Spinner />
+              <span className="text-md font-medium text-gray-500">
+                Looking for appointments...
+              </span>
+            </div>
           ) : pastAppointments.length === 0 ? (
             <NoAppointmentPage message="No Past Appointments" />
           ) : (
@@ -395,8 +401,8 @@ const DashboardPage = () => {
                       variant={"link"}
                       className="p-0 self-start"
                     >
-                      <Eye className="h-4 w-4" />
-                      <span className="ml-1">View</span>
+                      <span className="mr-1">View</span>
+                      <ArrowRight className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>

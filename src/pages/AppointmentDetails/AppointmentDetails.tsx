@@ -32,8 +32,15 @@ import {
   ITimeSlot,
   IUpdateAppointmentDetails,
 } from "@/types";
-import { format } from "date-fns";
-import { CalendarCheck, Clock, Loader, Stethoscope, X } from "lucide-react";
+import { format, isEqual } from "date-fns";
+import {
+  CalendarCheck,
+  Clock,
+  Loader,
+  SquarePen,
+  Stethoscope,
+  X,
+} from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -118,6 +125,8 @@ const AppointmentDetails = () => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [showCancelDialog, setShowCancelDialog] = useState<boolean>(false);
   const [cancelSubmitting, setCancelSubmitting] = useState<boolean>(false);
+  const [showEditTimeSlot, setEditTimeSlot] = useState<boolean>(false);
+  const [submitTimeslot, setSubmitTimeslot] = useState<boolean>(false);
 
   const handleError = useErrorHandler();
   const navigate = useNavigate();
@@ -163,7 +172,9 @@ const AppointmentDetails = () => {
     try {
       setCancelSubmitting(true);
       const payload: IUpdateAppointmentDetails = {
-        appointmentStatus: "CANCELLED",
+        appointmentDetails: {
+          appointmentStatus: "CANCELLED",
+        },
       };
 
       const res = await updateAppointment(payload, appointmentDetails!.id);
@@ -177,6 +188,59 @@ const AppointmentDetails = () => {
     } finally {
       setCancelSubmitting(false);
     }
+  };
+
+  const handleChangeDateSlot = async () => {
+    try {
+      setSubmitTimeslot(true);
+      const payload: IUpdateAppointmentDetails = {
+        appointmentDetails: {},
+      };
+      if (!selectedSlot || !selectedDate) return;
+      if (!appointmentDetails) return;
+
+      if (
+        !isEqual(
+          new Date(selectedDate),
+          new Date(appointmentDetails?.appointmentDate)
+        )
+      ) {
+        payload.appointmentDetails = {
+          appointmentDate: selectedDate.toISOString(),
+        };
+      }
+
+      if(selectedSlot.id !== appointmentDetails.doctorSlotId) {
+        payload.appointmentDetails = {
+          ...payload.appointmentDetails,
+          doctorSlotId: selectedSlot.id,
+        };
+      }
+
+      const res = await updateAppointment(payload, appointmentDetails!.id);
+      if (res.status === 200) {
+        toast.success("Appointment updated successfully");
+        setShowChangeTimeDialog(false);
+        setEditTimeSlot(false);
+        await fetchAppointmentDetails();
+      }
+    } catch (error) {
+      handleError(error, "Failed to update appointment");
+    } finally {
+      setSubmitTimeslot(false);
+    }
+  };
+
+  const isTimeSlotChanged = () => {
+    if (!selectedDate || !appointmentDetails?.appointmentDate) return false;
+
+    return (
+      selectedSlot?.id !== appointmentDetails?.doctorSlotId ||
+      !isEqual(
+        new Date(selectedDate),
+        new Date(appointmentDetails?.appointmentDate)
+      )
+    );
   };
   const fetchAppointmentDetails = async () => {
     try {
@@ -269,7 +333,24 @@ const AppointmentDetails = () => {
           <div className="w-full sm:w-[50%] h-fit">
             <Card>
               <CardHeader className="relative">
-                <CardTitle>In-Clinic Appointment</CardTitle>
+                <CardTitle>
+                  <div className="flex items-center gap-2">
+                    In-Clinic Appointment
+                    {showEditTimeSlot ? (
+                      <X
+                        className="w-5 h-5 cursor-pointer hover:scale-125"
+                        type="button"
+                        onClick={() => setEditTimeSlot(false)}
+                      />
+                    ) : (
+                      <SquarePen
+                        className="w-5 h-5 cursor-pointer hover:scale-125"
+                        type="button"
+                        onClick={() => setEditTimeSlot(true)}
+                      />
+                    )}
+                  </div>
+                </CardTitle>
                 {appointmentDetails?.appointmentStatus && (
                   <div
                     className={`badge ${
@@ -308,7 +389,7 @@ const AppointmentDetails = () => {
                   </div>
                 </div>
 
-                {isEdit && (
+                {showEditTimeSlot && (
                   <div className="flex justify-between items-center w-full flex-wrap">
                     <div className="ml-[-14px]">
                       <Dialog
@@ -329,17 +410,26 @@ const AppointmentDetails = () => {
 
                           <div className="flex flex-col gap-2">
                             <CardDescription>Select Date</CardDescription>
-                            <div className="w-fit">
+                            <div className="w-fit flex justify-between items-center gap-1">
                               <TimeSlotDatePicker
                                 selectedDate={selectedDate}
                                 setSelectedDate={(date) => {
                                   setSelectedDate(date);
-                                  form.setValue(
-                                    "appointmentDetails.appointmentDate",
-                                    date?.toString()
-                                  );
                                 }}
                               />
+                              <Button
+                                onClick={handleChangeDateSlot}
+                                disabled={!isTimeSlotChanged()}
+                              >
+                                {submitTimeslot ? (
+                                  <>
+                                    <Spinner />
+                                    <span>Updating...</span>
+                                  </>
+                                ) : (
+                                  "Update"
+                                )}
+                              </Button>
                             </div>
                             {fetchingTimeSlots ? (
                               <FetchingTimeSlots />
@@ -351,7 +441,6 @@ const AppointmentDetails = () => {
                                   selectedSlot={selectedSlot}
                                   handleSlotClick={(slot) => {
                                     setSelectedSlot(slot);
-                                    setShowChangeTimeDialog(false);
                                   }}
                                   short={true}
                                 />

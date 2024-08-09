@@ -85,13 +85,13 @@ const Profile: React.FC = () => {
       );
       const res = await updateProfile(payload);
       if (res.status === 200) {
-        toast.success("Appointment updated successfully");
+        toast.success("Profile updated successfully");
         const detailsRes = await getUserDetails();
         dispatch(setUser(detailsRes.data.data));
         form.reset(detailsRes.data.data);
       }
     } catch (error) {
-      handleError(error, "Failed to book appointment");
+      handleError(error, "Failed to update profile");
     } finally {
       setSubmitting(false);
     }
@@ -117,7 +117,6 @@ const Profile: React.FC = () => {
         throw new Error("No file selected");
       }
     } catch (error) {
-      console.error(error);
       handleError(error, "Failed to upload profile picture");
     } finally {
       setUploadingImage(false);

@@ -21,7 +21,6 @@ export interface IAppointmentState {
   weekdays: IWeekday[] | null;
 }
 
-
 // app types
 export interface User {
   id: string;
@@ -126,7 +125,7 @@ export interface IAppointmentResponse {
       hospitalId: string;
     };
   };
-  patientAppointmentDocs?: Record<string, string>[];
+  patientAppointmentDocs?: Document[];
   isFeedbackProvided: boolean;
   appointmentFeedbacks: Record<string, string>;
   patientPrescription: IPrescription[];
@@ -221,6 +220,7 @@ export interface IUpdateAppointmentDetails {
     ailmentId?: string;
     appointmentDate?: string;
     doctorSlotId?: string;
+    appointmentStatus?: string;
   };
   removedDocuments?: {
     id: string;
@@ -234,7 +234,7 @@ export interface IUpdateAppointmentDetails {
     fileExtension: string;
     documentTypeId: string;
   }[];
-  appointmentStatus?: string;
+ 
 }
 
 export interface IUpdateUserProfile {
@@ -251,4 +251,26 @@ export interface IUpdateUserProfile {
   pincode?: string;
   country?: string;
   phoneNumber?: string;
+}
+
+export interface DocumentType {
+  id: string;
+  name: string;
+}
+
+export interface Document {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  documentName: string;
+  bucketPath: string;
+  fileName: string;
+  fileExtension: string;
+  documentTypeId: string;
+  contentType: string;
+  patientId: string;
+  appointmentId: string;
+  isDeleted: boolean;
+  documentTypes: DocumentType;
+  signedUrl: string;
 }

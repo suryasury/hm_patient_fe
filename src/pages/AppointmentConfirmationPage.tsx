@@ -418,6 +418,9 @@ const AppointmentConfirmationPage = () => {
                                 {medicalReports.map((file, index) => {
                                   if (!file) return null;
                                   const fileName = file?.fileName;
+                                  const fileType =
+                                    file?.documentTypeName ||
+                                    `Report - ${index + 1}`;
                                   return (
                                     <Dialog key={index}>
                                       <DialogTrigger>
@@ -426,9 +429,7 @@ const AppointmentConfirmationPage = () => {
                                           className="cursor-pointer"
                                         >
                                           <div className="flex w-full gap-2 items-center capitalize">
-                                            <p>{`Report - ${index + 1}.${
-                                              file.fileExtension
-                                            }`}</p>
+                                            <p>{`${fileType}.${file.fileExtension}`}</p>
                                             <X
                                               className="w-3 h-3 hover:scale-110"
                                               onClick={(e) => {
