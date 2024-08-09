@@ -295,7 +295,7 @@ const AppointmentDetails = () => {
         <p className="text-lg font-medium text-muted-foreground mb-4">
           Appointment details not found
         </p>
-        <Button onClick={() => navigate(APP_ROUTES.DASHBOARD)}>
+        <Button onClick={() => navigate(APP_ROUTES.APPOINTMENT)}>
           <Home className="h-4 w-4 mr-2" />
           Go Home
         </Button>
@@ -354,7 +354,7 @@ const AppointmentDetails = () => {
                       <CalendarCheck className="text-[#414146] w-5 h-5 text-sm" />
                       <p>
                         On
-                        <span className="ml-2 text-md font-semibold">
+                        <span className="ml-2  font-medium">
                           {format(
                             selectedDate ? new Date(selectedDate) : new Date(),
                             "dd/MM/yyyy"
@@ -366,7 +366,7 @@ const AppointmentDetails = () => {
                       <Clock className="text-[#414146] w-5 h-5 text-sm" />
                       <p>
                         At
-                        <span className="ml-2 text-md font-semibold">
+                        <span className="ml-2 text-md font-medium">
                           {selectedSlot?.startTime}
                         </span>
                       </p>
@@ -452,7 +452,7 @@ const AppointmentDetails = () => {
                   <div className="flex flex-col gap-4 mt-4">
                     <div className="flex justify-between items-center">
                       <div className="doctor-profile-pic flex items-center gap-4">
-                        <Avatar className="w-[100px] h-[100px]">
+                        <Avatar className="w-[80px] h-[80px]">
                           <AvatarImage
                             src={appointmentDetails?.doctor?.profilePictureUrl}
                             alt={appointmentDetails?.doctor?.name}
@@ -462,13 +462,13 @@ const AppointmentDetails = () => {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="text-xl font-medium">
+                          <p className=" font-medium">
                             {appointmentDetails?.doctor?.name}
                           </p>
-                          <p className="text-gray-600">
+                          <p className="text-sm text-gray-600">
                             {appointmentDetails?.doctor?.speciality}
                           </p>
-                          <p className="text-gray-600">
+                          <p className="text-sm text-gray-600">
                             Mobile: {appointmentDetails?.doctor?.isd_code}{" "}
                             {appointmentDetails?.doctor?.phoneNumber}
                           </p>
@@ -542,7 +542,10 @@ const AppointmentDetails = () => {
               />
             )}
             {appointmentDetails?.appointmentStatus === "COMPLETED" && (
-              <Feedback appointmentDetails={appointmentDetails} />
+              <Feedback
+                appointmentDetails={appointmentDetails}
+                fetchAppointmentDetails={fetchAppointmentDetails}
+              />
             )}
           </div>
         </>

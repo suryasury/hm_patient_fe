@@ -80,7 +80,7 @@ const PatientDetails = ({
     return cloudDocs.some((doc) => doc.id === file.id);
   };
 
-  console.log(isReset)
+  console.log(isReset);
   const handleDeleteFile = (
     e: React.MouseEvent,
     file: any,
@@ -111,7 +111,7 @@ const PatientDetails = ({
 
   useEffect(() => {
     if (isReset) {
-      console.log("hello")
+      console.log("hello");
       setMedicalReports(appointmentDetails?.patientAppointmentDocs || []);
     }
   }, [isReset]);
@@ -175,6 +175,24 @@ const PatientDetails = ({
                     </FormItem>
                   )}
                 />
+                {appointmentDetails?.appointmentStatus === "COMPLETED" && (
+                  <FormField
+                    control={form.control}
+                    name="appointmentDetails.remarks"
+                    render={() => (
+                      <FormItem>
+                        <FormLabel>Doctor Remarks</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            disabled={!isEdit}
+                            value={appointmentDetails.doctorRemarks ?? ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
 
                 <FormField
                   control={form.control}
