@@ -24,34 +24,7 @@ import { useNavigate } from "react-router-dom";
 import NoAppointmentPage from "./NoAppointmentPage";
 import { statusClasses } from "./utils";
 
-const AppointmentCardSkeleton = () => {
-  return Array(3)
-    .fill(0)
-    .map((_item, index) => (
-      <div
-        key={index}
-        className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4 border-b last:border-none"
-      >
-        <Skeleton className="hidden h-[50px] w-[50px] sm:flex rounded-full" />
-        <div className="grid gap-1 flex-1">
-          <div className="flex items-center justify-between w-full">
-            <div>
-              <Skeleton className="h-4 w-24 mb-2" />
-              <Skeleton className="h-3 w-16" />
-            </div>
-            <Skeleton className="h-6 w-[90px] rounded-lg" />
-          </div>
-          <div className="flex items-center text-sm text-muted-foreground">
-            <Skeleton className="h-4 w-4 mr-1" />
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-4 w-4 mx-2" />
-            <Skeleton className="h-4 w-12" />
-            <Skeleton className="h-4 w-16 ml-2" />
-          </div>
-        </div>
-      </div>
-    ));
-};
+
 
 const timeOfDayTitles: { [key: string]: { title: string; icon: JSX.Element } } =
   {
@@ -212,12 +185,12 @@ const DashboardPage = () => {
                     <div
                       className={`badge ${
                         statusClasses[appointment.appointmentStatus]
-                      } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize`}
+                      } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize self-start`}
                     >
                       {appointment.appointmentStatus.toLowerCase()}
                     </div>
                   </div>
-                  <div className="flex items-center text-sm text-muted-foreground justify-between w-full">
+                  <div className="flex items-center text-sm text-muted-foreground justify-between w-full mt-2">
                     <div className="flex  items-center">
                       <Calendar className="h-4 w-4 mr-1" />
                       {new Date(
@@ -233,7 +206,7 @@ const DashboardPage = () => {
                         )
                       }
                       variant={"link"}
-                      className="p-0 self-start"
+                      className="p-0 m-0 h-fit self-start"
                     >
                       <span className="mr-1">View</span>
                       <ArrowRight className="h-4 w-4" />
@@ -378,12 +351,12 @@ const DashboardPage = () => {
                     <div
                       className={`badge ${
                         statusClasses[appointment.appointmentStatus]
-                      } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize`}
+                      } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize self-start`}
                     >
                       {appointment.appointmentStatus.toLowerCase()}
                     </div>
                   </div>
-                  <div className="flex items-center text-sm text-muted-foreground w-full justify-between">
+                  <div className="flex items-center text-sm text-muted-foreground w-full justify-between mt-2">
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-1" />
                       {new Date(
@@ -399,7 +372,7 @@ const DashboardPage = () => {
                         )
                       }
                       variant={"link"}
-                      className="p-0 self-start"
+                      className="p-0 m-0 h-fit self-start"
                     >
                       <span className="mr-1">View</span>
                       <ArrowRight className="h-4 w-4" />

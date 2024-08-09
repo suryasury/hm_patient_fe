@@ -27,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   IAppointmentForm,
   IAppointmentState,
+  IMedicalReport,
   ISlot,
   ITimeSlot,
   UserState,
@@ -106,9 +107,7 @@ const AppointmentConfirmationPage = () => {
   const weekdays = useSelector(
     (state: { appointment: IAppointmentState }) => state.appointment.weekdays
   );
-  const [medicalReports, setMedicalReports] = useState<
-    Record<string, string>[]
-  >([]);
+  const [medicalReports, setMedicalReports] = useState<IMedicalReport[]>([]);
   const [loadingReport, setLoadingReport] = useState<boolean>(true);
 
   const handleError = useErrorHandler();
@@ -184,6 +183,10 @@ const AppointmentConfirmationPage = () => {
     } finally {
       setFetchingTimeSlots(false);
     }
+  };
+
+  const handleUpdateMedicalReport = (file: IMedicalReport) => {
+    setMedicalReports((prev) => [...prev, file]);
   };
 
   useEffect(() => {
@@ -415,9 +418,9 @@ const AppointmentConfirmationPage = () => {
                           <FormControl>
                             <div className="flex flex-col flex-wrap gap-1">
                               <div className="flex gap-1 items-center flex-wrap">
-                                {medicalReports.map((file, index) => {
+                                {medicalReports.map((file:IMedicalReport, index) => {
                                   if (!file) return null;
-                                  const fileName = file?.fileName;
+                                  const fileName = file.fileName;
                                   const fileType =
                                     file?.documentTypeName ||
                                     `Report - ${index + 1}`;
@@ -488,7 +491,7 @@ const AppointmentConfirmationPage = () => {
                               </div>
                               <UploadReport
                                 hospitalId={location.state?.slot?.hospitalId}
-                                setMedicalReports={setMedicalReports}
+                                updateMedicalReport={handleUpdateMedicalReport}
                               />
                             </div>
                           </FormControl>

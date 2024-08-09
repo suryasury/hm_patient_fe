@@ -27,13 +27,13 @@ import { Label } from "@/components/ui/label";
 import Spinner from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Document,
   IAppointmentResponse,
+  IMedicalReport,
   IUpdateAppointmentDetails,
   UserState,
 } from "@/types";
-import { Loader, SquarePen, X } from "lucide-react";
-import { useState } from "react";
+import { Loader, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { SubmitHandler, UseFormReturn } from "react-hook-form";
 import { useSelector } from "react-redux";
 import Ailment from "../shared/Ailment";
@@ -46,20 +46,19 @@ interface PatientDetailsComponentProps {
   onSubmit: SubmitHandler<IUpdateAppointmentDetails>;
   form: UseFormReturn<IUpdateAppointmentDetails, any, undefined>;
   hospitalId: string;
+  isReset: boolean;
 }
 
 const PatientDetails = ({
   appointmentDetails,
   isEdit,
   submitting,
-  handleEdit,
   onSubmit,
   form,
   hospitalId,
+  isReset,
 }: PatientDetailsComponentProps) => {
-  // TODO handle upload part
-  // const [files, setFiles] = useState<File | null>(null);
-  const [medicalReports, setMedicalReports] = useState<Document[]>(
+  const [medicalReports, setMedicalReports] = useState<IMedicalReport[]>(
     appointmentDetails?.patientAppointmentDocs || []
   );
 
@@ -68,10 +67,55 @@ const PatientDetails = ({
 
   // const handleError = useErrorHandler();
 
-  const handleUploadRecords = (files: any) => {
-    setMedicalReports(files);
-    form.setValue("documents", files);
+  const handleUploadRecords = (file: IMedicalReport) => {
+    setMedicalReports((prev) => [...prev, file]);
+    const files = form.getValues("documents") ?? [];
+    const updatedFiles = [...files, file];
+    form.setValue("documents", updatedFiles, { shouldDirty: true });
   };
+
+  const isAvailableInAppointmentDocs = (file: IMedicalReport) => {
+    const cloudDocs: IMedicalReport[] =
+      appointmentDetails?.patientAppointmentDocs ?? [];
+    return cloudDocs.some((doc) => doc.id === file.id);
+  };
+
+  console.log(isReset)
+  const handleDeleteFile = (
+    e: React.MouseEvent,
+    file: any,
+    field: any,
+    index: number
+  ) => {
+    if (isAvailableInAppointmentDocs(file)) {
+      field.onChange([
+        ...(field.value ?? []),
+        {
+          id: file.id,
+          bucketPath: file.bucketPath,
+        },
+      ]);
+    } else {
+      form.setValue("removedDocuments", [
+        ...(form.getValues("removedDocuments") ?? []),
+        {
+          id: file.id,
+          bucketPath: file.bucketPath,
+        },
+      ]),
+        { shouldDirty: true };
+    }
+    setMedicalReports((prev) => prev.filter((_, i) => i !== index));
+    e.stopPropagation();
+  };
+
+  useEffect(() => {
+    if (isReset) {
+      console.log("hello")
+      setMedicalReports(appointmentDetails?.patientAppointmentDocs || []);
+    }
+  }, [isReset]);
+
   return (
     <div className="w-full sm:w-[50%]">
       <Card>
@@ -79,13 +123,6 @@ const PatientDetails = ({
           <CardTitle>
             <div className="flex w-full items-center justify-between">
               <p>Patient Details</p>
-              {!isEdit && (
-                <SquarePen
-                  className="w-5 h-5 cursor-pointer hover:scale-125"
-                  type="button"
-                  onClick={(event: any) => handleEdit(event as any)}
-                />
-              )}
             </div>
           </CardTitle>
           <CardDescription>This in-clinic appointment is for:</CardDescription>
@@ -152,7 +189,8 @@ const PatientDetails = ({
                               if (!file) return null;
                               const fileName = file?.fileName;
                               const fileType =
-                                file?.documentTypes.name ||
+                                (file?.documentTypes?.name ??
+                                  file?.documentTypeName) ||
                                 `Report - ${index + 1}`;
                               return (
                                 <Dialog key={index}>
@@ -161,32 +199,25 @@ const PatientDetails = ({
                                       variant={"secondary"}
                                       className="cursor-pointer"
                                     >
-                                      <div className="flex w-full gap-2 items-center capitalize">
+                                      <div className="flex w-full max-w-[364px] gap-2 items-center capitalize">
                                         <p>{`${fileType}.${file.fileExtension}`}</p>
                                         {isEdit && (
                                           <X
                                             className="w-3 h-3 hover:scale-110"
-                                            onClick={(e) => {
-                                              field.onChange([
-                                                ...(field.value ?? []),
-                                                {
-                                                  id: file.id,
-                                                  bucketPath: file.bucketPath,
-                                                },
-                                              ]);
-                                              setMedicalReports((prev) =>
-                                                prev.filter(
-                                                  (_, i) => i !== index
-                                                )
-                                              );
-                                              e.stopPropagation();
-                                            }}
+                                            onClick={(e) =>
+                                              handleDeleteFile(
+                                                e,
+                                                file,
+                                                field,
+                                                index
+                                              )
+                                            }
                                           />
                                         )}
                                       </div>
                                     </Badge>
                                   </DialogTrigger>
-                                  <DialogContent className="max-w-[900px] max-h-[600px] min-h-[40vh] rounded-lg shadow-lg flex flex-col overflow-auto">
+                                  <DialogContent className="max-w-[364px] md:max-w-[900px] max-h-max min-h-[40vh] rounded-lg shadow-lg flex flex-col overflow-auto">
                                     <DialogTitle>
                                       <DialogHeader>{fileName}</DialogHeader>
                                     </DialogTitle>
@@ -229,7 +260,7 @@ const PatientDetails = ({
                           {isEdit && (
                             <UploadReport
                               hospitalId={hospitalId}
-                              setMedicalReports={handleUploadRecords}
+                              updateMedicalReport={handleUploadRecords}
                             />
                           )}
                         </div>
@@ -240,16 +271,19 @@ const PatientDetails = ({
                 />
                 {isEdit && (
                   <div className="flex items-center justify-between flex-wrap gap-3">
-                    <Button
+                    {/* <Button
                       variant="secondary"
                       className="flex-1"
                       onClick={(e) => {
                         handleEdit(e);
                         form.reset();
+                        setMedicalReports(
+                          appointmentDetails?.patientAppointmentDocs || []
+                        );
                       }}
                     >
                       Cancel
-                    </Button>
+                    </Button> */}
                     <Button
                       className="flex-1"
                       disabled={!form.formState.isDirty}
