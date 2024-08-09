@@ -34,7 +34,6 @@ import {
 } from "@/types";
 import { format } from "date-fns";
 import {
-  ArrowLeft,
   CalendarCheck,
   CalendarOff,
   Clock,
