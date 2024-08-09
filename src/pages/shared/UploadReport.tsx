@@ -20,6 +20,7 @@ import {
 import Spinner from "@/components/ui/spinner";
 import useErrorHandler from "@/hooks/useError";
 import { getReportTypeList, uploadDocuments } from "@/https/patients-service";
+import { DocumentType } from "@/types";
 import { UploadCloud } from "lucide-react";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -31,7 +32,7 @@ const UploadReport = ({
   hospitalId: string;
   setMedicalReports: Dispatch<SetStateAction<Record<string, any>[]>>;
 }) => {
-  const [reportTypeList, setReportTypeList] = useState([]);
+  const [reportTypeList, setReportTypeList] = useState<DocumentType[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [reportType, setReportType] = useState("");
@@ -91,9 +92,16 @@ const UploadReport = ({
       }
       const res = await uploadDocuments(formData);
       if (res.status === 200) {
+        const documentType = reportTypeList.find(
+          (type: DocumentType) => type.id === reportType
+        );
         setMedicalReports((prev) => [
           ...prev,
-          { documentTypeId: reportType, ...res.data.data[0] },
+          {
+            documentTypeId: documentType?.id,
+            documentTypeName: documentType?.name,
+            ...res.data.data[0],
+          },
         ]);
         setReportType("");
         toast.success("Uploaded Successfully", {

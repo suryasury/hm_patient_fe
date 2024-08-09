@@ -27,11 +27,12 @@ import { Label } from "@/components/ui/label";
 import Spinner from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  Document,
   IAppointmentResponse,
   IUpdateAppointmentDetails,
   UserState,
 } from "@/types";
-import { Loader, Pencil, SquarePen, X } from "lucide-react";
+import { Loader, SquarePen, X } from "lucide-react";
 import { useState } from "react";
 import { SubmitHandler, UseFormReturn } from "react-hook-form";
 import { useSelector } from "react-redux";
@@ -58,9 +59,9 @@ const PatientDetails = ({
 }: PatientDetailsComponentProps) => {
   // TODO handle upload part
   // const [files, setFiles] = useState<File | null>(null);
-  const [medicalReports, setMedicalReports] = useState<
-    Record<string, string>[]
-  >(appointmentDetails?.patientAppointmentDocs || []);
+  const [medicalReports, setMedicalReports] = useState<Document[]>(
+    appointmentDetails?.patientAppointmentDocs || []
+  );
 
   const [loadingReport, setLoadingReport] = useState<boolean>(true);
   const user = useSelector((state: { user: UserState }) => state.user.user);
@@ -150,6 +151,9 @@ const PatientDetails = ({
                             {medicalReports.map((file, index) => {
                               if (!file) return null;
                               const fileName = file?.fileName;
+                              const fileType =
+                                file?.documentTypes.name ||
+                                `Report - ${index + 1}`;
                               return (
                                 <Dialog key={index}>
                                   <DialogTrigger>
@@ -158,9 +162,7 @@ const PatientDetails = ({
                                       className="cursor-pointer"
                                     >
                                       <div className="flex w-full gap-2 items-center capitalize">
-                                        <p>{`Report - ${index + 1}.${
-                                          file.fileExtension
-                                        }`}</p>
+                                        <p>{`${fileType}.${file.fileExtension}`}</p>
                                         {isEdit && (
                                           <X
                                             className="w-3 h-3 hover:scale-110"

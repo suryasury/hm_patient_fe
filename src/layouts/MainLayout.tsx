@@ -32,8 +32,13 @@ const DashboardLayout = () => {
   return (
     <div className="min-h-screen w-full bg-gray-50">
       <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-white px-4 lg:h-20 lg:px-6">
-        <div className="flex-1">
-          <h1 className="text-xl font-semibold md:text-2xl">Logo </h1>
+        <div className="flex-1 ">
+          <h1
+            className="text-xl font-semibold md:text-2xl cursor-pointer"
+            onClick={() => navigate(APP_ROUTES.DASHBOARD)}
+          >
+            HMS-Patient
+          </h1>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -73,7 +78,8 @@ const DashboardLayout = () => {
         {location.pathname === APP_ROUTES.DASHBOARD && (
           <div className="flex w-[100%] justify-between">
             <h2 className="w-full text-2xl font-bold mb-4">
-              Hi, <span className="capitalize">{user?.name}</span>
+              Hi,{" "}
+              <span className="capitalize">{user?.name?.split(" ")[0]}</span>
             </h2>
             <Button onClick={() => navigate(APP_ROUTES.APPOINTMENT)}>
               <PlusCircle className="h-4 w-4 mr-2" />
