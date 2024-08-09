@@ -32,10 +32,13 @@ import {
   ITimeSlot,
   IUpdateAppointmentDetails,
 } from "@/types";
-import { format, isEqual } from "date-fns";
+import { format } from "date-fns";
 import {
+  ArrowLeft,
   CalendarCheck,
+  CalendarOff,
   Clock,
+  Home,
   Loader,
   SquarePen,
   Stethoscope,
@@ -125,8 +128,7 @@ const AppointmentDetails = () => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [showCancelDialog, setShowCancelDialog] = useState<boolean>(false);
   const [cancelSubmitting, setCancelSubmitting] = useState<boolean>(false);
-  const [showEditTimeSlot, setEditTimeSlot] = useState<boolean>(false);
-  const [submitTimeslot, setSubmitTimeslot] = useState<boolean>(false);
+  const [isReset, setIsReset] = useState<boolean>(false);
 
   const handleError = useErrorHandler();
   const navigate = useNavigate();
@@ -190,58 +192,6 @@ const AppointmentDetails = () => {
     }
   };
 
-  const handleChangeDateSlot = async () => {
-    try {
-      setSubmitTimeslot(true);
-      const payload: IUpdateAppointmentDetails = {
-        appointmentDetails: {},
-      };
-      if (!selectedSlot || !selectedDate) return;
-      if (!appointmentDetails) return;
-
-      if (
-        !isEqual(
-          new Date(selectedDate),
-          new Date(appointmentDetails?.appointmentDate)
-        )
-      ) {
-        payload.appointmentDetails = {
-          appointmentDate: selectedDate.toISOString(),
-        };
-      }
-
-      if(selectedSlot.id !== appointmentDetails.doctorSlotId) {
-        payload.appointmentDetails = {
-          ...payload.appointmentDetails,
-          doctorSlotId: selectedSlot.id,
-        };
-      }
-
-      const res = await updateAppointment(payload, appointmentDetails!.id);
-      if (res.status === 200) {
-        toast.success("Appointment updated successfully");
-        setShowChangeTimeDialog(false);
-        setEditTimeSlot(false);
-        await fetchAppointmentDetails();
-      }
-    } catch (error) {
-      handleError(error, "Failed to update appointment");
-    } finally {
-      setSubmitTimeslot(false);
-    }
-  };
-
-  const isTimeSlotChanged = () => {
-    if (!selectedDate || !appointmentDetails?.appointmentDate) return false;
-
-    return (
-      selectedSlot?.id !== appointmentDetails?.doctorSlotId ||
-      !isEqual(
-        new Date(selectedDate),
-        new Date(appointmentDetails?.appointmentDate)
-      )
-    );
-  };
   const fetchAppointmentDetails = async () => {
     try {
       setLoading(true);
@@ -305,10 +255,28 @@ const AppointmentDetails = () => {
   };
 
   const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (!isEdit) {
-      e.preventDefault();
+    e.preventDefault();
+    if (isEdit) {
+      setIsReset(true);
+      setSelectedDate(new Date(appointmentDetails!.appointmentDate));
+      setSelectedSlot({
+        id: appointmentDetails!.doctorSlotId,
+        startTime: appointmentDetails!.doctorSlots.slot.startTime,
+        hospitalId: appointmentDetails!.doctorSlots.slot.hospitalId,
+      });
+      form.reset();
     }
     setIsEdit((prev) => !prev);
+    setTimeout(() => setIsReset(false), 0);
+  };
+
+  const showEditBtn = () => {
+    const prohibitedStatus = ["COMPLETED", "CANCELLED"];
+    if (!appointmentDetails) return false;
+    if (prohibitedStatus.includes(appointmentDetails.appointmentStatus))
+      return false;
+
+    return true;
   };
 
   useEffect(() => {
@@ -319,8 +287,24 @@ const AppointmentDetails = () => {
     fetchAppointmentDetails();
   }, []);
 
+  if (!loading && !appointmentDetails)
+    return (
+      <div className="flex flex-col items-center justify-center text-center py-8  ">
+        <div className="text-4xl text-muted-foreground mb-4">
+          <CalendarOff className="h-8 w-8" />
+        </div>
+        <p className="text-lg font-medium text-muted-foreground mb-4">
+          Appointment details not found
+        </p>
+        <Button onClick={() => navigate(APP_ROUTES.DASHBOARD)}>
+          <Home className="h-4 w-4 mr-2" />
+          Go Home
+        </Button>
+      </div>
+    );
+
   return (
-    <div className="flex flex-col gap-4 w-full mx-auto">
+    <div className="flex flex-col gap-4 w-full mx-auto relative">
       {loading ? (
         <div className="flex  overflow-hidden items-center mt-6 justify-center">
           <Loader className="animate-spin" />
@@ -329,223 +313,240 @@ const AppointmentDetails = () => {
           </p>
         </div>
       ) : (
-        <div className="flex flex-col sm:flex-row gap-4 w-full">
-          <div className="w-full sm:w-[50%] h-fit">
-            <Card>
-              <CardHeader className="relative">
-                <CardTitle>
-                  <div className="flex items-center gap-2">
-                    In-Clinic Appointment
-                    {showEditTimeSlot ? (
-                      <X
-                        className="w-5 h-5 cursor-pointer hover:scale-125"
-                        type="button"
-                        onClick={() => setEditTimeSlot(false)}
-                      />
-                    ) : (
-                      <SquarePen
-                        className="w-5 h-5 cursor-pointer hover:scale-125"
-                        type="button"
-                        onClick={() => setEditTimeSlot(true)}
-                      />
-                    )}
-                  </div>
-                </CardTitle>
-                {appointmentDetails?.appointmentStatus && (
-                  <div
-                    className={`badge ${
-                      statusClasses[appointmentDetails.appointmentStatus]
-                    } px-2 py-1 rounded-lg text-xs font-medium w-[90px] text-center capitalize absolute right-5 top-4`}
-                  >
-                    {appointmentDetails?.appointmentStatus.toLowerCase()}
-                  </div>
-                )}
-              </CardHeader>
-              <CardContent>
-                <hr className="border-t border-gray-200" />
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-4 gap-4 sm:gap-0">
-                  <div className="flex gap-2 items-center">
-                    <CalendarCheck className="text-[#414146] w-5 h-5 text-sm" />
-                    <p>
-                      On
-                      <span className="ml-2 text-md font-semibold">
-                        {format(
-                          appointmentDetails?.appointmentDate
-                            ? new Date(appointmentDetails?.appointmentDate)
-                            : new Date(),
-                          "dd/MM/yyyy"
-                        )}
-                      </span>
-                    </p>
-                  </div>
-                  <div className="flex gap-2 items-center">
-                    <Clock className="text-[#414146] w-5 h-5 text-sm" />
-                    <p>
-                      At
-                      <span className="ml-2 text-md font-semibold">
-                        {selectedSlot?.startTime}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-
-                {showEditTimeSlot && (
-                  <div className="flex justify-between items-center w-full flex-wrap">
-                    <div className="ml-[-14px]">
-                      <Dialog
-                        open={showChangeTimeDialog}
-                        onOpenChange={(isOpen) => {
-                          setShowChangeTimeDialog(isOpen);
-                        }}
-                      >
-                        <DialogTrigger asChild>
-                          <Button variant="link" className="text-primary">
-                            Change Date and time slot
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="w-[95%] max-h-[90vh] min-h-[40vh] rounded-lg shadow-lg flex flex-col overflow-auto">
-                          <DialogHeader>
-                            <DialogTitle>Change Date and Time Slot</DialogTitle>
-                          </DialogHeader>
-
-                          <div className="flex flex-col gap-2">
-                            <CardDescription>Select Date</CardDescription>
-                            <div className="w-fit flex justify-between items-center gap-1">
-                              <TimeSlotDatePicker
-                                selectedDate={selectedDate}
-                                setSelectedDate={(date) => {
-                                  setSelectedDate(date);
-                                }}
-                              />
-                              <Button
-                                onClick={handleChangeDateSlot}
-                                disabled={!isTimeSlotChanged()}
-                              >
-                                {submitTimeslot ? (
-                                  <>
-                                    <Spinner />
-                                    <span>Updating...</span>
-                                  </>
-                                ) : (
-                                  "Update"
-                                )}
-                              </Button>
-                            </div>
-                            {fetchingTimeSlots ? (
-                              <FetchingTimeSlots />
-                            ) : (
-                              selectedDate &&
-                              (timeSlots.isSlotAvailable ? (
-                                <AvailableSlots
-                                  timeSlots={timeSlots}
-                                  selectedSlot={selectedSlot}
-                                  handleSlotClick={(slot) => {
-                                    setSelectedSlot(slot);
-                                  }}
-                                  short={true}
-                                />
-                              ) : (
-                                <NoTimeSlots />
-                              ))
-                            )}
-                          </div>
-                        </DialogContent>
-                      </Dialog>
+        <>
+          {showEditBtn() &&
+            (!isEdit ? (
+              <Button className="w-fit self-end gap-1" onClick={handleEdit}>
+                <SquarePen className="w-4 h-4" />
+                <span>Edit</span>
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                className="w-fit self-end"
+                onClick={handleEdit}
+              >
+                Cancel
+              </Button>
+            ))}
+          <div className="flex flex-col sm:flex-row gap-4 w-full">
+            <div className="w-full sm:w-[50%] h-fit">
+              <Card>
+                <CardHeader className="relative">
+                  <CardTitle>
+                    <div className="flex items-center gap-2">
+                      In-Clinic Appointment
                     </div>
-                    <AlertDialog
-                      open={showCancelDialog}
-                      onOpenChange={setShowCancelDialog}
+                  </CardTitle>
+                  {appointmentDetails?.appointmentStatus && (
+                    <div
+                      className={`badge ${
+                        statusClasses[appointmentDetails.appointmentStatus]
+                      } px-2 py-1 rounded-lg text-xs font-medium w-[90px] text-center capitalize absolute right-5 top-4`}
                     >
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant={"link"}
-                          className="self-end m-0 p-0 text-red-600"
-                        >
-                          {cancelSubmitting ? (
-                            <>
-                              <Spinner />
-                              <span>Cancelling...</span>
-                            </>
-                          ) : (
-                            <>
-                              <X className="h-4 w-4 mr-1" />
-                              <span>Cancel Appointment</span>
-                            </>
+                      {appointmentDetails?.appointmentStatus.toLowerCase()}
+                    </div>
+                  )}
+                </CardHeader>
+                <CardContent>
+                  <hr className="border-t border-gray-200" />
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-4 gap-4 sm:gap-0">
+                    <div className="flex gap-2 items-center">
+                      <CalendarCheck className="text-[#414146] w-5 h-5 text-sm" />
+                      <p>
+                        On
+                        <span className="ml-2 text-md font-semibold">
+                          {format(
+                            selectedDate ? new Date(selectedDate) : new Date(),
+                            "dd/MM/yyyy"
                           )}
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>
-                            Are you absolutely sure?
-                          </AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This action cannot be undone. This will permanently
-                            cancel your appointment.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={handleCancelAppointment}>
-                            Continue
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                        </span>
+                      </p>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Clock className="text-[#414146] w-5 h-5 text-sm" />
+                      <p>
+                        At
+                        <span className="ml-2 text-md font-semibold">
+                          {selectedSlot?.startTime}
+                        </span>
+                      </p>
+                    </div>
                   </div>
-                )}
 
-                <div className="flex flex-col gap-4 mt-4">
-                  <div className="flex justify-between items-center">
-                    <div className="doctor-profile-pic flex items-center gap-4">
-                      <Avatar className="w-[100px] h-[100px]">
-                        <AvatarImage
-                          src={appointmentDetails?.doctor?.profilePictureUrl}
-                          alt={appointmentDetails?.doctor?.name}
-                        />
-                        <AvatarFallback>
-                          <Stethoscope className="w-10 h-10" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-xl font-medium">
-                          {appointmentDetails?.doctor?.name}
-                        </p>
-                        <p className="text-gray-600">
-                          {appointmentDetails?.doctor?.speciality}
-                        </p>
-                        <p className="text-gray-600">
-                          Mobile: {appointmentDetails?.doctor?.isd_code}{" "}
-                          {appointmentDetails?.doctor?.phoneNumber}
-                        </p>
+                  {isEdit && (
+                    <div className="flex justify-between items-center w-full flex-wrap">
+                      <div className="ml-[-14px]">
+                        <Dialog
+                          open={showChangeTimeDialog}
+                          onOpenChange={(isOpen) => {
+                            setShowChangeTimeDialog(isOpen);
+                            !timeSlots.isSlotAvailable &&
+                              setSelectedDate(
+                                new Date(appointmentDetails!.appointmentDate)
+                              );
+
+                            form.setValue(
+                              "appointmentDetails.appointmentDate",
+                              appointmentDetails!.appointmentDate,
+                              { shouldDirty: true }
+                            );
+                          }}
+                        >
+                          <DialogTrigger asChild>
+                            <Button variant="link" className="text-primary">
+                              Change Date and time slot
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="w-[95%] max-h-[90vh] min-h-[40vh] rounded-lg shadow-lg flex flex-col overflow-auto">
+                            <DialogHeader>
+                              <DialogTitle>
+                                Change Date and Time Slot
+                              </DialogTitle>
+                            </DialogHeader>
+
+                            <div className="flex flex-col gap-2">
+                              <CardDescription>Select Date</CardDescription>
+                              <div className="w-fit flex justify-between items-center gap-1">
+                                <TimeSlotDatePicker
+                                  selectedDate={selectedDate}
+                                  setSelectedDate={(date) => {
+                                    setSelectedDate(date);
+                                    form.setValue(
+                                      "appointmentDetails.appointmentDate",
+                                      (date as Date).toISOString(),
+                                      { shouldDirty: true }
+                                    );
+                                  }}
+                                />
+                              </div>
+                              {fetchingTimeSlots ? (
+                                <FetchingTimeSlots />
+                              ) : (
+                                selectedDate &&
+                                (timeSlots.isSlotAvailable ? (
+                                  <AvailableSlots
+                                    timeSlots={timeSlots}
+                                    selectedSlot={selectedSlot}
+                                    handleSlotClick={(slot) => {
+                                      setSelectedSlot(slot);
+                                      setShowChangeTimeDialog(false);
+                                      form.setValue(
+                                        "appointmentDetails.doctorSlotId",
+                                        slot.id,
+                                        { shouldDirty: true }
+                                      );
+                                    }}
+                                    short={true}
+                                  />
+                                ) : (
+                                  <NoTimeSlots />
+                                ))
+                              )}
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </div>
+                  )}
+
+                  <div className="flex flex-col gap-4 mt-4">
+                    <div className="flex justify-between items-center">
+                      <div className="doctor-profile-pic flex items-center gap-4">
+                        <Avatar className="w-[100px] h-[100px]">
+                          <AvatarImage
+                            src={appointmentDetails?.doctor?.profilePictureUrl}
+                            alt={appointmentDetails?.doctor?.name}
+                          />
+                          <AvatarFallback>
+                            <Stethoscope className="w-10 h-10" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="text-xl font-medium">
+                            {appointmentDetails?.doctor?.name}
+                          </p>
+                          <p className="text-gray-600">
+                            {appointmentDetails?.doctor?.speciality}
+                          </p>
+                          <p className="text-gray-600">
+                            Mobile: {appointmentDetails?.doctor?.isd_code}{" "}
+                            {appointmentDetails?.doctor?.phoneNumber}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    {isEdit && (
+                      <AlertDialog
+                        open={showCancelDialog}
+                        onOpenChange={setShowCancelDialog}
+                      >
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant={"link"}
+                            className=" m-0 p-0 text-red-600"
+                          >
+                            {cancelSubmitting ? (
+                              <>
+                                <Spinner />
+                                <span>Cancelling...</span>
+                              </>
+                            ) : (
+                              <>
+                                <X className="h-4 w-4 mr-1" />
+                                <span>Cancel Appointment</span>
+                              </>
+                            )}
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Are you absolutely sure?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will
+                              permanently cancel your appointment.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={handleCancelAppointment}
+                            >
+                              Continue
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-            {/* Prescription Section */}
-            {appointmentDetails?.patientPrescription.length !== 0 && (
-              <Prescription appointmentDetails={appointmentDetails} />
+                </CardContent>
+              </Card>
+              {/* Prescription Section */}
+              {appointmentDetails?.patientPrescription.length !== 0 && (
+                <Prescription appointmentDetails={appointmentDetails} />
+              )}
+            </div>
+            {appointmentDetails && (
+              <PatientDetails
+                appointmentDetails={appointmentDetails}
+                isEdit={isEdit}
+                handleEdit={handleEdit}
+                submitting={submitting}
+                onSubmit={handleUpdateAppointement}
+                form={form}
+                hospitalId={
+                  appointmentDetails ? appointmentDetails.hospitalId : ""
+                }
+                isReset={isReset}
+              />
+            )}
+            {appointmentDetails?.appointmentStatus === "COMPLETED" && (
+              <Feedback appointmentDetails={appointmentDetails} />
             )}
           </div>
-          {appointmentDetails && (
-            <PatientDetails
-              appointmentDetails={appointmentDetails}
-              isEdit={isEdit}
-              handleEdit={handleEdit}
-              submitting={submitting}
-              onSubmit={handleUpdateAppointement}
-              form={form}
-              hospitalId={
-                appointmentDetails ? appointmentDetails.hospitalId : ""
-              }
-            />
-          )}
-          {appointmentDetails?.appointmentStatus === "COMPLETED" && (
-            <Feedback appointmentDetails={appointmentDetails} />
-          )}
-        </div>
+        </>
       )}
     </div>
   );

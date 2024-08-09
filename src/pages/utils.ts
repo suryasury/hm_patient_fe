@@ -14,7 +14,7 @@ export const statusClasses: { [key: string]: string } = {
   SCHEDULED: "bg-blue-100 text-blue-800",
   PENDING: "bg-yellow-100 text-yellow-800",
   COMPLETED: "bg-green-100 text-green-800",
-  CANCELED: "bg-red-100 text-red-800",
+  CANCELLED: "bg-red-100 text-red-800",
   APPROVED: "bg-purple-100 text-purple-800",
 };
 

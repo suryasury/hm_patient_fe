@@ -64,7 +64,7 @@ export interface IAppointmentForm {
   remarks: string;
   ailmentId: string;
   appointmentDate: string;
-  documents?: Record<string, string>[];
+  documents?:IMedicalReport[];
 }
 
 export interface IloginForm {
@@ -125,7 +125,7 @@ export interface IAppointmentResponse {
       hospitalId: string;
     };
   };
-  patientAppointmentDocs?: Document[];
+  patientAppointmentDocs?: IMedicalReport[];
   isFeedbackProvided: boolean;
   appointmentFeedbacks: Record<string, string>;
   patientPrescription: IPrescription[];
@@ -226,14 +226,7 @@ export interface IUpdateAppointmentDetails {
     id: string;
     bucketPath: string;
   }[];
-  documents?: {
-    signedUrl: string;
-    bucketPath: string;
-    fileName: string;
-    contentType: string;
-    fileExtension: string;
-    documentTypeId: string;
-  }[];
+  documents?:IMedicalReport[];
  
 }
 
@@ -253,24 +246,25 @@ export interface IUpdateUserProfile {
   phoneNumber?: string;
 }
 
-export interface DocumentType {
+export interface IMedicalReportType {
   id: string;
   name: string;
 }
 
-export interface Document {
+export interface IMedicalReport {
   id: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   documentName: string;
   bucketPath: string;
   fileName: string;
   fileExtension: string;
-  documentTypeId: string;
+  documentTypeId?: string;
   contentType: string;
   patientId: string;
   appointmentId: string;
   isDeleted: boolean;
-  documentTypes: DocumentType;
+  documentTypes: IMedicalReportType;
   signedUrl: string;
+  documentTypeName?: string;
 }

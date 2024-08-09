@@ -20,19 +20,19 @@ import {
 import Spinner from "@/components/ui/spinner";
 import useErrorHandler from "@/hooks/useError";
 import { getReportTypeList, uploadDocuments } from "@/https/patients-service";
-import { DocumentType } from "@/types";
+import { IMedicalReportType, IMedicalReport } from "@/types";
 import { UploadCloud } from "lucide-react";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const UploadReport = ({
   hospitalId,
-  setMedicalReports,
+  updateMedicalReport,
 }: {
   hospitalId: string;
-  setMedicalReports: Dispatch<SetStateAction<Record<string, any>[]>>;
+  updateMedicalReport: (file: IMedicalReport) => void;
 }) => {
-  const [reportTypeList, setReportTypeList] = useState<DocumentType[]>([]);
+  const [reportTypeList, setReportTypeList] = useState<IMedicalReportType[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [reportType, setReportType] = useState("");
@@ -93,16 +93,13 @@ const UploadReport = ({
       const res = await uploadDocuments(formData);
       if (res.status === 200) {
         const documentType = reportTypeList.find(
-          (type: DocumentType) => type.id === reportType
+          (type: IMedicalReportType) => type.id === reportType
         );
-        setMedicalReports((prev) => [
-          ...prev,
-          {
-            documentTypeId: documentType?.id,
-            documentTypeName: documentType?.name,
-            ...res.data.data[0],
-          },
-        ]);
+        updateMedicalReport({
+          documentTypeId: documentType?.id,
+          documentTypeName: documentType?.name,
+          ...res.data.data[0],
+        });
         setReportType("");
         toast.success("Uploaded Successfully", {
           description: "Your report has been uploaded successfully!",

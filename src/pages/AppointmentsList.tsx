@@ -6,17 +6,11 @@ import Spinner from "@/components/ui/spinner";
 import useErrorHandler from "@/hooks/useError";
 import { getAppointmentList } from "@/https/patients-service";
 import { IAppointmentResponse } from "@/types";
-import { Calendar, Clock, Eye } from "lucide-react"; // Import the Eye icon
+import { ArrowRight, Calendar, Clock } from "lucide-react"; // Import the Eye icon
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import NoAppointmentPage from "./NoAppointmentPage";
-const statusClasses: { [key: string]: string } = {
-  SCHEDULED: "bg-blue-100 text-blue-800",
-  PENDING: "bg-yellow-100 text-yellow-800",
-  COMPLETED: "bg-green-100 text-green-800",
-  CANCELED: "bg-red-100 text-red-800",
-  APPROVED: "bg-purple-100 text-purple-800",
-};
+import { statusClasses } from "./utils";
 
 const AppointmentsList = () => {
   const [appointmentList, setAppointmentList] = useState<
@@ -117,12 +111,12 @@ const AppointmentsList = () => {
                   <div
                     className={`badge ${
                       statusClasses[appointment.appointmentStatus]
-                    } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize`}
+                    } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize self-start font-medium`}
                   >
                     {appointment.appointmentStatus.toLowerCase()}
                   </div>
                 </div>
-                <div className="flex items-center text-sm text-muted-foreground w-full justify-between">
+                <div className="flex items-center text-sm text-muted-foreground w-full justify-between mt-2">
                   <div className="flex items-center">
                     <Calendar className="h-4 w-4 mr-1" />
                     {new Date(appointment.appointmentDate).toLocaleDateString()}
@@ -138,8 +132,8 @@ const AppointmentsList = () => {
                     variant={"link"}
                     className="p-0 self-start"
                   >
-                    <Eye className="h-4 w-4" />
                     <span className="ml-1">View</span>
+                    <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
