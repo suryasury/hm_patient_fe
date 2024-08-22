@@ -35,11 +35,11 @@ import { format } from "date-fns";
 import {
   CalendarCheck,
   Clock,
-  CloudSun,
+  // CloudSun,
   Loader,
-  Moon,
+  // Moon,
   Stethoscope,
-  Sun,
+  // Sun,
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -73,18 +73,18 @@ const patientSchema = z.object({
   documents: z.array(z.object({})).optional(),
 });
 
-const getIconForPeriod = (period: string) => {
-  switch (period) {
-    case "Morning":
-      return <Sun className="w-5 h-5 text-yellow-500" />;
-    case "Afternoon":
-      return <CloudSun className="w-5 h-5 text-orange-500" />;
-    case "Evening":
-      return <Moon className="w-5 h-5 text-blue-500" />;
-    default:
-      return null;
-  }
-};
+// const getIconForPeriod = (period: string) => {
+//   switch (period) {
+//     case "Morning":
+//       return <Sun className="w-5 h-5 text-yellow-500" />;
+//     case "Afternoon":
+//       return <CloudSun className="w-5 h-5 text-orange-500" />;
+//     case "Evening":
+//       return <Moon className="w-5 h-5 text-blue-500" />;
+//     default:
+//       return null;
+//   }
+// };
 
 const AppointmentConfirmationPage = () => {
   const location = useLocation();
@@ -94,10 +94,10 @@ const AppointmentConfirmationPage = () => {
   }
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    location?.state?.date
+    location?.state?.date,
   );
   const [selectedSlot, setSelectedSlot] = useState<ISlot>(
-    location?.state?.slot
+    location?.state?.slot,
   );
   const [timeSlots, setTimeSlots] = useState<ITimeSlot>({
     isSlotAvailable: false,
@@ -109,7 +109,7 @@ const AppointmentConfirmationPage = () => {
 
   const user = useSelector((state: { user: UserState }) => state.user.user);
   const weekdays = useSelector(
-    (state: { appointment: IAppointmentState }) => state.appointment.weekdays
+    (state: { appointment: IAppointmentState }) => state.appointment.weekdays,
   );
   const [medicalReports, setMedicalReports] = useState<IMedicalReport[]>([]);
   const [loadingReport, setLoadingReport] = useState<boolean>(true);
@@ -130,7 +130,7 @@ const AppointmentConfirmationPage = () => {
   });
 
   const handleConfirmAppointment: SubmitHandler<IAppointmentForm> = async (
-    data: IAppointmentForm
+    data: IAppointmentForm,
   ) => {
     try {
       setSubmitting(true);
@@ -215,7 +215,7 @@ const AppointmentConfirmationPage = () => {
                     <span className="ml-2 text-md font-semibold">
                       {format(
                         selectedDate ? new Date(selectedDate) : new Date(),
-                        "dd/MM/yyyy"
+                        "dd/MM/yyyy",
                       )}
                     </span>
                   </p>
@@ -401,8 +401,8 @@ const AppointmentConfirmationPage = () => {
                                                 onClick={(e) => {
                                                   setMedicalReports((prev) =>
                                                     prev.filter(
-                                                      (_, i) => i !== index
-                                                    )
+                                                      (_, i) => i !== index,
+                                                    ),
                                                   );
                                                   e.stopPropagation();
                                                 }}
@@ -430,7 +430,7 @@ const AppointmentConfirmationPage = () => {
                                                 )}
                                                 <object
                                                   data={`https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(
-                                                    file.signedUrl
+                                                    file.signedUrl,
                                                   )}`}
                                                   className="w-full h-full border-none"
                                                   style={{ minHeight: "600px" }}
@@ -451,7 +451,7 @@ const AppointmentConfirmationPage = () => {
                                         </DialogContent>
                                       </Dialog>
                                     );
-                                  }
+                                  },
                                 )}
                               </div>
                               <UploadReport
