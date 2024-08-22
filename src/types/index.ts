@@ -55,6 +55,7 @@ export interface Doctor {
   isd_code: string;
   phoneNumber: string;
   address: string;
+  qualification: string;
 }
 
 export interface IAppointmentForm {
@@ -64,7 +65,7 @@ export interface IAppointmentForm {
   remarks: string;
   ailmentId: string;
   appointmentDate: string;
-  documents?:IMedicalReport[];
+  documents?: IMedicalReport[];
 }
 
 export interface IloginForm {
@@ -74,6 +75,7 @@ export interface IloginForm {
 export interface ISlot {
   id: string;
   startTime: string;
+  endTime?: string;
   hospitalId: string;
 }
 export interface ISlots {
@@ -149,6 +151,7 @@ export interface IPrescription {
   medicationStockId: string;
   foodRelation: string;
   medicationStock: IMedicationStock;
+  prescriptionRemarks?: string;
 }
 
 export interface IMedicationResponse {
@@ -165,6 +168,7 @@ export interface IMedicationResponse {
   isPrescriptionTakenForTheDay: boolean;
   prescriptionTimeOfDay: string;
   isPrescriptionTaken: boolean;
+  prescriptionRemarks: string;
 }
 
 export interface ITodaysMedicationsResponse {
@@ -226,8 +230,7 @@ export interface IUpdateAppointmentDetails {
     id: string;
     bucketPath: string;
   }[];
-  documents?:IMedicalReport[];
- 
+  documents?: IMedicalReport[];
 }
 
 export interface IUpdateUserProfile {
