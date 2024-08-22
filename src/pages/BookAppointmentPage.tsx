@@ -17,7 +17,7 @@ import {
 import { setWeekdays } from "@/state/appointementReducer";
 import { Doctor, IAppointmentState, ISlot, ITimeSlot } from "@/types";
 import { Stethoscope, UserRoundX } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -68,7 +68,7 @@ const BookAppointmentPage = () => {
     slots: {},
   });
   const [fetchingTimeSlots, setFetchingTimeSlots] = useState(false);
-
+  const slotsRef = useRef<HTMLDivElement>(null);
   const weekdays = useSelector(
     (state: { appointment: IAppointmentState }) => state.appointment.weekdays
   );
@@ -102,6 +102,7 @@ const BookAppointmentPage = () => {
         const formattedData = (slot: { id: string; slot: ISlot }) => ({
           id: slot.id,
           startTime: slot.slot.startTime,
+          endTime: slot.slot.endTime,
           hospitalId: slot.slot.hospitalId,
         });
         const data = res.data.data.slotDetails;
@@ -117,6 +118,7 @@ const BookAppointmentPage = () => {
         setSelectedDoctor(doctor);
         setShowSlots(true);
         setSelectedDate(date);
+        slotsRef.current?.scrollIntoView({ behavior: "smooth" });
       }
     } catch (error) {
       handleError(error, "Something went wrong");
@@ -173,13 +175,12 @@ const BookAppointmentPage = () => {
                     </Avatar>
                     <div>
                       <p className="text-lg md:text-xl font-medium">
-                        {doctor.name}
+                        {doctor.name}, {doctor.qualification}
                       </p>
                       <p className="text-gray-600">{doctor.speciality}</p>
                       <p className="text-gray-600">
                         Mobile: {doctor.isd_code} {doctor.phoneNumber}
                       </p>
-                      <p className="text-gray-600">Address: {doctor.address}</p>
                     </div>
                   </div>
                   <Button
@@ -192,7 +193,7 @@ const BookAppointmentPage = () => {
                   </Button>
                 </div>
                 {showSlots && selectedDoctor?.id === doctor.id && (
-                  <Card className="mt-4">
+                  <Card className="mt-4" ref={slotsRef}>
                     <CardHeader>
                       <CardDescription>Select Date</CardDescription>
                       <div className="w-fit">

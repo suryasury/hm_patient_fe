@@ -173,7 +173,7 @@ const DashboardPage = () => {
                   <div className="flex items-center justify-between w-full">
                     <div>
                       <p className="text-md font-medium leading-none">
-                        {appointment.doctor.name}
+                        {appointment.doctor.name},{appointment.doctor.qualification}
                       </p>
                       <p className="text-sm text-muted-foreground">
                         {appointment.doctor.speciality}
@@ -338,7 +338,7 @@ const DashboardPage = () => {
                   <div className="flex items-center justify-between w-full">
                     <div>
                       <p className="text-md font-medium leading-none">
-                        {appointment.doctor.name}
+                        {appointment.doctor.name},{appointment.doctor.qualification}
                       </p>
                       <p className="text-sm text-muted-foreground">
                         {appointment.doctor.speciality}

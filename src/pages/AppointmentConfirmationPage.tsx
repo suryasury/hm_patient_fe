@@ -7,7 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import DatePicker from "@/components/ui/date-picker";
 import {
   Dialog,
   DialogContent,
@@ -35,7 +34,6 @@ import {
 import { format } from "date-fns";
 import {
   CalendarCheck,
-  CalendarX,
   Clock,
   CloudSun,
   Loader,
@@ -44,7 +42,7 @@ import {
   Sun,
   X,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { APP_ROUTES } from "@/appRoutes";
@@ -60,6 +58,12 @@ import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import { z } from "zod";
 import Ailment from "./shared/Ailment";
+import {
+  AvailableSlots,
+  FetchingTimeSlots,
+  NoTimeSlots,
+  TimeSlotDatePicker,
+} from "./shared/TimeSlots";
 import UploadReport from "./shared/UploadReport";
 import { getWeekdayId } from "./utils";
 
@@ -165,6 +169,7 @@ const AppointmentConfirmationPage = () => {
         const formattedData = (slot: { id: string; slot: ISlot }) => ({
           id: slot.id,
           startTime: slot.slot.startTime,
+          endTime: slot.slot.endTime,
           hospitalId: slot.slot.hospitalId,
         });
         const data = res.data.data.slotDetails;
@@ -220,7 +225,7 @@ const AppointmentConfirmationPage = () => {
                   <p>
                     At
                     <span className="ml-2 text-md font-semibold">
-                      {selectedSlot.startTime}
+                      {selectedSlot.startTime} - {selectedSlot.endTime}
                     </span>
                   </p>
                 </div>
@@ -247,71 +252,27 @@ const AppointmentConfirmationPage = () => {
                     <div className="flex flex-col gap-2">
                       <CardDescription>Select Date</CardDescription>
                       <div className="w-fit">
-                        <DatePicker
-                          date={selectedDate}
-                          setDate={(date) => setSelectedDate(date)}
-                          placeholder="Select a date"
-                          disabled={{ before: new Date() }}
+                        <TimeSlotDatePicker
+                          selectedDate={selectedDate}
+                          setSelectedDate={setSelectedDate}
                         />
                       </div>
                       {fetchingTimeSlots ? (
-                        <div className="flex items-center justify-center p-4 bg-gray-100 rounded-md mt-4">
-                          <Spinner />
-                          <span className="text-md font-medium text-gray-500">
-                            Looking for slots...
-                          </span>
-                        </div>
+                        <FetchingTimeSlots />
                       ) : (
                         selectedDate &&
                         (timeSlots.isSlotAvailable ? (
-                          <div className="mt-4">
-                            <p className="text-md font-medium mb-2">
-                              Available Slots
-                            </p>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                              {Object.entries(timeSlots.slots).map(
-                                ([period, slots]) =>
-                                  slots.length !== 0 && (
-                                    <React.Fragment key={period}>
-                                      <div className="col-span-full flex items-center gap-4">
-                                        {getIconForPeriod(period)}
-                                        <h5 className="text-md font-semibold">
-                                          {period}
-                                        </h5>
-                                      </div>
-                                      <div className="col-span-full grid grid-cols-3 gap-2">
-                                        {slots.map((slot: ISlot) => (
-                                          <div
-                                            key={slot.id}
-                                            className={`p-2 text-sm md:text-base rounded cursor-pointer border w-auto text-center ${
-                                              selectedSlot.id === slot.id
-                                                ? "bg-muted"
-                                                : "hover:bg-muted"
-                                            }`}
-                                            onClick={() => {
-                                              setSelectedSlot(slot);
-                                              setShowChangeTimeDialog(false);
-                                            }}
-                                          >
-                                            {slot.startTime}
-                                          </div>
-                                        ))}
-                                      </div>
-                                      <div className="col-span-full">
-                                        <hr className="border-t border-gray-200 my-2" />
-                                      </div>
-                                    </React.Fragment>
-                                  )
-                              )}
-                            </div>
-                          </div>
+                          <AvailableSlots
+                            timeSlots={timeSlots}
+                            selectedSlot={selectedSlot}
+                            handleSlotClick={(slot) => {
+                              setSelectedSlot(slot);
+                              setShowChangeTimeDialog(false);
+                            }}
+                            short={true}
+                          />
                         ) : (
-                          <p className="flex items-center justify-center text-red-500 p-4 bg-red-100 rounded-md mt-4">
-                            <CalendarX className="w-6 h-6 mr-2" />
-                            <span className="text-md font-medium">
-                              No slots available
-                            </span>
-                          </p>
+                          <NoTimeSlots />
                         ))
                       )}
                     </div>
@@ -333,7 +294,8 @@ const AppointmentConfirmationPage = () => {
                     </Avatar>
                     <div>
                       <p className="text-xl font-medium">
-                        {location.state?.doctor.name}
+                        {location.state?.doctor.name},
+                        {location.state?.doctor.qualification}
                       </p>
                       <p className="text-gray-600">
                         {location.state?.doctor.speciality}
@@ -418,76 +380,79 @@ const AppointmentConfirmationPage = () => {
                           <FormControl>
                             <div className="flex flex-col flex-wrap gap-1">
                               <div className="flex gap-1 items-center flex-wrap">
-                                {medicalReports.map((file:IMedicalReport, index) => {
-                                  if (!file) return null;
-                                  const fileName = file.fileName;
-                                  const fileType =
-                                    file?.documentTypeName ||
-                                    `Report - ${index + 1}`;
-                                  return (
-                                    <Dialog key={index}>
-                                      <DialogTrigger>
-                                        <Badge
-                                          variant={"secondary"}
-                                          className="cursor-pointer"
-                                        >
-                                          <div className="flex w-full gap-2 items-center capitalize">
-                                            <p>{`${fileType}.${file.fileExtension}`}</p>
-                                            <X
-                                              className="w-3 h-3 hover:scale-110"
-                                              onClick={(e) => {
-                                                setMedicalReports((prev) =>
-                                                  prev.filter(
-                                                    (_, i) => i !== index
-                                                  )
-                                                );
-                                                e.stopPropagation();
-                                              }}
-                                            />
-                                          </div>
-                                        </Badge>
-                                      </DialogTrigger>
-                                      <DialogContent className="max-w-[900px] max-h-[600px] min-h-[40vh] rounded-lg shadow-lg flex flex-col overflow-auto">
-                                        <DialogTitle>
-                                          <DialogHeader>
-                                            {fileName}
-                                          </DialogHeader>
-                                        </DialogTitle>
-                                        {fileName.split(".").pop() === "pdf" ? (
-                                          <div className="flex justify-center items-center w-full h-90">
-                                            <div className="flex justify-center items-center w-full  flex-col gap-2 h-90">
-                                              {loadingReport && (
-                                                <div className="flex gap-2">
-                                                  <Loader className="animate-spin" />
-                                                  <p className="text-md font-medium text-gray-500">
-                                                    Loading Document...
-                                                  </p>
-                                                </div>
-                                              )}
-                                              <object
-                                                data={`https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(
-                                                  file.signedUrl
-                                                )}`}
-                                                className="w-full h-full border-none"
-                                                style={{ minHeight: "600px" }}
-                                                onLoad={() =>
-                                                  setLoadingReport(false)
-                                                }
+                                {medicalReports.map(
+                                  (file: IMedicalReport, index) => {
+                                    if (!file) return null;
+                                    const fileName = file.fileName;
+                                    const fileType =
+                                      file?.documentTypeName ||
+                                      `Report - ${index + 1}`;
+                                    return (
+                                      <Dialog key={index}>
+                                        <DialogTrigger>
+                                          <Badge
+                                            variant={"secondary"}
+                                            className="cursor-pointer"
+                                          >
+                                            <div className="flex w-full gap-2 items-center capitalize">
+                                              <p>{`${fileType}.${file.fileExtension}`}</p>
+                                              <X
+                                                className="w-3 h-3 hover:scale-110"
+                                                onClick={(e) => {
+                                                  setMedicalReports((prev) =>
+                                                    prev.filter(
+                                                      (_, i) => i !== index
+                                                    )
+                                                  );
+                                                  e.stopPropagation();
+                                                }}
                                               />
                                             </div>
-                                          </div>
-                                        ) : (
-                                          <img
-                                            src={file.signedUrl}
-                                            alt="record"
-                                            width={"100%"}
-                                            className="max-h-[500px] object-contain"
-                                          />
-                                        )}
-                                      </DialogContent>
-                                    </Dialog>
-                                  );
-                                })}
+                                          </Badge>
+                                        </DialogTrigger>
+                                        <DialogContent className="max-w-[900px] max-h-[600px] min-h-[40vh] rounded-lg shadow-lg flex flex-col overflow-auto">
+                                          <DialogTitle>
+                                            <DialogHeader>
+                                              {fileName}
+                                            </DialogHeader>
+                                          </DialogTitle>
+                                          {fileName.split(".").pop() ===
+                                          "pdf" ? (
+                                            <div className="flex justify-center items-center w-full h-90">
+                                              <div className="flex justify-center items-center w-full  flex-col gap-2 h-90">
+                                                {loadingReport && (
+                                                  <div className="flex gap-2">
+                                                    <Loader className="animate-spin" />
+                                                    <p className="text-md font-medium text-gray-500">
+                                                      Loading Document...
+                                                    </p>
+                                                  </div>
+                                                )}
+                                                <object
+                                                  data={`https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(
+                                                    file.signedUrl
+                                                  )}`}
+                                                  className="w-full h-full border-none"
+                                                  style={{ minHeight: "600px" }}
+                                                  onLoad={() =>
+                                                    setLoadingReport(false)
+                                                  }
+                                                />
+                                              </div>
+                                            </div>
+                                          ) : (
+                                            <img
+                                              src={file.signedUrl}
+                                              alt="record"
+                                              width={"100%"}
+                                              className="max-h-[500px] object-contain"
+                                            />
+                                          )}
+                                        </DialogContent>
+                                      </Dialog>
+                                    );
+                                  }
+                                )}
                               </div>
                               <UploadReport
                                 hospitalId={location.state?.slot?.hospitalId}

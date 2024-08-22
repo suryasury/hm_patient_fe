@@ -50,35 +50,37 @@ export const AvailableSlots: React.FC<AvailableSlotsProps> = ({
 }) => (
   <div className="mt-4">
     <p className="text-md font-medium mb-2">Available Slots</p>
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {Object.entries(timeSlots.slots).map(([period, slots]) => (
-        <React.Fragment key={period}>
-          <div className="col-span-full flex items-center gap-4">
-            {getIconForPeriod(period)}
-            <h5 className="text-md font-semibold">{period}</h5>
-          </div>
-          <div
-            className={`col-span-full grid grid-cols-3 ${
-              short ? "" : "md:grid-cols-7"
-            } gap-2`}
-          >
-            {slots.map((slot: ISlot) => (
-              <div
-                key={slot.id}
-                className={`p-1 md:p-2 text-sm md:text-base rounded cursor-pointer border w-auto text-center ${
-                  selectedSlot?.id === slot.id ? "bg-muted" : "hover:bg-muted"
-                }`}
-                onClick={() => handleSlotClick(slot)}
-              >
-                {slot.startTime}
-              </div>
-            ))}
-          </div>
-          <div className="col-span-full">
-            <hr className="border-t border-gray-200 my-2" />
-          </div>
-        </React.Fragment>
-      ))}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+      {Object.entries(timeSlots.slots).map(([period, slots]) =>
+        slots.length > 0 ? (
+          <React.Fragment key={period}>
+            <div className="col-span-full flex items-center gap-4">
+              {getIconForPeriod(period)}
+              <h5 className="text-md font-semibold">{period}</h5>
+            </div>
+            <div
+              className={`col-span-full grid  ${
+                short ? "grid-cols-2" : "md:grid-cols-6"
+              } gap-2`}
+            >
+              {slots.map((slot: ISlot) => (
+                <div
+                  key={slot.id}
+                  className={`p-1.5  text-sm  rounded cursor-pointer border w-auto text-center ${
+                    selectedSlot?.id === slot.id ? "bg-muted" : "hover:bg-muted"
+                  }`}
+                  onClick={() => handleSlotClick(slot)}
+                >
+                  {`${slot.startTime} - ${slot.endTime}`}
+                </div>
+              ))}
+            </div>
+            <div className="col-span-full">
+              <hr className="border-t border-gray-200 my-2" />
+            </div>
+          </React.Fragment>
+        ) : null
+      )}
     </div>
   </div>
 );

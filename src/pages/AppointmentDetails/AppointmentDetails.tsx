@@ -211,6 +211,7 @@ const AppointmentDetails = () => {
       setSelectedSlot({
         id: data.doctorSlotId,
         startTime: data.doctorSlots.slot.startTime,
+        endTime: data.doctorSlots.slot.endTime,
         hospitalId: data.doctorSlots.slot.hospitalId,
       });
       setSelectedDate(new Date(data.appointmentDate));
@@ -233,6 +234,7 @@ const AppointmentDetails = () => {
         const formattedData = (slot: { id: string; slot: ISlot }) => ({
           id: slot.id,
           startTime: slot.slot.startTime,
+          endTime: slot.slot.endTime,
           hospitalId: slot.slot.hospitalId,
         });
         const data = res.data.data.slotDetails;
@@ -367,7 +369,7 @@ const AppointmentDetails = () => {
                       <p>
                         At
                         <span className="ml-2 text-md font-medium">
-                          {selectedSlot?.startTime}
+                          {selectedSlot?.startTime} - {selectedSlot?.endTime}
                         </span>
                       </p>
                     </div>
@@ -463,7 +465,8 @@ const AppointmentDetails = () => {
                         </Avatar>
                         <div>
                           <p className=" font-medium">
-                            {appointmentDetails?.doctor?.name}
+                            {appointmentDetails?.doctor?.name},
+                            {appointmentDetails?.doctor?.qualification}
                           </p>
                           <p className="text-sm text-gray-600">
                             {appointmentDetails?.doctor?.speciality}

@@ -35,6 +35,9 @@ const Prescription = ({
                   <p className="text-xs text-muted-foreground ">
                     Duration: {prescription.durationInDays} days
                   </p>
+                  <p className="text-xs text-muted-foreground ">
+                    Remarks: {prescription.prescriptionRemarks}
+                  </p>
                 </div>
               </div>
             )
