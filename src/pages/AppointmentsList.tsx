@@ -86,7 +86,7 @@ const AppointmentsList = () => {
               key={appointment.id}
               className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4 border-b last:border-none"
             >
-              <Avatar className="hidden h-[50px] w-[50px] sm:flex">
+              <Avatar className="hidden h-[50px] w-[50px] sm:flex self-start">
                 <AvatarImage
                   src={appointment.doctor.profilePictureUrl}
                   alt="Avatar"
@@ -102,9 +102,10 @@ const AppointmentsList = () => {
                 <div className="flex items-center justify-between w-full">
                   <div>
                     <p className="text-md font-medium leading-none">
-                      {appointment.doctor.name}
+                      {appointment.doctor.name},
+                      {appointment.doctor.qualification}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground mt-1">
                       {appointment.doctor.speciality}
                     </p>
                   </div>
@@ -116,7 +117,7 @@ const AppointmentsList = () => {
                     {appointment.appointmentStatus.toLowerCase()}
                   </div>
                 </div>
-                <div className="flex items-center text-sm text-muted-foreground w-full justify-between mt-2">
+                <div className="flex items-center text-sm text-muted-foreground w-full justify-between">
                   <div className="flex items-center">
                     <Calendar className="h-4 w-4 mr-1" />
                     {new Date(appointment.appointmentDate).toLocaleDateString()}
