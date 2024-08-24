@@ -8,4 +8,6 @@ export const APP_ROUTES = {
   APPOINTMENT_LIST: "/patient/appointment-list",
   APPOINTMENT_DETAILS: "/patient/appointment-list/details",
   MEDICATION: "/patient/medication",
+  FORGET_PASSWORD: "/forget-password",
+  RESET_PASSWORD: "/reset-password",
 };
