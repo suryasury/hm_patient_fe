@@ -25,3 +25,20 @@ export const register = async (payload: ISignupForm) => {
     throw error;
   }
 }
+
+
+export const sendResetPasswordEmail = async (email: string) => {
+  return api.post(API_END_POINTS.RESET_PASSWORD_EMAIL, { email });
+};
+
+export const restPassword = async (password: string, token: string) => {
+  return api.patch(
+    API_END_POINTS.RESET_PASSWORD,
+    { password },
+    {
+      headers: {
+        token: token,
+      },
+    }
+  );
+};

@@ -14,6 +14,8 @@ import DashboardPage from "./pages/DashboardPage";
 import Medications from "./pages/Medications";
 import NotFoundPage from "./pages/NotFoundPage";
 import Profile from "./pages/Profile";
+import ForgetPassword from "./pages/PasswordManagement/ForgetPassword";
+import ResetPassword from "./pages/PasswordManagement/ResetPassword";
 const RegisterPage = React.lazy(() => import("@/pages/RegisterPage"));
 const router = createBrowserRouter([
   {
@@ -89,6 +91,14 @@ const router = createBrowserRouter([
             <RegisterPage />
           </Suspense>
         ),
+      },
+      {
+        path: APP_ROUTES.FORGET_PASSWORD,
+        element: <ForgetPassword />,
+      },
+      {
+        path: APP_ROUTES.RESET_PASSWORD + "/:token",
+        element: <ResetPassword />,
       },
       /* 404 page */
       {

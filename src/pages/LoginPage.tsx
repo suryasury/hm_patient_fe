@@ -149,6 +149,14 @@ const LoginForm = () => {
                 )}
               </Button>
               <div className="mt-4 self-start flex gap-2 items-center justifu-center text-sm">
+                <Link
+                  to={APP_ROUTES.FORGET_PASSWORD}
+                  className="underline m-0 p-0"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
+              <div className="mt-4 self-start flex gap-2 items-center justifu-center text-sm">
                 <span>Don&apos;t have an account?</span>
                 <Link to={APP_ROUTES.REGISTER} className="underline m-0 p-0">
                   Sign up

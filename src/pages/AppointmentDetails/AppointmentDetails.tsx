@@ -330,6 +330,9 @@ const AppointmentDetails = () => {
                 Cancel
               </Button>
             ))}
+          <p className="font-semibold w-full text-right">
+            Token No : {appointmentDetails?.tokenNumber || "NA"}
+          </p>
           <div className="flex flex-col sm:flex-row gap-4 w-full">
             <div className="w-full sm:w-[50%] h-fit">
               <Card>
@@ -466,7 +469,9 @@ const AppointmentDetails = () => {
                         <div>
                           <p className=" font-medium">
                             {appointmentDetails?.doctor?.name},
-                            {appointmentDetails?.doctor?.qualification}
+                            <span className="text-[12px] text-muted-foreground">
+                              {appointmentDetails?.doctor.qualification}
+                            </span>
                           </p>
                           <p className="text-sm text-gray-600">
                             {appointmentDetails?.doctor?.speciality}

@@ -40,6 +40,74 @@ const timeOfDayTitles: { [key: string]: { title: string; icon: JSX.Element } } =
     night: { title: "Night", icon: <Moon className="w-4 h-4 text-blue-500" /> },
   };
 
+const AppointmentCard = ({
+  appointment,
+}: {
+  appointment: IAppointmentResponse;
+}) => {
+  const navigate = useNavigate();
+  return (
+    <div
+      key={appointment.id}
+      className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4 border-b last:border-none"
+    >
+      <Avatar className="hidden h-[50px] w-[50px] sm:flex self-start mt-[-8px]">
+        <AvatarImage src={appointment.doctor.profilePictureUrl} alt="Avatar" />
+        <AvatarFallback>
+          {appointment.doctor.name
+            .split(" ")
+            .map((name) => name[0])
+            .join("")}
+        </AvatarFallback>
+      </Avatar>
+      <div className="grid gap-1 flex-1 w-full">
+        <div className="flex items-center justify-between w-full">
+          <div className="gap-1 flex flex-col">
+            <p className="text-md font-medium leading-none">
+              {appointment.doctor.name}{" "}
+              <span className="text-[12px] text-muted-foreground">
+                {appointment.doctor.qualification}
+              </span>
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {appointment.doctor.speciality}
+            </p>
+            <p className="text-[12px] text-muted-foreground">
+              Token No: {appointment.tokenNumber}
+            </p>
+          </div>
+
+          <div
+            className={`badge ${
+              statusClasses[appointment.appointmentStatus]
+            } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize self-start`}
+          >
+            {appointment.appointmentStatus.toLowerCase()}
+          </div>
+        </div>
+        <div className="flex items-center text-sm text-muted-foreground justify-between w-full mt-2">
+          <div className="flex  items-center">
+            <Calendar className="h-4 w-4 mr-1" />
+            {new Date(appointment.appointmentDate).toLocaleDateString()}
+            <Clock className="h-4 w-4 mx-2" />
+            <p>{appointment.doctorSlots.slot.startTime}</p>
+          </div>
+          <Button
+            onClick={() =>
+              navigate(`${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`)
+            }
+            variant={"link"}
+            className="p-0 m-0 h-fit self-start"
+          >
+            <span className="mr-1">View</span>
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const DashboardPage = () => {
   const [appointmentList, setAppointmentList] = useState<
     IAppointmentResponse[]
@@ -152,66 +220,11 @@ const DashboardPage = () => {
           ) : appointmentList.length === 0 ? (
             <NoAppointmentPage />
           ) : (
-            appointmentList.slice(0, 3).map((appointment) => (
-              <div
-                key={appointment.id}
-                className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4 border-b last:border-none"
-              >
-                <Avatar className="hidden h-[50px] w-[50px] sm:flex self-start mt-[-8px]">
-                  <AvatarImage
-                    src={appointment.doctor.profilePictureUrl}
-                    alt="Avatar"
-                  />
-                  <AvatarFallback>
-                    {appointment.doctor.name
-                      .split(" ")
-                      .map((name) => name[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="grid gap-1 flex-1 w-full">
-                  <div className="flex items-center justify-between w-full">
-                    <div>
-                      <p className="text-md font-medium leading-none">
-                        {appointment.doctor.name},{appointment.doctor.qualification}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {appointment.doctor.speciality}
-                      </p>
-                    </div>
-                    <div
-                      className={`badge ${
-                        statusClasses[appointment.appointmentStatus]
-                      } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize self-start`}
-                    >
-                      {appointment.appointmentStatus.toLowerCase()}
-                    </div>
-                  </div>
-                  <div className="flex items-center text-sm text-muted-foreground justify-between w-full mt-2">
-                    <div className="flex  items-center">
-                      <Calendar className="h-4 w-4 mr-1" />
-                      {new Date(
-                        appointment.appointmentDate
-                      ).toLocaleDateString()}
-                      <Clock className="h-4 w-4 mx-2" />
-                      <p>{appointment.doctorSlots.slot.startTime}</p>
-                    </div>
-                    <Button
-                      onClick={() =>
-                        navigate(
-                          `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
-                        )
-                      }
-                      variant={"link"}
-                      className="p-0 m-0 h-fit self-start"
-                    >
-                      <span className="mr-1">View</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))
+            appointmentList
+              .slice(0, 3)
+              .map((appointment) => (
+                <AppointmentCard appointment={appointment} />
+              ))
           )}
         </CardContent>
       </Card>
@@ -229,7 +242,7 @@ const DashboardPage = () => {
                 className="ml-auto gap-1 self-end"
                 onClick={() => navigate(APP_ROUTES.MEDICATION)}
               >
-               <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1">
                   <span>Show Details</span>
                   <ArrowUpRight className="h-4 w-4" />
                 </div>
@@ -317,66 +330,11 @@ const DashboardPage = () => {
           ) : pastAppointments.length === 0 ? (
             <NoAppointmentPage message="No Past Appointments" />
           ) : (
-            pastAppointments.slice(0, 3).map((appointment) => (
-              <div
-                key={appointment.id}
-                className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4 border-b last:border-none"
-              >
-                <Avatar className="hidden h-[50px] w-[50px] sm:flex">
-                  <AvatarImage
-                    src={appointment.doctor.profilePictureUrl}
-                    alt="Avatar"
-                  />
-                  <AvatarFallback>
-                    {appointment.doctor.name
-                      .split(" ")
-                      .map((name) => name[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="grid gap-1 flex-1 w-full">
-                  <div className="flex items-center justify-between w-full">
-                    <div>
-                      <p className="text-md font-medium leading-none">
-                        {appointment.doctor.name},{appointment.doctor.qualification}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {appointment.doctor.speciality}
-                      </p>
-                    </div>
-                    <div
-                      className={`badge ${
-                        statusClasses[appointment.appointmentStatus]
-                      } px-2 py-1 rounded-lg text-xs w-[90px] text-center capitalize self-start`}
-                    >
-                      {appointment.appointmentStatus.toLowerCase()}
-                    </div>
-                  </div>
-                  <div className="flex items-center text-sm text-muted-foreground w-full justify-between mt-2">
-                    <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-1" />
-                      {new Date(
-                        appointment.appointmentDate
-                      ).toLocaleDateString()}
-                      <Clock className="h-4 w-4 mx-2" />
-                      {appointment.doctorSlots.slot.startTime}
-                    </div>
-                    <Button
-                      onClick={() =>
-                        navigate(
-                          `${APP_ROUTES.APPOINTMENT_DETAILS}/${appointment.id}`
-                        )
-                      }
-                      variant={"link"}
-                      className="p-0 m-0 h-fit self-start"
-                    >
-                      <span className="mr-1">View</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))
+            pastAppointments
+              .slice(0, 3)
+              .map((appointment) => (
+                <AppointmentCard appointment={appointment} />
+              ))
           )}
         </CardContent>
       </Card>

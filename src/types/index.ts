@@ -89,6 +89,7 @@ export interface ITimeSlot {
 }
 
 export interface IAppointmentResponse {
+  tokenNumber: string;
   id: string;
   createdAt: string;
   updatedAt: string;
