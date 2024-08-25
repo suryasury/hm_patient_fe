@@ -315,24 +315,27 @@ const AppointmentDetails = () => {
         </div>
       ) : (
         <>
-          {showEditBtn() &&
-            (!isEdit ? (
-              <Button className="w-fit self-end gap-1" onClick={handleEdit}>
-                <SquarePen className="w-4 h-4" />
-                <span>Edit</span>
-              </Button>
-            ) : (
-              <Button
-                variant="secondary"
-                className="w-fit self-end"
-                onClick={handleEdit}
-              >
-                Cancel
-              </Button>
-            ))}
-          <p className="font-semibold w-full text-right">
-            Token No : {appointmentDetails?.tokenNumber || "NA"}
-          </p>
+          <div className="flex justify-between items-center mt-2">
+            <p className="font-semibold w-full self-end">
+              Token No : {appointmentDetails?.tokenNumber || "NA"}
+            </p>
+            {showEditBtn() &&
+              (!isEdit ? (
+                <Button className="w-fit self-end gap-1" onClick={handleEdit}>
+                  <SquarePen className="w-4 h-4" />
+                  <span>Edit</span>
+                </Button>
+              ) : (
+                <Button
+                  variant="secondary"
+                  className="w-fit self-end"
+                  onClick={handleEdit}
+                >
+                  Cancel
+                </Button>
+              ))}
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-4 w-full">
             <div className="w-full sm:w-[50%] h-fit">
               <Card>
@@ -354,7 +357,7 @@ const AppointmentDetails = () => {
                 </CardHeader>
                 <CardContent>
                   <hr className="border-t border-gray-200" />
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-4 gap-4 sm:gap-0">
+                  <div className="flex flex-col sm:flex-row flex-wrap justify-between items-start sm:items-center mt-4 gap-4 sm:gap-0">
                     <div className="flex gap-2 items-center">
                       <CalendarCheck className="text-[#414146] w-5 h-5 text-sm" />
                       <p>
@@ -367,7 +370,7 @@ const AppointmentDetails = () => {
                         </span>
                       </p>
                     </div>
-                    <div className="flex gap-2 items-center">
+                    <div className="flex gap-2  items-center">
                       <Clock className="text-[#414146] w-5 h-5 text-sm" />
                       <p>
                         At
@@ -468,17 +471,13 @@ const AppointmentDetails = () => {
                         </Avatar>
                         <div>
                           <p className=" font-medium">
-                            {appointmentDetails?.doctor?.name},
+                            {appointmentDetails?.doctor?.name}{" "}
                             <span className="text-[12px] text-muted-foreground">
                               {appointmentDetails?.doctor.qualification}
                             </span>
                           </p>
                           <p className="text-sm text-gray-600">
                             {appointmentDetails?.doctor?.speciality}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            Mobile: {appointmentDetails?.doctor?.isd_code}{" "}
-                            {appointmentDetails?.doctor?.phoneNumber}
                           </p>
                         </div>
                       </div>

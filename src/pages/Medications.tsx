@@ -145,13 +145,13 @@ const Medications = () => {
                         <p className="text-xs text-muted-foreground ">
                           Dosage: {medication.medicationDosage}
                         </p>
-                        <p className="text-xs text-muted-foreground ">
-                          Remarks: {medication.prescriptionRemarks}
-                        </p>
                         <p className="text-xs text-muted-foreground mb-2">
                           {medication.foodRelation === "BEFORE_MEAL"
                             ? "Take before food"
                             : "Take after food"}
+                        </p>
+                        <p className="text-xs text-muted-foreground ">
+                          Remarks: {medication.prescriptionRemarks}
                         </p>
                       </div>
                       {medication.isPrescriptionTaken ? (

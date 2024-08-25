@@ -27,16 +27,17 @@ const Prescription = ({
                   <p className="text-xs text-muted-foreground ">
                     Dosage: {prescription.medicationStock.medicationDosage}
                   </p>
+                  <p className="text-xs text-muted-foreground ">
+                    Duration: {prescription.durationInDays} days
+                  </p>
                   <p className="text-xs text-muted-foreground mb-2">
                     {prescription.foodRelation === "BEFORE_MEAL"
                       ? "Take before food"
                       : "Take after food"}
                   </p>
+
                   <p className="text-xs text-muted-foreground ">
-                    Duration: {prescription.durationInDays} days
-                  </p>
-                  <p className="text-xs text-muted-foreground ">
-                    Remarks: {prescription.prescriptionRemarks}
+                    Remarks: {prescription.prescriptionRemarks || "NA"}
                   </p>
                 </div>
               </div>

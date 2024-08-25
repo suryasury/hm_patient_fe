@@ -164,7 +164,7 @@ const BookAppointmentPage = () => {
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                   <div className="doctor-profile-pic flex items-center gap-4">
-                    <Avatar className="w-24 h-24 md:w-36 md:h-36">
+                    <Avatar className="w-20 h-20">
                       <AvatarImage
                         src={doctor.profilePictureUrl}
                         alt={doctor.name}
@@ -175,12 +175,12 @@ const BookAppointmentPage = () => {
                     </Avatar>
                     <div>
                       <p className="text-lg md:text-xl font-medium">
-                        {doctor.name}, {doctor.qualification}
+                        {doctor.name}{" "}
+                        <span className="text-[12px] text-muted-foreground">
+                          {doctor.qualification}
+                        </span>
                       </p>
                       <p className="text-gray-600">{doctor.speciality}</p>
-                      <p className="text-gray-600">
-                        Mobile: {doctor.isd_code} {doctor.phoneNumber}
-                      </p>
                     </div>
                   </div>
                   <Button
