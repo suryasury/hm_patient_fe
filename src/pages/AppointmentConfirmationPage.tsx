@@ -293,16 +293,14 @@ const AppointmentConfirmationPage = () => {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-xl font-medium">
-                        {location.state?.doctor.name},
-                        {location.state?.doctor.qualification}
+                      <p className=" font-medium">
+                        {location.state?.doctor?.name}{" "}
+                        <span className="text-[12px] text-muted-foreground">
+                          {location.state?.doctor.qualification}
+                        </span>
                       </p>
                       <p className="text-gray-600">
                         {location.state?.doctor.speciality}
-                      </p>
-                      <p className="text-gray-600">
-                        Mobile: {location.state?.doctor.isd_code}{" "}
-                        {location.state?.doctor.phoneNumber}
                       </p>
                     </div>
                   </div>
