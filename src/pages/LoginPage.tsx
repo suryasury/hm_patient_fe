@@ -33,6 +33,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
+import { encryptPassword } from "./utils";
 
 const emailOrPhoneSchema = z.string().refine(
   (value) => {
@@ -77,6 +78,7 @@ const LoginForm = () => {
 
       const payload = {
         ...data,
+        password: await encryptPassword(data.password),
         userNameType,
       };
       const response = await login(payload);

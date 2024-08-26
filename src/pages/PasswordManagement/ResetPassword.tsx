@@ -30,6 +30,7 @@ import { useSelector } from "react-redux";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
+import { encryptPassword } from "../utils";
 
 const newPasswordSchema = z
   .object({
@@ -71,8 +72,8 @@ const ResetPassword: React.FC = () => {
   ) => {
     try {
       setSubmitting(true);
-      console.log(data);
-      const response = await restPassword(data.newPassword, token!);
+      const enc_password = await encryptPassword(data.newPassword);
+      const response = await restPassword(enc_password, token!);
       if (response.status === 200) {
         toast.success("Password has been reset successfully.");
         setSubmitted(true);
