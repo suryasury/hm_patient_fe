@@ -1,5 +1,5 @@
 import { IWeekday } from "@/types";
-
+import * as cryptoJS from "crypto-js";
 export const getWeekdayId = (
   weekdays: IWeekday[],
   date: Date | undefined
@@ -36,3 +36,31 @@ export function dirtyValues(
     ])
   );
 }
+
+export const replaceNullWithEmptyString = (
+  obj: Record<any, any>
+): Record<any, any> => {
+  return Object.fromEntries(
+    Object.entries(obj as { [s: string]: string }).map(([key, value]) => {
+      if (value === null) {
+        return [key, ""];
+      } else if (typeof value === "object" && value !== null) {
+        return [key, replaceNullWithEmptyString(value)];
+      } else {
+        return [key, value];
+      }
+    })
+  );
+};
+
+export const encryptPassword = async (password: string) => {
+  try {
+    return cryptoJS.AES.encrypt(
+      password,
+      import.meta.env.REACT_APP_CRYPTO_SECRET_KEY as string
+    ).toString();
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};

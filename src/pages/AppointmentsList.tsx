@@ -150,7 +150,7 @@ const AppointmentsList = () => {
           <NoAppointmentPage />
         ) : (
           appointmentList.map((appointment: IAppointmentResponse) => (
-            <AppointmentCard appointment={appointment} />
+            <AppointmentCard key={appointment.id} appointment={appointment} />
           ))
         )}
       </CardContent>

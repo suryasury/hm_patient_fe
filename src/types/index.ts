@@ -248,6 +248,7 @@ export interface IUpdateUserProfile {
   pincode?: string;
   country?: string;
   phoneNumber?: string;
+  isd_code?:string
 }
 
 export interface IMedicalReportType {

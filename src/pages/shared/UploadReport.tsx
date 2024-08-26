@@ -131,7 +131,7 @@ const UploadReport = ({
           </div>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[360px] md:max-w-fit">
+      <DialogContent className="max-w-[360px] md:max-w-fit rounded-lg">
         <DialogHeader>
           <DialogTitle>Upload Medical Report</DialogTitle>
         </DialogHeader>

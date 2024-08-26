@@ -41,6 +41,8 @@ import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
+import { encryptPassword } from "./utils";
+import { Eye, EyeOff } from "lucide-react";
 
 const registerSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -74,6 +76,7 @@ const RegisterPage = () => {
   const navigate = useNavigate();
   const formCtx = useFormContext();
   const dispatch = useDispatch();
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const genders = ["MALE", "FEMALE", "OTHER"];
   const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -83,6 +86,7 @@ const RegisterPage = () => {
       setSubmitting(true);
       const payload: ISignupForm = {
         ...data,
+        password: await encryptPassword(data.password),
         phoneNumber: data.phoneNumber.substring(3),
         isd_code: data.phoneNumber.substring(0, 3),
         dateOfBirth: data.dateOfBirth.toISOString(),
@@ -125,7 +129,7 @@ const RegisterPage = () => {
           </CardDescription>
         </CardHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} >
+          <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardContent className="space-y-2">
               <FormField
                 control={form.control}
@@ -160,11 +164,24 @@ const RegisterPage = () => {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Enter your password"
-                        {...field}
-                      />
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Enter your password"
+                          {...field}
+                        />
+                        {showPassword ? (
+                          <Eye
+                            className="absolute cursor-pointer top-2 right-2 hover:text-muted-foreground"
+                            onClick={() => setShowPassword((prev) => !prev)}
+                          />
+                        ) : (
+                          <EyeOff
+                            className="absolute cursor-pointer top-2 right-2 hover:text-muted-foreground"
+                            onClick={() => setShowPassword((prev) => !prev)}
+                          />
+                        )}
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

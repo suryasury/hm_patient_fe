@@ -223,7 +223,7 @@ const DashboardPage = () => {
             appointmentList
               .slice(0, 3)
               .map((appointment) => (
-                <AppointmentCard appointment={appointment} />
+                <AppointmentCard key={appointment.id} appointment={appointment} />
               ))
           )}
         </CardContent>
@@ -333,7 +333,7 @@ const DashboardPage = () => {
             pastAppointments
               .slice(0, 3)
               .map((appointment) => (
-                <AppointmentCard appointment={appointment} />
+                <AppointmentCard key={appointment.id} appointment={appointment} />
               ))
           )}
         </CardContent>

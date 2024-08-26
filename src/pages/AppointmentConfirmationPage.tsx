@@ -142,7 +142,7 @@ const AppointmentConfirmationPage = () => {
         hospitalId: location.state?.slot?.hospitalId,
         remarks,
         ailmentId,
-        appointmentDate: selectedDate!.toISOString(),
+        appointmentDate: format(selectedDate as Date, "yyyy-MM-dd"),
         documents: medicalReports,
       };
       const res = await createAppointment(payload);
