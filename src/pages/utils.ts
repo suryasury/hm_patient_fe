@@ -36,3 +36,17 @@ export function dirtyValues(
     ])
   );
 }
+
+export const replaceNullWithEmptyString = (obj: Record<any,any>): Record<any,any> => {
+  return Object.fromEntries(
+    Object.entries(obj as { [s: string]: string }).map(([key, value]) => {
+      if (value === null) {
+        return [key, ""];
+      } else if (typeof value === "object" && value !== null) {
+        return [key, replaceNullWithEmptyString(value)];
+      } else {
+        return [key, value];
+      }
+    })
+  );
+};

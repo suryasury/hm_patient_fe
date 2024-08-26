@@ -27,6 +27,7 @@ import { getWeekdayList } from "@/https/patients-service";
 import { setWeekdays } from "@/state/appointementReducer";
 import { setUser } from "@/state/userReducer";
 import { IloginForm, UserState } from "@/types";
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, Navigate, useNavigate } from "react-router-dom";
@@ -57,6 +58,7 @@ const LoginForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const user = useSelector((state: { user: UserState }) => state.user.user);
   const handleError = useErrorHandler();
@@ -130,7 +132,24 @@ const LoginForm = () => {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input {...field} type="password" placeholder="************" />
+                      <div className="relative">
+                        <Input
+                          {...field}
+                          type={showPassword ? "text" : "password"}
+                          placeholder="************"
+                        />
+                        {showPassword ? (
+                          <Eye
+                            className="absolute cursor-pointer top-2 right-2 hover:text-muted-foreground"
+                            onClick={() => setShowPassword((prev) => !prev)}
+                          />
+                        ) : (
+                          <EyeOff
+                            className="absolute cursor-pointer top-2 right-2 hover:text-muted-foreground"
+                            onClick={() => setShowPassword((prev) => !prev)}
+                          />
+                        )}
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

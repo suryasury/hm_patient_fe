@@ -421,7 +421,7 @@ const AppointmentDetails = () => {
                                     setSelectedDate(date);
                                     form.setValue(
                                       "appointmentDetails.appointmentDate",
-                                      (date as Date).toISOString(),
+                                      format(date as Date, "yyyy-MM-dd"),
                                       { shouldDirty: true }
                                     );
                                   }}

@@ -38,7 +38,7 @@ import Spinner from "@/components/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
-import { dirtyValues } from "./utils";
+import { dirtyValues, replaceNullWithEmptyString } from "./utils";
 
 const userSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -72,7 +72,8 @@ const Profile: React.FC = () => {
   const form = useForm<IUpdateUserProfile>({
     resolver: zodResolver(userSchema),
     defaultValues: {
-      ...user,
+      ...replaceNullWithEmptyString(user),
+      phoneNumber: `${user?.isd_code}${user?.phoneNumber}`,
     },
   });
 
@@ -83,12 +84,19 @@ const Profile: React.FC = () => {
         form.formState.dirtyFields,
         form.getValues()
       );
+      if (payload.phoneNumber) {
+        payload.isd_code = payload.phoneNumber.slice(0, 3);
+        payload.phoneNumber = payload.phoneNumber.slice(3);
+      }
       const res = await updateProfile(payload);
       if (res.status === 200) {
         toast.success("Profile updated successfully");
         const detailsRes = await getUserDetails();
         dispatch(setUser(detailsRes.data.data));
-        form.reset(detailsRes.data.data);
+        form.reset({
+          ...replaceNullWithEmptyString(detailsRes.data.data),
+          phoneNumber: `${detailsRes.data.data?.isd_code}${detailsRes.data.data?.phoneNumber}`,
+        });
       }
     } catch (error) {
       handleError(error, "Failed to update profile");
