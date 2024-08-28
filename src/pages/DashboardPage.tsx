@@ -86,11 +86,15 @@ const AppointmentCard = ({
           </div>
         </div>
         <div className="flex items-center text-sm text-muted-foreground justify-between w-full mt-2">
-          <div className="flex  items-center">
-            <Calendar className="h-4 w-4 mr-1" />
-            {new Date(appointment.appointmentDate).toLocaleDateString()}
-            <Clock className="h-4 w-4 mx-2" />
-            <p>{appointment.doctorSlots.slot.startTime}</p>
+          <div className="flex gap-2">
+            <div className="flex  items-center">
+              <Calendar className="h-4 w-4 mr-1" />
+              {new Date(appointment.appointmentDate).toLocaleDateString()}
+            </div>
+            <div className="flex  items-center">
+              <Clock className="h-4 w-4 mr-1" />
+              <p>{appointment.doctorSlots.slot.startTime}</p>
+            </div>
           </div>
           <Button
             onClick={() =>
@@ -223,7 +227,10 @@ const DashboardPage = () => {
             appointmentList
               .slice(0, 3)
               .map((appointment) => (
-                <AppointmentCard key={appointment.id} appointment={appointment} />
+                <AppointmentCard
+                  key={appointment.id}
+                  appointment={appointment}
+                />
               ))
           )}
         </CardContent>
@@ -333,7 +340,10 @@ const DashboardPage = () => {
             pastAppointments
               .slice(0, 3)
               .map((appointment) => (
-                <AppointmentCard key={appointment.id} appointment={appointment} />
+                <AppointmentCard
+                  key={appointment.id}
+                  appointment={appointment}
+                />
               ))
           )}
         </CardContent>
