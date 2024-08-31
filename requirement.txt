@@ -1,0 +1,66 @@
+patient details
+
+first,last name, gender, age, ask mobile number if not provided, email can be optional
+
+
+upcoming appointements- card
+
+1. no appointements text and book button  if there are no appointements
+2. doctor name, speciality, date and time
+
+
+
+
+prescription reminder -card:
+
+1. no precription found today if there aren't any
+2. show list of medicines to be taken with name and time, and duration
+3. view all button, to show all prescription for current date and option to view for other dates
+4. Mark taken if medicine consumed show cta
+
+
+past appointment history -card:
+1.Show the last 3 appointment histories and a feedback cta on each appointment which opens up a modal or redirects to a new page where the patient can provide feedback about the appointment and the medicine the doctors have prescribed.
+2.The view all button should redirect the user to all the past appointment page
+
+
+01/08/2024
+1. appointement history -> list of all completed -> appointment details(priscription that has been recommended by doctor)
+2. prescription -> from dashboard, need a CTA(like view todays meditaions) -> by default show the todays medication which should be seperated by time of day(morning, night etc..)
+3. user should able to see the past medications
+4. need to CTA to update the medications are taken or skiped
+
+03/08/2024
+1. move schedule to end of the card(all the screens)
+2. move todays madication above past appoinemtnts
+3. comment the skip in medication
+4. make taken as button, once user clicked on taken, then shoe the current UI.
+5. dont show the time of day is no medication available
+6. logout one session expired.
+
+backend part - image upload api, update uppointment details, update user details, cancel appointment
+
+05/08/2024
+1. show no medication available today if there is no data in the dashboard
+2. multiselect file while booking the appointment
+3. after signup, redirect to dashboard
+4. in signup page rename "Email/Mobile Number" field to "Email" as we already have the mobile number field separately
+
+06/08/2024
+
+1. Show precription recommended in appointment details for completed appointment
+2. Show feedback, star based rating and ask for remarks
+3. Add appoinment status in appointment details page
+4. Provide option to edit reviews
+5. Remove update and chnage slot buttons in appointment details
+6. Doctor remarks in patient details once appointment is completed
+7. Update profile api integration.
+8. Show no past appointments message(add message for all empty pages)
+9. change Documents -> Medical records
+10. disable past date while selecting the slots while booking add editing the appointment
+
+
+08/08/2024
+1. documenttype type api, show modal to upload file and choose type both are required if file is selected
+2. add aliment as dropdown - will provide api well
+
