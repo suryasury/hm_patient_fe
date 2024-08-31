@@ -33,6 +33,7 @@ import { setUser } from "@/state/userReducer";
 import { ISignupForm } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
+import { Eye, EyeOff } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useForm, useFormContext } from "react-hook-form";
 import { isValidPhoneNumber } from "react-phone-number-input";
@@ -42,7 +43,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 import { encryptPassword } from "./utils";
-import { Eye, EyeOff } from "lucide-react";
 
 const registerSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -151,7 +151,10 @@ const RegisterPage = () => {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your email" {...field} />
+                      <Input placeholder="Enter your email" {...field} onChange={e => {
+                        field.onChange(e.target.value);
+                        form.trigger("email")
+                      }}/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -198,6 +201,10 @@ const RegisterPage = () => {
                         defaultCountry="IN"
                         placeholder="Enter a phone number"
                         {...field}
+                        onChange={val => {
+                          field.onChange(val);
+                          form.trigger("phoneNumber")
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
@@ -213,6 +220,7 @@ const RegisterPage = () => {
                     <FormLabel>Date of Birth</FormLabel>
                     <FormControl>
                       <DatePicker
+                        disabled={{ after: new Date() }}
                         date={field.value}
                         setDate={(date) => {
                           field.onChange(date);

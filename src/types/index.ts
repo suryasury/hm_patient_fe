@@ -237,7 +237,7 @@ export interface IUpdateAppointmentDetails {
 export interface IUpdateUserProfile {
   name?: string;
   email?: string;
-  dateOfBirth?: string;
+  dateOfBirth?: string | Date;
   gender?: "MALE" | "FEMALE" | "OTHERS";
   bloodGroup?: string;
   houseNumber?: string;
@@ -248,7 +248,7 @@ export interface IUpdateUserProfile {
   pincode?: string;
   country?: string;
   phoneNumber?: string;
-  isd_code?:string
+  isd_code?: string;
 }
 
 export interface IMedicalReportType {
