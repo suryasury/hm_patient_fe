@@ -22,11 +22,13 @@ const DatePicker = ({
   setDate,
   placeholder = "Pick a date",
   disabled,
+  showReset = true,
 }: {
   date: Date | undefined;
   placeholder?: string | null | undefined;
   setDate: Dispatch<SetStateAction<Date | undefined>>;
   disabled?: React.ComponentProps<typeof Calendar>["disabled"];
+  showReset?: boolean;
 }) => {
   const [showCalender, setShowCalender] = useState(false);
 
@@ -49,7 +51,7 @@ const DatePicker = ({
               <CalendarIcon className="mr-2 h-4 w-4" />
               {date ? format(date, "PPP") : <span>{placeholder}</span>}
             </div>
-            {date ? (
+            {date && showReset ? (
               <X
                 onClick={handleReset}
                 className="h-4 w-4 hover:scale-125 ml-4"

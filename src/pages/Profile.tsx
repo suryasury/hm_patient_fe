@@ -42,11 +42,11 @@ import { dirtyValues, replaceNullWithEmptyString } from "./utils";
 
 const userSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  dateOfBirth: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: "Invalid date format",
-  }),
+  dateOfBirth: z.date({ message: "Invalid Date" }).optional(),
+  email: z.string().email("Invalid email").optional(),
   phoneNumber: z
     .string()
+    .max(13, { message: "Invalid phone number" })
     .refine(isValidPhoneNumber, { message: "Invalid phone number" })
     .or(z.literal("")),
   gender: z.enum(["MALE", "FEMALE", "OTHERS"]),
@@ -56,7 +56,7 @@ const userSchema = z.object({
   address2: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
-  pincode: z.string().optional(),
+  pincode: z.string().max(6, { message: "Enter valid pincode" }).optional(),
   country: z.string().optional(),
 });
 const Profile: React.FC = () => {
@@ -74,6 +74,7 @@ const Profile: React.FC = () => {
     defaultValues: {
       ...replaceNullWithEmptyString(user),
       phoneNumber: `${user?.isd_code}${user?.phoneNumber}`,
+      dateOfBirth: new Date(user.dateOfBirth),
     },
   });
 
@@ -200,7 +201,9 @@ const Profile: React.FC = () => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>
+                      Name<span className="text-red-500 ml-1">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input {...field} defaultValue={user.name} />
                     </FormControl>
@@ -218,12 +221,19 @@ const Profile: React.FC = () => {
                   name="phoneNumber"
                   render={({ field }) => (
                     <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
-                      <FormLabel>Phone Number</FormLabel>
+                      <FormLabel>
+                        Phone Number<span className="text-red-500 ml-1">*</span>
+                      </FormLabel>
                       <FormControl>
                         <PhoneInput
                           defaultCountry="IN"
                           placeholder="Enter a phone number"
                           {...field}
+                          countryCallingCodeEditable={false}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            form.trigger("phoneNumber");
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -235,12 +245,18 @@ const Profile: React.FC = () => {
                   name="email"
                   render={({ field }) => (
                     <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>
+                        Email<span className="text-red-500 ml-1">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           type="email"
                           defaultValue={user.email}
+                          onChange={(e) => {
+                            field.onChange(e.target.value);
+                            form.trigger("email");
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -252,7 +268,9 @@ const Profile: React.FC = () => {
                   name="gender"
                   render={({ field }) => (
                     <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4 flex flex-col gap-2">
-                      <FormLabel>Gender</FormLabel>
+                      <FormLabel>
+                        Gender<span className="text-red-500 ml-1">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Select
                           value={field.value}
@@ -285,13 +303,20 @@ const Profile: React.FC = () => {
                   name="dateOfBirth"
                   render={({ field }) => (
                     <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4">
-                      <FormLabel>Date of Birth</FormLabel>
+                      <FormLabel>
+                        Date of Birth
+                        <span className="text-red-500 ml-1">*</span>
+                      </FormLabel>
                       <FormControl>
                         <DatePicker
                           date={
                             field.value ? new Date(field.value) : new Date()
                           }
-                          setDate={field.onChange}
+                          setDate={(val) => {
+                            field.onChange(val);
+                            form.trigger("dateOfBirth");
+                          }}
+                          showReset={false}
                         />
                       </FormControl>
                       <FormMessage />
@@ -303,7 +328,9 @@ const Profile: React.FC = () => {
                   name="bloodGroup"
                   render={({ field }) => (
                     <FormItem className="w-full md:w-1/2 lg:w-1/4 mb-4 flex flex-col gap-2">
-                      <FormLabel>Blood Group</FormLabel>
+                      <FormLabel>
+                        Blood Group<span className="text-red-500 ml-1">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Select
                           value={field.value}
@@ -416,6 +443,15 @@ const Profile: React.FC = () => {
                       <FormControl>
                         <Input
                           {...field}
+                          value={field.value}
+                          onChange={(e) => {
+                            if (
+                              // eslint-disable-next-line
+                              /^[0-9]{0,6}$/.test(e.target.value) ||
+                              e.target.value === ""
+                            )
+                              field.onChange(e.target.value);
+                          }}
                           defaultValue={user?.address?.pincode}
                         />
                       </FormControl>
