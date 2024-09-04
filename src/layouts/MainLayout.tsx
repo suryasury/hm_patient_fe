@@ -35,7 +35,7 @@ const DashboardLayout = () => {
         <div className="flex-1 ">
           <img
             src={logo}
-            className="w-12 h-12 aspect-square object-fit"
+            className="w-[100px] h-[50px] mb-3"
             onClick={() => navigate(APP_ROUTES.DASHBOARD)}
           />
         </div>
