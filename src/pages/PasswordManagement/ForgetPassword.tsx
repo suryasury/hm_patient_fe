@@ -31,6 +31,7 @@ import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
+import logo from "@/assets/hms-logo.jpeg";
 
 const resetPasswordSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -55,7 +56,7 @@ const ForgetPassword: React.FC = () => {
   }
 
   const onSubmit: SubmitHandler<IResetPasswordForm> = async (
-    data: IResetPasswordForm
+    data: IResetPasswordForm,
   ) => {
     try {
       setSubmitting(true);
@@ -78,8 +79,11 @@ const ForgetPassword: React.FC = () => {
 
   return (
     <section className="flex justify-center items-center">
-      {submitted ? (
-        <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md border-none shadow-none items-center">
+        <div className="flex justify-center items-center mb-[30px]">
+          <img src={logo} width={"200px"} height={"100px"} />
+        </div>
+        {submitted ? (
           <CardContent className="text-center mt-8">
             <div className="flex items-center justify-center mb-4">
               <CheckCircle className="w-12 h-12 text-green-500" />
@@ -88,52 +92,61 @@ const ForgetPassword: React.FC = () => {
               Check your email for a password reset link.
             </p>
           </CardContent>
-        </Card>
-      ) : (
-        <Card className="w-full max-w-sm">
-          <CardHeader>
-            <CardTitle className="text-2xl">Reset Password</CardTitle>
-            <CardDescription>
-              Enter your email to receive a password reset link.
-            </CardDescription>
-          </CardHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-              <CardContent className="grid gap-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Address</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="example@example.com"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-              <CardFooter className="flex-col">
-                <Button type="submit" className="w-full" disabled={submitting}>
-                  {submitting ? (
-                    <>
-                      <Spinner type="light" />
-                      Please wait...
-                    </>
-                  ) : (
-                    "Send Reset Link"
-                  )}
-                </Button>
-              </CardFooter>
-            </form>
-          </Form>
-        </Card>
-      )}
+        ) : (
+          <>
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl">Reset Password</CardTitle>
+              <CardDescription>
+                Enter your email to receive a password reset link.
+              </CardDescription>
+            </CardHeader>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-2"
+              >
+                <CardContent className="grid gap-4">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Email Address <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="example@example.com"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+                <CardFooter className="flex-col">
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={submitting}
+                  >
+                    {submitting ? (
+                      <>
+                        <Spinner type="light" />
+                        Please wait...
+                      </>
+                    ) : (
+                      "Send Reset Link"
+                    )}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Form>
+          </>
+        )}
+      </Card>
     </section>
   );
 };

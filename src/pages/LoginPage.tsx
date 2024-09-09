@@ -34,6 +34,8 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 import { encryptPassword } from "./utils";
+import logo from "@/assets/hms-logo.jpeg";
+import { TERMS_AND_POLICIES } from "@/https/constants";
 
 const emailOrPhoneSchema = z.string().refine(
   (value) => {
@@ -43,7 +45,7 @@ const emailOrPhoneSchema = z.string().refine(
   },
   {
     message: "Enter valid email address or  phone number",
-  }
+  },
 );
 
 const loginSchema = z.object({
@@ -102,14 +104,23 @@ const LoginForm = () => {
   };
 
   return (
-    <section className="flex justify-center items-center">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">Welcome</CardTitle>
-          <CardDescription>Log in to your account</CardDescription>
+    <section className="flex items-center justify-center w-full">
+      <Card className="w-full max-w-md border-none shadow-none items-center">
+        <CardHeader className="text-center">
+          <div className="flex justify-center items-center mb-[30px]">
+            <img src={logo} width={"200px"} height={"100px"} />
+          </div>
+
+          <CardTitle className="text-3xl">Sign in</CardTitle>
+          <CardDescription className="text-[16px] text-muted-foreground">
+            Enter your email or mobile number below to login to your account
+          </CardDescription>
         </CardHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            // className="space-y-2"
+          >
             <CardContent className="grid gap-4">
               <FormField
                 control={form.control}
@@ -132,7 +143,17 @@ const LoginForm = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Password</FormLabel>
+                      <div className="flex gap-2 items-center text-center justify-center text-sm">
+                        <Link
+                          to={APP_ROUTES.FORGET_PASSWORD}
+                          className="underline m-0 p-0"
+                        >
+                          Forgot Your Password?
+                        </Link>
+                      </div>
+                    </div>
                     <FormControl>
                       <div className="relative">
                         <Input
@@ -158,6 +179,32 @@ const LoginForm = () => {
                 )}
               />
             </CardContent>
+            <CardContent>
+              <p className="text-muted-foreground text-[15px] text-center">
+                By signing in to this app you agree to our{" "}
+                <span>
+                  <a
+                    href={TERMS_AND_POLICIES.TERMS_OF_SERVICE}
+                    className="text-blue-500 underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Terms of Service
+                  </a>
+                </span>{" "}
+                and have read and acknowledge the{" "}
+                <span>
+                  <a
+                    href={TERMS_AND_POLICIES.PRIVACY_POLICY}
+                    className="text-blue-500 underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Privacy Policy
+                  </a>
+                </span>
+              </p>
+            </CardContent>
             <CardFooter className="flex-col">
               <Button type="submit" className="w-full" disabled={submitting}>
                 {submitting ? (
@@ -169,15 +216,7 @@ const LoginForm = () => {
                   "Sign in"
                 )}
               </Button>
-              <div className="mt-4 self-start flex gap-2 items-center justifu-center text-sm">
-                <Link
-                  to={APP_ROUTES.FORGET_PASSWORD}
-                  className="underline m-0 p-0"
-                >
-                  Forgot Password?
-                </Link>
-              </div>
-              <div className="mt-4 self-start flex gap-2 items-center justifu-center text-sm">
+              <div className="mt-4 flex gap-2 items-center text-center justify-center text-sm">
                 <span>Don&apos;t have an account?</span>
                 <Link to={APP_ROUTES.REGISTER} className="underline m-0 p-0">
                   Sign up

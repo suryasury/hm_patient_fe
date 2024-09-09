@@ -31,6 +31,7 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 import { encryptPassword } from "../utils";
+import logo from "@/assets/hms-logo.jpeg";
 
 const newPasswordSchema = z
   .object({
@@ -68,7 +69,7 @@ const ResetPassword: React.FC = () => {
   }
 
   const onSubmit: SubmitHandler<IResetPasswordForm> = async (
-    data: IResetPasswordForm
+    data: IResetPasswordForm,
   ) => {
     try {
       setSubmitting(true);
@@ -90,8 +91,11 @@ const ResetPassword: React.FC = () => {
 
   return (
     <section className="flex justify-center items-center">
-      {submitted ? (
-        <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md border-none shadow-none items-center">
+        <div className="flex justify-center items-center mb-[30px]">
+          <img src={logo} width={"200px"} height={"100px"} />
+        </div>
+        {submitted ? (
           <CardContent className="text-center mt-8">
             <div className="flex items-center justify-center mb-4">
               <CheckCircle className="w-12 h-12 text-green-500" />
@@ -106,101 +110,110 @@ const ResetPassword: React.FC = () => {
               Go to Login
             </Button>
           </CardContent>
-        </Card>
-      ) : (
-        <Card className="w-full max-w-sm">
-          <CardHeader>
-            <CardTitle className="text-2xl">Set New Password</CardTitle>
-            <CardDescription>
-              Enter your new password and confirm it below.
-            </CardDescription>
-          </CardHeader>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-2"
-              autoComplete="off"
-            >
-              <CardContent className="grid gap-4">
-                <FormField
-                  control={form.control}
-                  name="newPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>New Password</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showPassword ? "text" : "password"}
-                            placeholder="************"
-                            autoComplete="new-password"
-                            {...field}
-                          />
-                          {showPassword ? (
-                            <Eye
-                              className="absolute cursor-pointer top-2 right-2 hover:text-muted-foreground"
-                              onClick={() => setShowPassword((prev) => !prev)}
+        ) : (
+          <>
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl">Set New Password</CardTitle>
+              <CardDescription>
+                Enter your new password and confirm it below.
+              </CardDescription>
+            </CardHeader>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-2"
+                autoComplete="off"
+              >
+                <CardContent className="grid gap-4">
+                  <FormField
+                    control={form.control}
+                    name="newPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          New Password <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="************"
+                              autoComplete="new-password"
+                              {...field}
                             />
-                          ) : (
-                            <EyeOff
-                              className="absolute cursor-pointer top-2 right-2 hover:text-muted-foreground"
-                              onClick={() => setShowPassword((prev) => !prev)}
+                            {showPassword ? (
+                              <Eye
+                                className="absolute cursor-pointer top-2 right-2 hover:text-muted-foreground"
+                                onClick={() => setShowPassword((prev) => !prev)}
+                              />
+                            ) : (
+                              <EyeOff
+                                className="absolute cursor-pointer top-2 right-2 hover:text-muted-foreground"
+                                onClick={() => setShowPassword((prev) => !prev)}
+                              />
+                            )}
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Confirm Password{" "}
+                          <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="************"
+                              autoComplete="off"
+                              {...field}
                             />
-                          )}
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showPassword ? "text" : "password"}
-                            placeholder="************"
-                            autoComplete="off"
-                            {...field}
-                          />
-                          {showPassword ? (
-                            <Eye
-                              className="absolute cursor-pointer top-2 right-2 hover:text-muted-foreground"
-                              onClick={() => setShowPassword((prev) => !prev)}
-                            />
-                          ) : (
-                            <EyeOff
-                              className="absolute cursor-pointer top-2 right-2 hover:text-muted-foreground"
-                              onClick={() => setShowPassword((prev) => !prev)}
-                            />
-                          )}
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-              <CardFooter className="flex-col">
-                <Button type="submit" className="w-full" disabled={submitting}>
-                  {submitting ? (
-                    <>
-                      <Spinner type="light" />
-                      Please wait...
-                    </>
-                  ) : (
-                    "Reset Password"
-                  )}
-                </Button>
-              </CardFooter>
-            </form>
-          </Form>
-        </Card>
-      )}
+                            {showPassword ? (
+                              <Eye
+                                className="absolute cursor-pointer top-2 right-2 hover:text-muted-foreground"
+                                onClick={() => setShowPassword((prev) => !prev)}
+                              />
+                            ) : (
+                              <EyeOff
+                                className="absolute cursor-pointer top-2 right-2 hover:text-muted-foreground"
+                                onClick={() => setShowPassword((prev) => !prev)}
+                              />
+                            )}
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+                <CardFooter className="flex-col">
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={submitting}
+                  >
+                    {submitting ? (
+                      <>
+                        <Spinner type="light" />
+                        Please wait...
+                      </>
+                    ) : (
+                      "Reset Password"
+                    )}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Form>
+          </>
+        )}
+      </Card>
     </section>
   );
 };

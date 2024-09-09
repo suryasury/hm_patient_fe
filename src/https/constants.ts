@@ -16,9 +16,14 @@ export const API_END_POINTS = {
   SUBMIT_FEEDBACK: "user/appointment/feedback",
   AILMENT_LIST: "user/ailment/list",
   REPORT_TYPE_LIST: "user/documenttype/list",
-  UPDATE_APPOINTMENT:"user/appointment/update",
-  UPDATE_PROFILE:"user/profile/details/update",
+  UPDATE_APPOINTMENT: "user/appointment/update",
+  UPDATE_PROFILE: "user/profile/details/update",
 
   RESET_PASSWORD_EMAIL: "user/forgot-password/email/request",
   RESET_PASSWORD: "user/reset-password",
+};
+
+export const TERMS_AND_POLICIES = {
+  PRIVACY_POLICY: "https://siddhacure.com/privacy-policy/",
+  TERMS_OF_SERVICE: "https://siddhacure.com/terms-and-conditions/",
 };

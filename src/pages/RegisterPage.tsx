@@ -43,6 +43,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 import { encryptPassword } from "./utils";
+import logo from "@/assets/hms-logo.jpeg";
+import { TERMS_AND_POLICIES } from "@/https/constants";
 
 const registerSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -114,17 +116,20 @@ const RegisterPage = () => {
     }
   };
   const handleDateChange: Dispatch<SetStateAction<Date | undefined>> = (
-    date
+    date,
   ) => {
     formCtx?.setValue("dateOfBirth", date);
   };
 
   return (
     <section className="flex items-center justify-center">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">Sign up</CardTitle>
-          <CardDescription>
+      <Card className="w-full max-w-md border-none shadow-none items-center">
+        <CardHeader className="text-center">
+          <div className="flex justify-center items-center mb-[30px]">
+            <img src={logo} width={"200px"} height={"100px"} />
+          </div>
+          <CardTitle className="text-3xl">Create an account</CardTitle>
+          <CardDescription className="text-[16px] text-muted-foreground">
             Enter your information to create an account
           </CardDescription>
         </CardHeader>
@@ -136,7 +141,9 @@ const RegisterPage = () => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>
+                      Name <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="Enter your name" {...field} />
                     </FormControl>
@@ -149,12 +156,18 @@ const RegisterPage = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>
+                      Email <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your email" {...field} onChange={e => {
-                        field.onChange(e.target.value);
-                        form.trigger("email")
-                      }}/>
+                      <Input
+                        placeholder="Enter your email"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          form.trigger("email");
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -165,7 +178,9 @@ const RegisterPage = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>
+                      Password <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input
@@ -195,15 +210,17 @@ const RegisterPage = () => {
                 name="phoneNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
+                    <FormLabel>
+                      Phone Number <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <PhoneInput
                         defaultCountry="IN"
                         placeholder="Enter a phone number"
                         {...field}
-                        onChange={val => {
+                        onChange={(val) => {
                           field.onChange(val);
-                          form.trigger("phoneNumber")
+                          form.trigger("phoneNumber");
                         }}
                       />
                     </FormControl>
@@ -217,7 +234,9 @@ const RegisterPage = () => {
                 name="dateOfBirth"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Date of Birth</FormLabel>
+                    <FormLabel>
+                      Date of Birth <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <DatePicker
                         disabled={{ after: new Date() }}
@@ -238,7 +257,9 @@ const RegisterPage = () => {
                 name="gender"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Gender</FormLabel>
+                    <FormLabel>
+                      Gender <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Select
                         value={field.value}
@@ -271,7 +292,9 @@ const RegisterPage = () => {
                 name="bloodGroup"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Blood Group</FormLabel>
+                    <FormLabel>
+                      Blood Group <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Select
                         value={field.value}
@@ -295,6 +318,32 @@ const RegisterPage = () => {
                   </FormItem>
                 )}
               />
+            </CardContent>
+            <CardContent>
+              <p className="text-muted-foreground text-[15px] text-center">
+                By creating an account, you agree to our{" "}
+                <span>
+                  <a
+                    href={TERMS_AND_POLICIES.TERMS_OF_SERVICE}
+                    className="text-blue-500 underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Terms of Service
+                  </a>
+                </span>{" "}
+                and have read and acknowledge the{" "}
+                <span>
+                  <a
+                    href={TERMS_AND_POLICIES.PRIVACY_POLICY}
+                    className="text-blue-500 underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Privacy Policy
+                  </a>
+                </span>
+              </p>
             </CardContent>
 
             <CardFooter className="flex-col w-full">
