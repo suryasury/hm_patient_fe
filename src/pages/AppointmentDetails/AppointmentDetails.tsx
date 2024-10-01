@@ -70,6 +70,7 @@ import { dirtyValues, getWeekdayId, statusClasses } from "../utils";
 import Feedback from "./Feedback";
 import PatientDetails from "./PatientDetails";
 import Prescription from "./Prescription";
+import PostTreatmentReports from "./PostTreatmentReports";
 
 const updateAppoitmentSchema = z.object({
   appointmentDetails: z
@@ -85,7 +86,7 @@ const updateAppoitmentSchema = z.object({
       z.object({
         id: z.string().min(1),
         bucketPath: z.string().min(1),
-      })
+      }),
     )
     .optional(),
   documents: z
@@ -97,7 +98,7 @@ const updateAppoitmentSchema = z.object({
         contentType: z.string(),
         fileExtension: z.string(),
         documentTypeId: z.string(),
-      })
+      }),
     )
     .optional(),
 });
@@ -118,10 +119,10 @@ const AppointmentDetails = () => {
   const [submitting, setSubmitting] = useState<boolean>(false);
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    new Date()
+    new Date(),
   );
   const weekdays = useSelector(
-    (state: { appointment: IAppointmentState }) => state.appointment.weekdays
+    (state: { appointment: IAppointmentState }) => state.appointment.weekdays,
   );
 
   const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -153,7 +154,7 @@ const AppointmentDetails = () => {
       setSubmitting(true);
       const payload: IUpdateAppointmentDetails = dirtyValues(
         form.formState.dirtyFields,
-        form.getValues()
+        form.getValues(),
       );
       console.log(payload, "payload");
       const res = await updateAppointment(payload, appointmentDetails!.id);
@@ -229,7 +230,7 @@ const AppointmentDetails = () => {
       if (weekdayId) {
         const res = await getDoctorSlots(
           appointmentDetails!.doctor?.id,
-          weekdayId
+          weekdayId,
         );
         const formattedData = (slot: { id: string; slot: ISlot }) => ({
           id: slot.id,
@@ -365,7 +366,7 @@ const AppointmentDetails = () => {
                         <span className="ml-2  font-medium">
                           {format(
                             selectedDate ? new Date(selectedDate) : new Date(),
-                            "dd/MM/yyyy"
+                            "dd/MM/yyyy",
                           )}
                         </span>
                       </p>
@@ -390,13 +391,13 @@ const AppointmentDetails = () => {
                             setShowChangeTimeDialog(isOpen);
                             !timeSlots.isSlotAvailable &&
                               setSelectedDate(
-                                new Date(appointmentDetails!.appointmentDate)
+                                new Date(appointmentDetails!.appointmentDate),
                               );
 
                             form.setValue(
                               "appointmentDetails.appointmentDate",
                               appointmentDetails!.appointmentDate,
-                              { shouldDirty: true }
+                              { shouldDirty: true },
                             );
                           }}
                         >
@@ -422,7 +423,7 @@ const AppointmentDetails = () => {
                                     form.setValue(
                                       "appointmentDetails.appointmentDate",
                                       format(date as Date, "yyyy-MM-dd"),
-                                      { shouldDirty: true }
+                                      { shouldDirty: true },
                                     );
                                   }}
                                 />
@@ -441,7 +442,7 @@ const AppointmentDetails = () => {
                                       form.setValue(
                                         "appointmentDetails.doctorSlotId",
                                         slot.id,
-                                        { shouldDirty: true }
+                                        { shouldDirty: true },
                                       );
                                     }}
                                     short={true}
@@ -534,26 +535,36 @@ const AppointmentDetails = () => {
                 <Prescription appointmentDetails={appointmentDetails} />
               )}
             </div>
-            {appointmentDetails && (
-              <PatientDetails
-                appointmentDetails={appointmentDetails}
-                isEdit={isEdit}
-                handleEdit={handleEdit}
-                submitting={submitting}
-                onSubmit={handleUpdateAppointement}
-                form={form}
-                hospitalId={
-                  appointmentDetails ? appointmentDetails.hospitalId : ""
-                }
-                isReset={isReset}
-              />
-            )}
-            {appointmentDetails?.appointmentStatus === "COMPLETED" && (
-              <Feedback
-                appointmentDetails={appointmentDetails}
-                fetchAppointmentDetails={fetchAppointmentDetails}
-              />
-            )}
+            <div className="w-full sm:w-[50%] h-fit">
+              {appointmentDetails && (
+                <PatientDetails
+                  appointmentDetails={appointmentDetails}
+                  isEdit={isEdit}
+                  handleEdit={handleEdit}
+                  submitting={submitting}
+                  onSubmit={handleUpdateAppointement}
+                  form={form}
+                  hospitalId={
+                    appointmentDetails ? appointmentDetails.hospitalId : ""
+                  }
+                  isReset={isReset}
+                />
+              )}
+            </div>
+            <div className="w-full sm:w-[50%] h-fit flex items-center flex-col flex-auto gap-4">
+              {appointmentDetails?.appointmentStatus === "COMPLETED" && (
+                <PostTreatmentReports
+                  appointmentDetails={appointmentDetails}
+                  fetchAppointmentDetails={fetchAppointmentDetails}
+                />
+              )}
+              {appointmentDetails?.appointmentStatus === "COMPLETED" && (
+                <Feedback
+                  appointmentDetails={appointmentDetails}
+                  fetchAppointmentDetails={fetchAppointmentDetails}
+                />
+              )}
+            </div>
           </div>
         </>
       )}

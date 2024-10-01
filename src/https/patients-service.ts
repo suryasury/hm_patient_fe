@@ -67,7 +67,7 @@ export const getMedications = async (date?: string) => {
 };
 
 export const updatePrescriptionTaken = async (
-  payload: IUpdatePrescriptionTakenPayload
+  payload: IUpdatePrescriptionTakenPayload,
 ) => {
   try {
     return api.patch(API_END_POINTS.UPDATE_MEDICATION_TAKEN, payload);
@@ -112,7 +112,7 @@ export const editFeedback = async (payload: any, feedbackId: string) => {
   try {
     return api.patch(
       API_END_POINTS.SUBMIT_FEEDBACK + `/${feedbackId}`,
-      payload
+      payload,
     );
   } catch (error) {
     throw error;
@@ -135,14 +135,37 @@ export const getReportTypeList = async (hostpitalId: string) => {
   }
 };
 
+export const uploadPostTreatmentReport = async (
+  data: FormData,
+  patientId: string,
+  documentTypeId: string,
+  appointmentId: string,
+) => {
+  return api.post(
+    API_END_POINTS.UPLOAD_POST_TREATMENT_REPORT +
+      `/${patientId}/${documentTypeId}/${appointmentId}`,
+    data,
+  );
+};
+
+export const deletePostTreatmentDocument = async (
+  documentId: string,
+  appointmentId: string,
+) => {
+  return api.delete(
+    API_END_POINTS.DELETE_POST_TREATMENT_REPORT +
+      `/${appointmentId}/${documentId}`,
+  );
+};
+
 export const updateAppointment = async (
   payload: IUpdateAppointmentDetails,
-  appointmentId: string
+  appointmentId: string,
 ) => {
   try {
     return api.patch(
       `${API_END_POINTS.UPDATE_APPOINTMENT}/${appointmentId}`,
-      payload
+      payload,
     );
   } catch (error) {
     throw error;

@@ -18,6 +18,8 @@ export const API_END_POINTS = {
   REPORT_TYPE_LIST: "user/documenttype/list",
   UPDATE_APPOINTMENT: "user/appointment/update",
   UPDATE_PROFILE: "user/profile/details/update",
+  UPLOAD_POST_TREATMENT_REPORT: "common/patient/upload/records/posttreatment",
+  DELETE_POST_TREATMENT_REPORT: "user/appointment/record/posttreatment",
 
   RESET_PASSWORD_EMAIL: "user/forgot-password/email/request",
   RESET_PASSWORD: "user/reset-password",

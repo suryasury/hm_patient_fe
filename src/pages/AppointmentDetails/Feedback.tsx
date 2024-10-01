@@ -21,7 +21,7 @@ const Feedback = ({
 }: FeedbackComponentProps) => {
   const [feedback, setFeedback] = useState({
     rating: Number(
-      appointmentDetails?.appointmentFeedbacks?.overallSatisfaction ?? 0
+      appointmentDetails?.appointmentFeedbacks?.overallSatisfaction ?? 0,
     ),
     remarks: appointmentDetails?.appointmentFeedbacks?.feedBackRemarks ?? "",
     feedbackId: "",
@@ -66,7 +66,6 @@ const Feedback = ({
       await editFeedback(payload, appointmentDetails!.appointmentFeedbacks!.id);
       toast.success("Feedback edited successfully!");
       await fetchAppointmentDetails();
-
     } catch (error) {
       handleError(error, "Failed to edit feedback");
     } finally {
@@ -82,7 +81,7 @@ const Feedback = ({
   };
 
   return (
-    <div className="w-full sm:w-[50%] h-fit">
+    <div className="w-full h-fit">
       <Card>
         <CardHeader>
           <CardTitle>

@@ -132,6 +132,16 @@ export interface IAppointmentResponse {
   isFeedbackProvided: boolean;
   appointmentFeedbacks: Record<string, string>;
   patientPrescription: IPrescription[];
+  postTreatmentDocuments: {
+    id: string;
+    fileName: string;
+    fileUrl: string;
+    signedUrl: string;
+    bucketPath: string;
+    documentName: string;
+    fileExtension: string;
+    documentTypes: IMedicalReportType;
+  }[];
 }
 
 export interface IMedicationStock {

@@ -59,7 +59,7 @@ const PatientDetails = ({
   isReset,
 }: PatientDetailsComponentProps) => {
   const [medicalReports, setMedicalReports] = useState<IMedicalReport[]>(
-    appointmentDetails?.patientAppointmentDocs || []
+    appointmentDetails?.patientAppointmentDocs || [],
   );
 
   const [loadingReport, setLoadingReport] = useState<boolean>(true);
@@ -85,7 +85,7 @@ const PatientDetails = ({
     e: React.MouseEvent,
     file: any,
     field: any,
-    index: number
+    index: number,
   ) => {
     if (isAvailableInAppointmentDocs(file)) {
       field.onChange([
@@ -117,7 +117,7 @@ const PatientDetails = ({
   }, [isReset]);
 
   return (
-    <div className="w-full sm:w-[50%]">
+    <div className="w-full">
       <Card>
         <CardHeader>
           <CardTitle>
@@ -227,7 +227,7 @@ const PatientDetails = ({
                                                 e,
                                                 file,
                                                 field,
-                                                index
+                                                index,
                                               )
                                             }
                                           />
@@ -252,7 +252,7 @@ const PatientDetails = ({
                                           )}
                                           <object
                                             data={`https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(
-                                              file.signedUrl
+                                              file.signedUrl,
                                             )}`}
                                             className="w-full h-full border-none"
                                             style={{ minHeight: "600px" }}
